@@ -1709,13 +1709,13 @@ class ScientificObjectsApi(object):
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
 
-    def validate_csv2(self, description, file, **kwargs):  # noqa: E501
+    def validate_csv1(self, description, file, **kwargs):  # noqa: E501
         """Validate a CSV file for the given experiment URI and scientific object type.  # noqa: E501
 
           # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.validate_csv2(description, file, async_req=True)
+        >>> thread = api.validate_csv1(description, file, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
@@ -1729,18 +1729,18 @@ class ScientificObjectsApi(object):
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('async_req'):
-            return self.validate_csv2_with_http_info(description, file, **kwargs)  # noqa: E501
+            return self.validate_csv1_with_http_info(description, file, **kwargs)  # noqa: E501
         else:
-            (data) = self.validate_csv2_with_http_info(description, file, **kwargs)  # noqa: E501
+            (data) = self.validate_csv1_with_http_info(description, file, **kwargs)  # noqa: E501
             return data
 
-    def validate_csv2_with_http_info(self, description, file, **kwargs):  # noqa: E501
+    def validate_csv1_with_http_info(self, description, file, **kwargs):  # noqa: E501
         """Validate a CSV file for the given experiment URI and scientific object type.  # noqa: E501
 
           # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.validate_csv2_with_http_info(description, file, async_req=True)
+        >>> thread = api.validate_csv1_with_http_info(description, file, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
@@ -1764,18 +1764,18 @@ class ScientificObjectsApi(object):
             if key not in all_params:
                 raise TypeError(
                     "Got an unexpected keyword argument '%s'"
-                    " to method validate_csv2" % key
+                    " to method validate_csv1" % key
                 )
             params[key] = val
         del params['kwargs']
         # verify the required parameter 'description' is set
         if ('description' not in params or
                 params['description'] is None):
-            raise ValueError("Missing the required parameter `description` when calling `validate_csv2`")  # noqa: E501
+            raise ValueError("Missing the required parameter `description` when calling `validate_csv1`")  # noqa: E501
         # verify the required parameter 'file' is set
         if ('file' not in params or
                 params['file'] is None):
-            raise ValueError("Missing the required parameter `file` when calling `validate_csv2`")  # noqa: E501
+            raise ValueError("Missing the required parameter `file` when calling `validate_csv1`")  # noqa: E501
 
         collection_formats = {}
 

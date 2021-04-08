@@ -16,12 +16,12 @@ from __future__ import absolute_import
 import unittest
 
 import opensilexClientTools
-from opensilexClientTools.models.data_file_creation_dto import DataFileCreationDTO  # noqa: E501
+from opensilexClientTools.models.ur_is_list_post_dto import URIsListPostDTO  # noqa: E501
 from opensilexClientTools.rest import ApiException
 
 
-class TestDataFileCreationDTO(unittest.TestCase):
-    """DataFileCreationDTO unit test stubs"""
+class TestURIsListPostDTO(unittest.TestCase):
+    """URIsListPostDTO unit test stubs"""
 
     def setUp(self):
         pass
@@ -29,10 +29,10 @@ class TestDataFileCreationDTO(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def testDataFileCreationDTO(self):
-        """Test DataFileCreationDTO"""
+    def testURIsListPostDTO(self):
+        """Test URIsListPostDTO"""
         # FIXME: construct object with mandatory attributes with example values
-        # model = opensilexClientTools.models.data_file_creation_dto.DataFileCreationDTO()  # noqa: E501
+        # model = opensilexClientTools.models.ur_is_list_post_dto.URIsListPostDTO()  # noqa: E501
         pass
 
 

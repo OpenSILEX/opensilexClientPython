@@ -39,7 +39,7 @@ class TestOntologyApi(unittest.TestCase):
     def test_check_ur_is_types(self):
         """Test case for check_ur_is_types
 
-          # noqa: E501
+        Check the given rdf-types on the given uris  # noqa: E501
         """
         pass
 

@@ -13,8 +13,8 @@ Name | Type | Description | Notes
 **targets** | **list[str]** | URI(s) of items concerned by this event | [optional] 
 **author** | **str** | Event creator URI | [optional] 
 **relations** | [**list[RDFObjectRelationDTO]**](RDFObjectRelationDTO.md) |  | [optional] 
-**_from** | [**InfrastructureFacilityNamedDto**](InfrastructureFacilityNamedDto.md) |  | [optional] 
-**to** | [**InfrastructureFacilityNamedDto**](InfrastructureFacilityNamedDto.md) |  | [optional] 
+**_from** | [**InfrastructureFacilityNamedDTO**](InfrastructureFacilityNamedDTO.md) |  | [optional] 
+**to** | [**InfrastructureFacilityNamedDTO**](InfrastructureFacilityNamedDTO.md) |  | [optional] 
 **targets_positions** | [**list[ConcernedItemPositionGetDTO]**](ConcernedItemPositionGetDTO.md) |  | [optional] 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

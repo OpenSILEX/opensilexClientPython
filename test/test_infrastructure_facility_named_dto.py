@@ -16,12 +16,12 @@ from __future__ import absolute_import
 import unittest
 
 import opensilexClientTools
-from opensilexClientTools.models.infrastructure_facility_named_dto import InfrastructureFacilityNamedDto  # noqa: E501
+from opensilexClientTools.models.infrastructure_facility_named_dto import InfrastructureFacilityNamedDTO  # noqa: E501
 from opensilexClientTools.rest import ApiException
 
 
-class TestInfrastructureFacilityNamedDto(unittest.TestCase):
-    """InfrastructureFacilityNamedDto unit test stubs"""
+class TestInfrastructureFacilityNamedDTO(unittest.TestCase):
+    """InfrastructureFacilityNamedDTO unit test stubs"""
 
     def setUp(self):
         pass
@@ -29,10 +29,10 @@ class TestInfrastructureFacilityNamedDto(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def testInfrastructureFacilityNamedDto(self):
-        """Test InfrastructureFacilityNamedDto"""
+    def testInfrastructureFacilityNamedDTO(self):
+        """Test InfrastructureFacilityNamedDTO"""
         # FIXME: construct object with mandatory attributes with example values
-        # model = opensilexClientTools.models.infrastructure_facility_named_dto.InfrastructureFacilityNamedDto()  # noqa: E501
+        # model = opensilexClientTools.models.infrastructure_facility_named_dto.InfrastructureFacilityNamedDTO()  # noqa: E501
         pass
 
 

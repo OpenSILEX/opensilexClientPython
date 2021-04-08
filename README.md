@@ -17,9 +17,9 @@ Python 2.7 and 3.4+
 If the python package is hosted on Github, you can install directly from Github
 
 ```sh
-pip install git+https://github.com/GIT_USER_ID/GIT_REPO_ID.git
+pip install git+https://github.com/OpenSILEX/opensilexPythonClient.git
 ```
-(you may need to run `pip` with root permission: `sudo pip install git+https://github.com/GIT_USER_ID/GIT_REPO_ID.git`)
+(you may need to run `pip` with root permission: `sudo pip install git+https://github.com/OpenSILEX/opensilexPythonClient.git`)
 
 Then import the package:
 ```python
@@ -50,23 +50,20 @@ import time
 import opensilexClientTools
 from opensilexClientTools.rest import ApiException
 from pprint import pprint
-
 # usage of a created instance of the API class
 pythonClient = opensilexClientTools.ApiClient()
-pythonClient.connect_to_opensilex_ws(username="guest@opensilex.org",password="guest",host="{WS_REST_ENPOINT}") # e.g http://localhost:8666/rest
+pythonClient.connect_to_opensilex_ws(username="guest@opensilex.org",password="guest",host="https://localhost")
 
 api_instance = opensilexClientTools.AnnotationsApi(pythonClient)
-authorization = 'authorization_example' # str | Authentication token
 target = '\"http://www.opensilex.org/demo/2018/o18000076\"' # str | Target URI (optional)
 accept_language = '\"en\"' # str | Request accepted language (optional)
 
 try:
     # Count annotations
-    api_response = api_instance.count_annotations(authorization, target=target, accept_language=accept_language)
+    api_response = api_instance.count_annotations(target=target, accept_language=accept_language)
     pprint(api_response)
 except ApiException as e:
     print("Exception when calling AnnotationsApi->count_annotations: %s\n" % e)
-
 ```
 
 ## Documentation for API Endpoints
@@ -123,12 +120,13 @@ Class | Method | HTTP request | Description
 *DevicesApi* | [**create_device**](docs/DevicesApi.md#create_device) | **POST** /core/devices | Create a device
 *DevicesApi* | [**delete_device**](docs/DevicesApi.md#delete_device) | **DELETE** /core/devices/{uri} | Delete a device
 *DevicesApi* | [**export_devices**](docs/DevicesApi.md#export_devices) | **GET** /core/devices/export | export devices
-*DevicesApi* | [**export_list**](docs/DevicesApi.md#export_list) | **GET** /core/devices/exportList | export devices
+*DevicesApi* | [**export_list**](docs/DevicesApi.md#export_list) | **POST** /core/devices/export_by_uris | export devices
 *DevicesApi* | [**get_device**](docs/DevicesApi.md#get_device) | **GET** /core/devices/{uri} | Get device detail
 *DevicesApi* | [**get_device_data_files_provenances**](docs/DevicesApi.md#get_device_data_files_provenances) | **GET** /core/devices/{uri}/datafiles/provenances | Get provenances of datafiles linked to this device
 *DevicesApi* | [**get_device_data_provenances**](docs/DevicesApi.md#get_device_data_provenances) | **GET** /core/devices/{uri}/data/provenances | Get provenances of data that have been measured on this device
 *DevicesApi* | [**get_device_variables**](docs/DevicesApi.md#get_device_variables) | **GET** /core/devices/{uri}/variables | Get variables measured by the device
 *DevicesApi* | [**search_device_data**](docs/DevicesApi.md#search_device_data) | **GET** /core/devices/{uri}/data | Search device data
+*DevicesApi* | [**search_device_datafiles**](docs/DevicesApi.md#search_device_datafiles) | **GET** /core/devices/{uri}/datafiles | Search device datafiles descriptions
 *DevicesApi* | [**search_devices**](docs/DevicesApi.md#search_devices) | **GET** /core/devices | Search devices
 *DevicesApi* | [**update_device**](docs/DevicesApi.md#update_device) | **PUT** /core/devices | Update a device
 *DocumentsApi* | [**create_document**](docs/DocumentsApi.md#create_document) | **POST** /core/documents | Add a document
@@ -144,11 +142,13 @@ Class | Method | HTTP request | Description
 *EventsApi* | [**get_event**](docs/EventsApi.md#get_event) | **GET** /core/events/{uri} | Get an event
 *EventsApi* | [**get_event_details**](docs/EventsApi.md#get_event_details) | **GET** /core/events/{uri}/details | Get an event with all it&#39;s properties
 *EventsApi* | [**get_move_event**](docs/EventsApi.md#get_move_event) | **GET** /core/events/moves/{uri} | Get a move with all it&#39;s properties
+*EventsApi* | [**import_event_csv**](docs/EventsApi.md#import_event_csv) | **POST** /core/events/import | Import a CSV file with one move and one concerned item per line
 *EventsApi* | [**import_move_csv**](docs/EventsApi.md#import_move_csv) | **POST** /core/events/moves/import | Import a CSV file with one move and one concerned item per line
 *EventsApi* | [**search_events**](docs/EventsApi.md#search_events) | **GET** /core/events | Search events
 *EventsApi* | [**update_event**](docs/EventsApi.md#update_event) | **PUT** /core/events | Update an event
 *EventsApi* | [**update_move_event**](docs/EventsApi.md#update_move_event) | **PUT** /core/events/moves | Update a move event
-*EventsApi* | [**validate_csv**](docs/EventsApi.md#validate_csv) | **POST** /core/events/moves/import_validation | Check a CSV file with one move and one concerned item per line
+*EventsApi* | [**validate_event_csv**](docs/EventsApi.md#validate_event_csv) | **POST** /core/events/import_validation | Check a CSV file with one move and one concerned item per line
+*EventsApi* | [**validate_move_csv**](docs/EventsApi.md#validate_move_csv) | **POST** /core/events/moves/import_validation | Check a CSV file with one move and one concerned item per line
 *ExperimentsApi* | [**create_experiment**](docs/ExperimentsApi.md#create_experiment) | **POST** /core/experiments | Add an experiment
 *ExperimentsApi* | [**delete_experiment**](docs/ExperimentsApi.md#delete_experiment) | **DELETE** /core/experiments/{uri} | Delete an experiment
 *ExperimentsApi* | [**export_experiment_data_list**](docs/ExperimentsApi.md#export_experiment_data_list) | **GET** /core/experiments/{uri}/data/export | export data
@@ -163,7 +163,7 @@ Class | Method | HTTP request | Description
 *ExperimentsApi* | [**search_experiment_provenances**](docs/ExperimentsApi.md#search_experiment_provenances) | **GET** /core/experiments/{uri}/provenances | Get provenances involved in an experiment
 *ExperimentsApi* | [**search_experiments**](docs/ExperimentsApi.md#search_experiments) | **GET** /core/experiments | Search experiments
 *ExperimentsApi* | [**update_experiment**](docs/ExperimentsApi.md#update_experiment) | **PUT** /core/experiments | Update an experiment
-*ExperimentsApi* | [**validate_csv1**](docs/ExperimentsApi.md#validate_csv1) | **POST** /core/experiments/{uri}/data/import_validation | Import a CSV file for the given experiment URI and scientific object type.
+*ExperimentsApi* | [**validate_csv**](docs/ExperimentsApi.md#validate_csv) | **POST** /core/experiments/{uri}/data/import_validation | Import a CSV file for the given experiment URI and scientific object type.
 *FactorsApi* | [**create_factor**](docs/FactorsApi.md#create_factor) | **POST** /core/experiments/factors | Create a factor
 *FactorsApi* | [**delete_factor**](docs/FactorsApi.md#delete_factor) | **DELETE** /core/experiments/factors/{uri} | Delete a factor
 *FactorsApi* | [**delete_factor_level**](docs/FactorsApi.md#delete_factor_level) | **DELETE** /core/experiments/factors/levels/{uri} | Delete a factor level
@@ -180,14 +180,14 @@ Class | Method | HTTP request | Description
 *GermplasmApi* | [**create_germplasm**](docs/GermplasmApi.md#create_germplasm) | **POST** /core/germplasm | Add a germplasm
 *GermplasmApi* | [**delete_germplasm**](docs/GermplasmApi.md#delete_germplasm) | **DELETE** /core/germplasm/{uri} | Delete a germplasm
 *GermplasmApi* | [**export_germplasm**](docs/GermplasmApi.md#export_germplasm) | **GET** /core/germplasm/export | export germplasm
-*GermplasmApi* | [**export_germplasm_by_ur_is**](docs/GermplasmApi.md#export_germplasm_by_ur_is) | **GET** /core/germplasm/export_by_uris | export germplasm by list of uris
+*GermplasmApi* | [**export_germplasm_by_ur_is**](docs/GermplasmApi.md#export_germplasm_by_ur_is) | **POST** /core/germplasm/export_by_uris | export germplasm by list of uris
 *GermplasmApi* | [**get_germplasm**](docs/GermplasmApi.md#get_germplasm) | **GET** /core/germplasm/{uri} | Get a germplasm
 *GermplasmApi* | [**get_germplasm_experiments**](docs/GermplasmApi.md#get_germplasm_experiments) | **GET** /core/germplasm/{uri}/experiments | Get experiments where a germplasm has been used
 *GermplasmApi* | [**get_germplasms_by_uri**](docs/GermplasmApi.md#get_germplasms_by_uri) | **GET** /core/germplasm/by_uris | Get a list of germplasms by their URIs
 *GermplasmApi* | [**search_germplasm**](docs/GermplasmApi.md#search_germplasm) | **GET** /core/germplasm | Search germplasm
 *GermplasmApi* | [**update_germplasm**](docs/GermplasmApi.md#update_germplasm) | **PUT** /core/germplasm | Update a germplasm
 *OntologyApi* | [**add_class_property_restriction**](docs/OntologyApi.md#add_class_property_restriction) | **POST** /ontology/rdf_type_property_restriction | Add a rdf type property restriction
-*OntologyApi* | [**check_ur_is_types**](docs/OntologyApi.md#check_ur_is_types) | **GET** /ontology/check_rdf_types | 
+*OntologyApi* | [**check_ur_is_types**](docs/OntologyApi.md#check_ur_is_types) | **POST** /ontology/check_rdf_types | Check the given rdf-types on the given uris
 *OntologyApi* | [**create_property**](docs/OntologyApi.md#create_property) | **POST** /ontology/property | Create a RDF property
 *OntologyApi* | [**delete_class_property_restriction**](docs/OntologyApi.md#delete_class_property_restriction) | **DELETE** /ontology/rdf_type_property_restriction | Delete a rdf type property restriction
 *OntologyApi* | [**delete_property**](docs/OntologyApi.md#delete_property) | **DELETE** /ontology/property | Delete a property
@@ -240,7 +240,7 @@ Class | Method | HTTP request | Description
 *ScientificObjectsApi* | [**search_scientific_objects**](docs/ScientificObjectsApi.md#search_scientific_objects) | **GET** /core/scientific_objects | Search list of scientific objects
 *ScientificObjectsApi* | [**search_scientific_objects_with_geometry_list_by_uris**](docs/ScientificObjectsApi.md#search_scientific_objects_with_geometry_list_by_uris) | **GET** /core/scientific_objects/geometry | Get scientific objet list with geometry of a given experiment URI
 *ScientificObjectsApi* | [**update_scientific_object**](docs/ScientificObjectsApi.md#update_scientific_object) | **PUT** /core/scientific_objects | Update a scientific object for the given experiment
-*ScientificObjectsApi* | [**validate_csv2**](docs/ScientificObjectsApi.md#validate_csv2) | **POST** /core/scientific_objects/import_validation | Validate a CSV file for the given experiment URI and scientific object type.
+*ScientificObjectsApi* | [**validate_csv1**](docs/ScientificObjectsApi.md#validate_csv1) | **POST** /core/scientific_objects/import_validation | Validate a CSV file for the given experiment URI and scientific object type.
 *SecurityApi* | [**create_group**](docs/SecurityApi.md#create_group) | **POST** /security/groups | Add a group
 *SecurityApi* | [**create_profile**](docs/SecurityApi.md#create_profile) | **POST** /security/profiles | Add a profile
 *SecurityApi* | [**create_user**](docs/SecurityApi.md#create_user) | **POST** /security/users | Add an user
@@ -339,7 +339,6 @@ Class | Method | HTTP request | Description
  - [DataCSVValidationModel](docs/DataCSVValidationModel.md)
  - [DataConfidenceDTO](docs/DataConfidenceDTO.md)
  - [DataCreationDTO](docs/DataCreationDTO.md)
- - [DataFileCreationDTO](docs/DataFileCreationDTO.md)
  - [DataFileGetDTO](docs/DataFileGetDTO.md)
  - [DataFilePathCreationDTO](docs/DataFilePathCreationDTO.md)
  - [DataGetDTO](docs/DataGetDTO.md)
@@ -386,7 +385,7 @@ Class | Method | HTTP request | Description
  - [InfrastructureCreationDTO](docs/InfrastructureCreationDTO.md)
  - [InfrastructureFacilityCreationDTO](docs/InfrastructureFacilityCreationDTO.md)
  - [InfrastructureFacilityGetDTO](docs/InfrastructureFacilityGetDTO.md)
- - [InfrastructureFacilityNamedDto](docs/InfrastructureFacilityNamedDto.md)
+ - [InfrastructureFacilityNamedDTO](docs/InfrastructureFacilityNamedDTO.md)
  - [InfrastructureFacilityUpdateDTO](docs/InfrastructureFacilityUpdateDTO.md)
  - [InfrastructureGetDTO](docs/InfrastructureGetDTO.md)
  - [InfrastructureTeamDTO](docs/InfrastructureTeamDTO.md)
@@ -421,8 +420,8 @@ Class | Method | HTTP request | Description
  - [OntologyReference](docs/OntologyReference.md)
  - [PaginationDTO](docs/PaginationDTO.md)
  - [PositionCreationDTO](docs/PositionCreationDTO.md)
- - [PositionGetDto](docs/PositionGetDto.md)
- - [PositionNoSqlGetDto](docs/PositionNoSqlGetDto.md)
+ - [PositionGetDTO](docs/PositionGetDTO.md)
+ - [PositionGetDetailDTO](docs/PositionGetDetailDTO.md)
  - [ProfileCreationDTO](docs/ProfileCreationDTO.md)
  - [ProfileGetDTO](docs/ProfileGetDTO.md)
  - [ProfileUpdateDTO](docs/ProfileUpdateDTO.md)
@@ -454,6 +453,7 @@ Class | Method | HTTP request | Description
  - [TokenGetDTO](docs/TokenGetDTO.md)
  - [Trait](docs/Trait.md)
  - [URITypesDTO](docs/URITypesDTO.md)
+ - [URIsListPostDTO](docs/URIsListPostDTO.md)
  - [UnitCreationDTO](docs/UnitCreationDTO.md)
  - [UnitDetailsDTO](docs/UnitDetailsDTO.md)
  - [UnitGetDTO](docs/UnitGetDTO.md)

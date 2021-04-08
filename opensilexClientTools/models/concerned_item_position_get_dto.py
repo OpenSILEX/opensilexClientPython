@@ -32,7 +32,7 @@ class ConcernedItemPositionGetDTO(object):
     """
     swagger_types = {
         'target': 'str',
-        'position': 'PositionNoSqlGetDto'
+        'position': 'PositionGetDetailDTO'
     }
 
     attribute_map = {
@@ -79,7 +79,7 @@ class ConcernedItemPositionGetDTO(object):
 
 
         :return: The position of this ConcernedItemPositionGetDTO.  # noqa: E501
-        :rtype: PositionNoSqlGetDto
+        :rtype: PositionGetDetailDTO
         """
         return self._position
 
@@ -89,7 +89,7 @@ class ConcernedItemPositionGetDTO(object):
 
 
         :param position: The position of this ConcernedItemPositionGetDTO.  # noqa: E501
-        :type: PositionNoSqlGetDto
+        :type: PositionGetDetailDTO
         """
 
         self._position = position

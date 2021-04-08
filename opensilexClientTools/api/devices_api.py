@@ -393,7 +393,7 @@ class DevicesApi(object):
 
         :param async_req bool
         :param str authorization: Authentication token (required)
-        :param list[str] devices_list: List of device URI
+        :param URIsListPostDTO body: List of device URI
         :param str accept_language: Request accepted language
         :return: None
                  If the method is called asynchronously,
@@ -417,14 +417,14 @@ class DevicesApi(object):
 
         :param async_req bool
         :param str authorization: Authentication token (required)
-        :param list[str] devices_list: List of device URI
+        :param URIsListPostDTO body: List of device URI
         :param str accept_language: Request accepted language
         :return: None
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['devices_list', ]  # noqa: E501
+        all_params = ['body', ]  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -445,9 +445,6 @@ class DevicesApi(object):
         path_params = {}
 
         query_params = []
-        if 'devices_list' in params:
-            query_params.append(('devices_list', params['devices_list']))  # noqa: E501
-            collection_formats['devices_list'] = 'multi'  # noqa: E501
 
         header_params = {}
         #if 'authorization' in params:
@@ -459,6 +456,8 @@ class DevicesApi(object):
         local_var_files = {}
 
         body_params = None
+        if 'body' in params:
+            body_params = params['body']
         # HTTP header `Accept`
         header_params['Accept'] = self.api_client.select_header_accept(
             ['text/plain'])  # noqa: E501
@@ -471,7 +470,7 @@ class DevicesApi(object):
         auth_settings = []  # noqa: E501
 
         return self.api_client.call_api(
-            '/core/devices/exportList', 'GET',
+            '/core/devices/export_by_uris', 'POST',
             path_params,
             query_params,
             header_params,
@@ -1071,6 +1070,165 @@ class DevicesApi(object):
 
         return self.api_client.call_api(
             '/core/devices/{uri}/data', 'GET',
+            path_params,
+            query_params,
+            header_params,
+            body=body_params,
+            post_params=form_params,
+            files=local_var_files,
+            response_type='list[DataGetDTO]',  # noqa: E501
+            auth_settings=auth_settings,
+            async_req=params.get('async_req'),
+            _return_http_data_only=params.get('_return_http_data_only'),
+            _preload_content=params.get('_preload_content', True),
+            _request_timeout=params.get('_request_timeout'),
+            collection_formats=collection_formats)
+
+    def search_device_datafiles(self, uri, **kwargs):  # noqa: E501
+        """Search device datafiles descriptions  # noqa: E501
+
+          # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.search_device_datafiles(uri, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param str uri: Device URI (required)
+        :param str authorization: Authentication token (required)
+        :param str rdf_type: Search by rdf type uri
+        :param str start_date: Search by minimal date
+        :param str end_date: Search by maximal date
+        :param str timezone: Precise the timezone corresponding to the given dates
+        :param list[str] experiment: Search by experiments
+        :param list[str] scientific_objects: Search by object uris list
+        :param list[str] provenances: Search by provenance uris list
+        :param str metadata: Search by metadata
+        :param list[str] order_by: List of fields to sort as an array of fieldName=asc|desc
+        :param int page: Page number
+        :param int page_size: Page size
+        :param str accept_language: Request accepted language
+        :return: list[DataGetDTO]
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('async_req'):
+            return self.search_device_datafiles_with_http_info(uri, **kwargs)  # noqa: E501
+        else:
+            (data) = self.search_device_datafiles_with_http_info(uri, **kwargs)  # noqa: E501
+            return data
+
+    def search_device_datafiles_with_http_info(self, uri, **kwargs):  # noqa: E501
+        """Search device datafiles descriptions  # noqa: E501
+
+          # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.search_device_datafiles_with_http_info(uri, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param str uri: Device URI (required)
+        :param str authorization: Authentication token (required)
+        :param str rdf_type: Search by rdf type uri
+        :param str start_date: Search by minimal date
+        :param str end_date: Search by maximal date
+        :param str timezone: Precise the timezone corresponding to the given dates
+        :param list[str] experiment: Search by experiments
+        :param list[str] scientific_objects: Search by object uris list
+        :param list[str] provenances: Search by provenance uris list
+        :param str metadata: Search by metadata
+        :param list[str] order_by: List of fields to sort as an array of fieldName=asc|desc
+        :param int page: Page number
+        :param int page_size: Page size
+        :param str accept_language: Request accepted language
+        :return: list[DataGetDTO]
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['uri', 'rdf_type', 'start_date', 'end_date', 'timezone', 'experiment', 'scientific_objects', 'provenances', 'metadata', 'order_by', 'page', 'page_size', ]  # noqa: E501
+        all_params.append('async_req')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in six.iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method search_device_datafiles" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'uri' is set
+        if ('uri' not in params or
+                params['uri'] is None):
+            raise ValueError("Missing the required parameter `uri` when calling `search_device_datafiles`")  # noqa: E501
+
+        if 'page' in params and params['page'] < 0:  # noqa: E501
+            raise ValueError("Invalid value for parameter `page` when calling `search_device_datafiles`, must be a value greater than or equal to `0`")  # noqa: E501
+        if 'page_size' in params and params['page_size'] < 0:  # noqa: E501
+            raise ValueError("Invalid value for parameter `page_size` when calling `search_device_datafiles`, must be a value greater than or equal to `0`")  # noqa: E501
+        collection_formats = {}
+
+        path_params = {}
+        if 'uri' in params:
+            path_params['uri'] = params['uri']  # noqa: E501
+
+        query_params = []
+        if 'rdf_type' in params:
+            query_params.append(('rdf_type', params['rdf_type']))  # noqa: E501
+        if 'start_date' in params:
+            query_params.append(('start_date', params['start_date']))  # noqa: E501
+        if 'end_date' in params:
+            query_params.append(('end_date', params['end_date']))  # noqa: E501
+        if 'timezone' in params:
+            query_params.append(('timezone', params['timezone']))  # noqa: E501
+        if 'experiment' in params:
+            query_params.append(('experiment', params['experiment']))  # noqa: E501
+            collection_formats['experiment'] = 'multi'  # noqa: E501
+        if 'scientific_objects' in params:
+            query_params.append(('scientific_objects', params['scientific_objects']))  # noqa: E501
+            collection_formats['scientific_objects'] = 'multi'  # noqa: E501
+        if 'provenances' in params:
+            query_params.append(('provenances', params['provenances']))  # noqa: E501
+            collection_formats['provenances'] = 'multi'  # noqa: E501
+        if 'metadata' in params:
+            query_params.append(('metadata', params['metadata']))  # noqa: E501
+        if 'order_by' in params:
+            query_params.append(('order_by', params['order_by']))  # noqa: E501
+            collection_formats['order_by'] = 'multi'  # noqa: E501
+        if 'page' in params:
+            query_params.append(('page', params['page']))  # noqa: E501
+        if 'page_size' in params:
+            query_params.append(('page_size', params['page_size']))  # noqa: E501
+
+        header_params = {}
+        #if 'authorization' in params:
+        #    header_params['Authorization'] = params['authorization']  # noqa: E501
+        #if 'accept_language' in params:
+        #    header_params['Accept-Language'] = params['accept_language']  # noqa: E501
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.select_header_accept(
+            ['application/json'])  # noqa: E501
+
+        # HTTP header `Content-Type`
+        header_params['Content-Type'] = self.api_client.select_header_content_type(  # noqa: E501
+            ['application/json'])  # noqa: E501
+
+        # Authentication setting
+        auth_settings = []  # noqa: E501
+
+        return self.api_client.call_api(
+            '/core/devices/{uri}/datafiles', 'GET',
             path_params,
             query_params,
             header_params,

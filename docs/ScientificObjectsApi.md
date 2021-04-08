@@ -19,7 +19,7 @@ Method | HTTP request | Description
 [**search_scientific_objects**](ScientificObjectsApi.md#search_scientific_objects) | **GET** /core/scientific_objects | Search list of scientific objects
 [**search_scientific_objects_with_geometry_list_by_uris**](ScientificObjectsApi.md#search_scientific_objects_with_geometry_list_by_uris) | **GET** /core/scientific_objects/geometry | Get scientific objet list with geometry of a given experiment URI
 [**update_scientific_object**](ScientificObjectsApi.md#update_scientific_object) | **PUT** /core/scientific_objects | Update a scientific object for the given experiment
-[**validate_csv2**](ScientificObjectsApi.md#validate_csv2) | **POST** /core/scientific_objects/import_validation | Validate a CSV file for the given experiment URI and scientific object type.
+[**validate_csv1**](ScientificObjectsApi.md#validate_csv1) | **POST** /core/scientific_objects/import_validation | Validate a CSV file for the given experiment URI and scientific object type.
 
 
 # **create_scientific_object**
@@ -839,8 +839,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **validate_csv2**
-> CSVValidationDTO validate_csv2(description, file, authorization, accept_language=accept_language)
+# **validate_csv1**
+> CSVValidationDTO validate_csv1(description, file, authorization, accept_language=accept_language)
 
 Validate a CSV file for the given experiment URI and scientific object type.
 
@@ -864,10 +864,10 @@ file = '/path/to/file.txt' # file | Data file
 
 try:
     # Validate a CSV file for the given experiment URI and scientific object type.
-    api_response = api_instance.validate_csv2(description, file, )
+    api_response = api_instance.validate_csv1(description, file, )
     pprint(api_response)
 except ApiException as e:
-    print("Exception when calling ScientificObjectsApi->validate_csv2: %s\n" % e)
+    print("Exception when calling ScientificObjectsApi->validate_csv1: %s\n" % e)
 ```
 
 ### Parameters

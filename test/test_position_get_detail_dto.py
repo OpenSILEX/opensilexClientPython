@@ -16,12 +16,12 @@ from __future__ import absolute_import
 import unittest
 
 import opensilexClientTools
-from opensilexClientTools.models.position_no_sql_get_dto import PositionNoSqlGetDto  # noqa: E501
+from opensilexClientTools.models.position_get_detail_dto import PositionGetDetailDTO  # noqa: E501
 from opensilexClientTools.rest import ApiException
 
 
-class TestPositionNoSqlGetDto(unittest.TestCase):
-    """PositionNoSqlGetDto unit test stubs"""
+class TestPositionGetDetailDTO(unittest.TestCase):
+    """PositionGetDetailDTO unit test stubs"""
 
     def setUp(self):
         pass
@@ -29,10 +29,10 @@ class TestPositionNoSqlGetDto(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def testPositionNoSqlGetDto(self):
-        """Test PositionNoSqlGetDto"""
+    def testPositionGetDetailDTO(self):
+        """Test PositionGetDetailDTO"""
         # FIXME: construct object with mandatory attributes with example values
-        # model = opensilexClientTools.models.position_no_sql_get_dto.PositionNoSqlGetDto()  # noqa: E501
+        # model = opensilexClientTools.models.position_get_detail_dto.PositionGetDetailDTO()  # noqa: E501
         pass
 
 

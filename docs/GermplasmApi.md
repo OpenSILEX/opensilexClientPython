@@ -7,7 +7,7 @@ Method | HTTP request | Description
 [**create_germplasm**](GermplasmApi.md#create_germplasm) | **POST** /core/germplasm | Add a germplasm
 [**delete_germplasm**](GermplasmApi.md#delete_germplasm) | **DELETE** /core/germplasm/{uri} | Delete a germplasm
 [**export_germplasm**](GermplasmApi.md#export_germplasm) | **GET** /core/germplasm/export | export germplasm
-[**export_germplasm_by_ur_is**](GermplasmApi.md#export_germplasm_by_ur_is) | **GET** /core/germplasm/export_by_uris | export germplasm by list of uris
+[**export_germplasm_by_ur_is**](GermplasmApi.md#export_germplasm_by_ur_is) | **POST** /core/germplasm/export_by_uris | export germplasm by list of uris
 [**get_germplasm**](GermplasmApi.md#get_germplasm) | **GET** /core/germplasm/{uri} | Get a germplasm
 [**get_germplasm_experiments**](GermplasmApi.md#get_germplasm_experiments) | **GET** /core/germplasm/{uri}/experiments | Get experiments where a germplasm has been used
 [**get_germplasms_by_uri**](GermplasmApi.md#get_germplasms_by_uri) | **GET** /core/germplasm/by_uris | Get a list of germplasms by their URIs
@@ -194,7 +194,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **export_germplasm_by_ur_is**
-> export_germplasm_by_ur_is(authorization, uris=uris, accept_language=accept_language)
+> export_germplasm_by_ur_is(authorization, body=body, accept_language=accept_language)
 
 export germplasm by list of uris
 
@@ -212,12 +212,12 @@ from pprint import pprint
 pythonClient = opensilexClientTools.ApiClient()
 pythonClient.connect_to_phis_ws(api_id="ws_custom",username="guest@opensilex.org",password="guest",host="https://localhost")
 api_instance = opensilexClientTools.GermplasmApi(pythonClient)
-uris = ['\"http://opensilex/set/experiments/ZA17\"'] # list[str] | List of germplasm URI (optional)
+body = opensilexClientTools.URIsListPostDTO() # URIsListPostDTO | List of germplasm URI (optional)
 
 
 try:
     # export germplasm by list of uris
-    api_instance.export_germplasm_by_ur_is(uris=uris, )
+    api_instance.export_germplasm_by_ur_is(body=body, )
 except ApiException as e:
     print("Exception when calling GermplasmApi->export_germplasm_by_ur_is: %s\n" % e)
 ```
@@ -226,7 +226,7 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **uris** | [**list[str]**](str.md)| List of germplasm URI | [optional] 
+ **body** | [**URIsListPostDTO**](URIsListPostDTO.md)| List of germplasm URI | [optional] 
 
 
 ### Return type

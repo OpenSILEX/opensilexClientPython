@@ -136,19 +136,19 @@ class OntologyApi(object):
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
 
-    def check_ur_is_types(self, uris, rdf_types, **kwargs):  # noqa: E501
-        """  # noqa: E501
+    def check_ur_is_types(self, rdf_types, **kwargs):  # noqa: E501
+        """Check the given rdf-types on the given uris  # noqa: E501
 
           # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.check_ur_is_types(uris, rdf_types, async_req=True)
+        >>> thread = api.check_ur_is_types(rdf_types, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param list[str] uris: URIs (required)
         :param list[str] rdf_types: rdf_types list you want to check on the given uris list (required)
         :param str authorization: Authentication token (required)
+        :param URIsListPostDTO body: URIs list
         :param str accept_language: Request accepted language
         :return: list[URITypesDTO]
                  If the method is called asynchronously,
@@ -156,31 +156,31 @@ class OntologyApi(object):
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('async_req'):
-            return self.check_ur_is_types_with_http_info(uris, rdf_types, **kwargs)  # noqa: E501
+            return self.check_ur_is_types_with_http_info(rdf_types, **kwargs)  # noqa: E501
         else:
-            (data) = self.check_ur_is_types_with_http_info(uris, rdf_types, **kwargs)  # noqa: E501
+            (data) = self.check_ur_is_types_with_http_info(rdf_types, **kwargs)  # noqa: E501
             return data
 
-    def check_ur_is_types_with_http_info(self, uris, rdf_types, **kwargs):  # noqa: E501
-        """  # noqa: E501
+    def check_ur_is_types_with_http_info(self, rdf_types, **kwargs):  # noqa: E501
+        """Check the given rdf-types on the given uris  # noqa: E501
 
           # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.check_ur_is_types_with_http_info(uris, rdf_types, async_req=True)
+        >>> thread = api.check_ur_is_types_with_http_info(rdf_types, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param list[str] uris: URIs (required)
         :param list[str] rdf_types: rdf_types list you want to check on the given uris list (required)
         :param str authorization: Authentication token (required)
+        :param URIsListPostDTO body: URIs list
         :param str accept_language: Request accepted language
         :return: list[URITypesDTO]
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['uris', 'rdf_types', ]  # noqa: E501
+        all_params = ['rdf_types', 'body', ]  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -195,10 +195,6 @@ class OntologyApi(object):
                 )
             params[key] = val
         del params['kwargs']
-        # verify the required parameter 'uris' is set
-        if ('uris' not in params or
-                params['uris'] is None):
-            raise ValueError("Missing the required parameter `uris` when calling `check_ur_is_types`")  # noqa: E501
         # verify the required parameter 'rdf_types' is set
         if ('rdf_types' not in params or
                 params['rdf_types'] is None):
@@ -209,9 +205,6 @@ class OntologyApi(object):
         path_params = {}
 
         query_params = []
-        if 'uris' in params:
-            query_params.append(('uris', params['uris']))  # noqa: E501
-            collection_formats['uris'] = 'multi'  # noqa: E501
         if 'rdf_types' in params:
             query_params.append(('rdf_types', params['rdf_types']))  # noqa: E501
             collection_formats['rdf_types'] = 'multi'  # noqa: E501
@@ -226,6 +219,8 @@ class OntologyApi(object):
         local_var_files = {}
 
         body_params = None
+        if 'body' in params:
+            body_params = params['body']
         # HTTP header `Accept`
         header_params['Accept'] = self.api_client.select_header_accept(
             ['application/json'])  # noqa: E501
@@ -238,7 +233,7 @@ class OntologyApi(object):
         auth_settings = []  # noqa: E501
 
         return self.api_client.call_api(
-            '/ontology/check_rdf_types', 'GET',
+            '/ontology/check_rdf_types', 'POST',
             path_params,
             query_params,
             header_params,

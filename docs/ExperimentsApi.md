@@ -18,7 +18,7 @@ Method | HTTP request | Description
 [**search_experiment_provenances**](ExperimentsApi.md#search_experiment_provenances) | **GET** /core/experiments/{uri}/provenances | Get provenances involved in an experiment
 [**search_experiments**](ExperimentsApi.md#search_experiments) | **GET** /core/experiments | Search experiments
 [**update_experiment**](ExperimentsApi.md#update_experiment) | **PUT** /core/experiments | Update an experiment
-[**validate_csv1**](ExperimentsApi.md#validate_csv1) | **POST** /core/experiments/{uri}/data/import_validation | Import a CSV file for the given experiment URI and scientific object type.
+[**validate_csv**](ExperimentsApi.md#validate_csv) | **POST** /core/experiments/{uri}/data/import_validation | Import a CSV file for the given experiment URI and scientific object type.
 
 
 # **create_experiment**
@@ -840,8 +840,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **validate_csv1**
-> DataCSVValidationDTO validate_csv1(uri, provenance, file, authorization, accept_language=accept_language)
+# **validate_csv**
+> DataCSVValidationDTO validate_csv(uri, provenance, file, authorization, accept_language=accept_language)
 
 Import a CSV file for the given experiment URI and scientific object type.
 
@@ -866,10 +866,10 @@ file = '/path/to/file.txt' # file | Data file
 
 try:
     # Import a CSV file for the given experiment URI and scientific object type.
-    api_response = api_instance.validate_csv1(uri, provenance, file, )
+    api_response = api_instance.validate_csv(uri, provenance, file, )
     pprint(api_response)
 except ApiException as e:
-    print("Exception when calling ExperimentsApi->validate_csv1: %s\n" % e)
+    print("Exception when calling ExperimentsApi->validate_csv: %s\n" % e)
 ```
 
 ### Parameters

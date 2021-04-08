@@ -78,6 +78,13 @@ class TestEventsApi(unittest.TestCase):
         """
         pass
 
+    def test_import_event_csv(self):
+        """Test case for import_event_csv
+
+        Import a CSV file with one move and one concerned item per line  # noqa: E501
+        """
+        pass
+
     def test_import_move_csv(self):
         """Test case for import_move_csv
 
@@ -106,8 +113,15 @@ class TestEventsApi(unittest.TestCase):
         """
         pass
 
-    def test_validate_csv(self):
-        """Test case for validate_csv
+    def test_validate_event_csv(self):
+        """Test case for validate_event_csv
+
+        Check a CSV file with one move and one concerned item per line  # noqa: E501
+        """
+        pass
+
+    def test_validate_move_csv(self):
+        """Test case for validate_move_csv
 
         Check a CSV file with one move and one concerned item per line  # noqa: E501
         """

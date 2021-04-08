@@ -385,7 +385,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **get_facilities_by_uri**
-> list[InfrastructureFacilityNamedDto] get_facilities_by_uri(uris, authorization, accept_language=accept_language)
+> list[InfrastructureFacilityNamedDTO] get_facilities_by_uri(uris, authorization, accept_language=accept_language)
 
 Get facilities by their URIs
 
@@ -423,7 +423,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**list[InfrastructureFacilityNamedDto]**](InfrastructureFacilityNamedDto.md)
+[**list[InfrastructureFacilityNamedDTO]**](InfrastructureFacilityNamedDTO.md)
 
 ### Authorization
 
@@ -593,7 +593,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **search_infrastructure_facilities**
-> list[InfrastructureFacilityNamedDto] search_infrastructure_facilities(authorization, pattern=pattern, order_by=order_by, page=page, page_size=page_size, accept_language=accept_language)
+> list[InfrastructureFacilityNamedDTO] search_infrastructure_facilities(authorization, pattern=pattern, order_by=order_by, page=page, page_size=page_size, accept_language=accept_language)
 
 Search facilities
 
@@ -637,7 +637,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**list[InfrastructureFacilityNamedDto]**](InfrastructureFacilityNamedDto.md)
+[**list[InfrastructureFacilityNamedDTO]**](InfrastructureFacilityNamedDTO.md)
 
 ### Authorization
 

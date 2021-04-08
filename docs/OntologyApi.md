@@ -5,7 +5,7 @@ All URIs are relative to *https://localhost*
 Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**add_class_property_restriction**](OntologyApi.md#add_class_property_restriction) | **POST** /ontology/rdf_type_property_restriction | Add a rdf type property restriction
-[**check_ur_is_types**](OntologyApi.md#check_ur_is_types) | **GET** /ontology/check_rdf_types | 
+[**check_ur_is_types**](OntologyApi.md#check_ur_is_types) | **POST** /ontology/check_rdf_types | Check the given rdf-types on the given uris
 [**create_property**](OntologyApi.md#create_property) | **POST** /ontology/property | Create a RDF property
 [**delete_class_property_restriction**](OntologyApi.md#delete_class_property_restriction) | **DELETE** /ontology/rdf_type_property_restriction | Delete a rdf type property restriction
 [**delete_property**](OntologyApi.md#delete_property) | **DELETE** /ontology/property | Delete a property
@@ -74,9 +74,9 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **check_ur_is_types**
-> list[URITypesDTO] check_ur_is_types(uris, rdf_types, authorization, accept_language=accept_language)
+> list[URITypesDTO] check_ur_is_types(rdf_types, authorization, body=body, accept_language=accept_language)
 
-
+Check the given rdf-types on the given uris
 
 
 
@@ -92,13 +92,13 @@ from pprint import pprint
 pythonClient = opensilexClientTools.ApiClient()
 pythonClient.connect_to_phis_ws(api_id="ws_custom",username="guest@opensilex.org",password="guest",host="https://localhost")
 api_instance = opensilexClientTools.OntologyApi(pythonClient)
-uris = ['uris_example'] # list[str] | URIs
 rdf_types = ['rdf_types_example'] # list[str] | rdf_types list you want to check on the given uris list
+body = opensilexClientTools.URIsListPostDTO() # URIsListPostDTO | URIs list (optional)
 
 
 try:
-    # 
-    api_response = api_instance.check_ur_is_types(uris, rdf_types, )
+    # Check the given rdf-types on the given uris
+    api_response = api_instance.check_ur_is_types(rdf_types, body=body, )
     pprint(api_response)
 except ApiException as e:
     print("Exception when calling OntologyApi->check_ur_is_types: %s\n" % e)
@@ -108,8 +108,8 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **uris** | [**list[str]**](str.md)| URIs | 
  **rdf_types** | [**list[str]**](str.md)| rdf_types list you want to check on the given uris list | 
+ **body** | [**URIsListPostDTO**](URIsListPostDTO.md)| URIs list | [optional] 
 
 
 ### Return type

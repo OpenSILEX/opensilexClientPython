@@ -406,7 +406,7 @@ class GermplasmApi(object):
 
         :param async_req bool
         :param str authorization: Authentication token (required)
-        :param list[str] uris: List of germplasm URI
+        :param URIsListPostDTO body: List of germplasm URI
         :param str accept_language: Request accepted language
         :return: None
                  If the method is called asynchronously,
@@ -430,14 +430,14 @@ class GermplasmApi(object):
 
         :param async_req bool
         :param str authorization: Authentication token (required)
-        :param list[str] uris: List of germplasm URI
+        :param URIsListPostDTO body: List of germplasm URI
         :param str accept_language: Request accepted language
         :return: None
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['uris', ]  # noqa: E501
+        all_params = ['body', ]  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -458,9 +458,6 @@ class GermplasmApi(object):
         path_params = {}
 
         query_params = []
-        if 'uris' in params:
-            query_params.append(('uris', params['uris']))  # noqa: E501
-            collection_formats['uris'] = 'multi'  # noqa: E501
 
         header_params = {}
         #if 'authorization' in params:
@@ -472,6 +469,8 @@ class GermplasmApi(object):
         local_var_files = {}
 
         body_params = None
+        if 'body' in params:
+            body_params = params['body']
         # HTTP header `Accept`
         header_params['Accept'] = self.api_client.select_header_accept(
             ['text/plain'])  # noqa: E501
@@ -484,7 +483,7 @@ class GermplasmApi(object):
         auth_settings = []  # noqa: E501
 
         return self.api_client.call_api(
-            '/core/germplasm/export_by_uris', 'GET',
+            '/core/germplasm/export_by_uris', 'POST',
             path_params,
             query_params,
             header_params,

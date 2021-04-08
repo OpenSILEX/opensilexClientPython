@@ -11,11 +11,13 @@ Method | HTTP request | Description
 [**get_event**](EventsApi.md#get_event) | **GET** /core/events/{uri} | Get an event
 [**get_event_details**](EventsApi.md#get_event_details) | **GET** /core/events/{uri}/details | Get an event with all it&#39;s properties
 [**get_move_event**](EventsApi.md#get_move_event) | **GET** /core/events/moves/{uri} | Get a move with all it&#39;s properties
+[**import_event_csv**](EventsApi.md#import_event_csv) | **POST** /core/events/import | Import a CSV file with one move and one concerned item per line
 [**import_move_csv**](EventsApi.md#import_move_csv) | **POST** /core/events/moves/import | Import a CSV file with one move and one concerned item per line
 [**search_events**](EventsApi.md#search_events) | **GET** /core/events | Search events
 [**update_event**](EventsApi.md#update_event) | **PUT** /core/events | Update an event
 [**update_move_event**](EventsApi.md#update_move_event) | **PUT** /core/events/moves | Update a move event
-[**validate_csv**](EventsApi.md#validate_csv) | **POST** /core/events/moves/import_validation | Check a CSV file with one move and one concerned item per line
+[**validate_event_csv**](EventsApi.md#validate_event_csv) | **POST** /core/events/import_validation | Check a CSV file with one move and one concerned item per line
+[**validate_move_csv**](EventsApi.md#validate_move_csv) | **POST** /core/events/moves/import_validation | Check a CSV file with one move and one concerned item per line
 
 
 # **create_events**
@@ -382,6 +384,58 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **import_event_csv**
+> CSVValidationDTO import_event_csv(file, authorization, accept_language=accept_language)
+
+Import a CSV file with one move and one concerned item per line
+
+
+
+### Example
+```python
+from __future__ import print_function
+import time
+import opensilexClientTools
+from opensilexClientTools.rest import ApiException
+from pprint import pprint
+
+# create an instance of the API class
+pythonClient = opensilexClientTools.ApiClient()
+pythonClient.connect_to_phis_ws(api_id="ws_custom",username="guest@opensilex.org",password="guest",host="https://localhost")
+api_instance = opensilexClientTools.EventsApi(pythonClient)
+file = '/path/to/file.txt' # file | Event file
+
+
+try:
+    # Import a CSV file with one move and one concerned item per line
+    api_response = api_instance.import_event_csv(file, )
+    pprint(api_response)
+except ApiException as e:
+    print("Exception when calling EventsApi->import_event_csv: %s\n" % e)
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **file** | **file**| Event file | 
+
+
+### Return type
+
+[**CSVValidationDTO**](CSVValidationDTO.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: multipart/form-data
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **import_move_csv**
 > CSVValidationDTO import_move_csv(file, authorization, accept_language=accept_language)
 
@@ -401,7 +455,7 @@ from pprint import pprint
 pythonClient = opensilexClientTools.ApiClient()
 pythonClient.connect_to_phis_ws(api_id="ws_custom",username="guest@opensilex.org",password="guest",host="https://localhost")
 api_instance = opensilexClientTools.EventsApi(pythonClient)
-file = '/path/to/file.txt' # file | Data file
+file = '/path/to/file.txt' # file | Move file
 
 
 try:
@@ -416,7 +470,7 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **file** | **file**| Data file | 
+ **file** | **file**| Move file | 
 
 
 ### Return type
@@ -604,8 +658,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **validate_csv**
-> CSVValidationDTO validate_csv(file, authorization, accept_language=accept_language)
+# **validate_event_csv**
+> CSVValidationDTO validate_event_csv(file, authorization, accept_language=accept_language)
 
 Check a CSV file with one move and one concerned item per line
 
@@ -623,22 +677,74 @@ from pprint import pprint
 pythonClient = opensilexClientTools.ApiClient()
 pythonClient.connect_to_phis_ws(api_id="ws_custom",username="guest@opensilex.org",password="guest",host="https://localhost")
 api_instance = opensilexClientTools.EventsApi(pythonClient)
-file = '/path/to/file.txt' # file | Data file
+file = '/path/to/file.txt' # file | Event file
 
 
 try:
     # Check a CSV file with one move and one concerned item per line
-    api_response = api_instance.validate_csv(file, )
+    api_response = api_instance.validate_event_csv(file, )
     pprint(api_response)
 except ApiException as e:
-    print("Exception when calling EventsApi->validate_csv: %s\n" % e)
+    print("Exception when calling EventsApi->validate_event_csv: %s\n" % e)
 ```
 
 ### Parameters
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **file** | **file**| Data file | 
+ **file** | **file**| Event file | 
+
+
+### Return type
+
+[**CSVValidationDTO**](CSVValidationDTO.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: multipart/form-data
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **validate_move_csv**
+> CSVValidationDTO validate_move_csv(file, authorization, accept_language=accept_language)
+
+Check a CSV file with one move and one concerned item per line
+
+
+
+### Example
+```python
+from __future__ import print_function
+import time
+import opensilexClientTools
+from opensilexClientTools.rest import ApiException
+from pprint import pprint
+
+# create an instance of the API class
+pythonClient = opensilexClientTools.ApiClient()
+pythonClient.connect_to_phis_ws(api_id="ws_custom",username="guest@opensilex.org",password="guest",host="https://localhost")
+api_instance = opensilexClientTools.EventsApi(pythonClient)
+file = '/path/to/file.txt' # file | Move file
+
+
+try:
+    # Check a CSV file with one move and one concerned item per line
+    api_response = api_instance.validate_move_csv(file, )
+    pprint(api_response)
+except ApiException as e:
+    print("Exception when calling EventsApi->validate_move_csv: %s\n" % e)
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **file** | **file**| Move file | 
 
 
 ### Return type

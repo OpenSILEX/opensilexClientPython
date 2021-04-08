@@ -9,7 +9,7 @@ Method | HTTP request | Description
 
 
 # **get_position**
-> PositionGetDto get_position(uri, authorization, time=time, accept_language=accept_language)
+> PositionGetDTO get_position(uri, authorization, time=time, accept_language=accept_language)
 
 Get the position of an object
 
@@ -49,7 +49,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PositionGetDto**](PositionGetDto.md)
+[**PositionGetDTO**](PositionGetDTO.md)
 
 ### Authorization
 
@@ -63,7 +63,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **search_position_history**
-> list[PositionGetDto] search_position_history(concerned_item_uri, authorization, start_date_time=start_date_time, end_date_time=end_date_time, order_by=order_by, page=page, page_size=page_size, accept_language=accept_language)
+> list[PositionGetDTO] search_position_history(concerned_item_uri, authorization, start_date_time=start_date_time, end_date_time=end_date_time, order_by=order_by, page=page, page_size=page_size, accept_language=accept_language)
 
 Search history of position of an object
 
@@ -111,7 +111,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**list[PositionGetDto]**](PositionGetDto.md)
+[**list[PositionGetDTO]**](PositionGetDTO.md)
 
 ### Authorization
 

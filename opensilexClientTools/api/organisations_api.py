@@ -775,7 +775,7 @@ class OrganisationsApi(object):
         :param list[str] uris: Facilities URIs (required)
         :param str authorization: Authentication token (required)
         :param str accept_language: Request accepted language
-        :return: list[InfrastructureFacilityNamedDto]
+        :return: list[InfrastructureFacilityNamedDTO]
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -799,7 +799,7 @@ class OrganisationsApi(object):
         :param list[str] uris: Facilities URIs (required)
         :param str authorization: Authentication token (required)
         :param str accept_language: Request accepted language
-        :return: list[InfrastructureFacilityNamedDto]
+        :return: list[InfrastructureFacilityNamedDTO]
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -862,7 +862,7 @@ class OrganisationsApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='list[InfrastructureFacilityNamedDto]',  # noqa: E501
+            response_type='list[InfrastructureFacilityNamedDTO]',  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),
@@ -1207,7 +1207,7 @@ class OrganisationsApi(object):
         :param int page: Page number
         :param int page_size: Page size
         :param str accept_language: Request accepted language
-        :return: list[InfrastructureFacilityNamedDto]
+        :return: list[InfrastructureFacilityNamedDTO]
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -1234,7 +1234,7 @@ class OrganisationsApi(object):
         :param int page: Page number
         :param int page_size: Page size
         :param str accept_language: Request accepted language
-        :return: list[InfrastructureFacilityNamedDto]
+        :return: list[InfrastructureFacilityNamedDTO]
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -1299,7 +1299,7 @@ class OrganisationsApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='list[InfrastructureFacilityNamedDto]',  # noqa: E501
+            response_type='list[InfrastructureFacilityNamedDTO]',  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),

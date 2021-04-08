@@ -92,6 +92,13 @@ class TestDevicesApi(unittest.TestCase):
         """
         pass
 
+    def test_search_device_datafiles(self):
+        """Test case for search_device_datafiles
+
+        Search device datafiles descriptions  # noqa: E501
+        """
+        pass
+
     def test_search_devices(self):
         """Test case for search_devices
 

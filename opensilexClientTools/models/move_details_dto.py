@@ -41,8 +41,8 @@ class MoveDetailsDTO(object):
         'targets': 'list[str]',
         'author': 'str',
         'relations': 'list[RDFObjectRelationDTO]',
-        '_from': 'InfrastructureFacilityNamedDto',
-        'to': 'InfrastructureFacilityNamedDto',
+        '_from': 'InfrastructureFacilityNamedDTO',
+        'to': 'InfrastructureFacilityNamedDTO',
         'targets_positions': 'list[ConcernedItemPositionGetDTO]'
     }
 
@@ -341,7 +341,7 @@ class MoveDetailsDTO(object):
 
 
         :return: The _from of this MoveDetailsDTO.  # noqa: E501
-        :rtype: InfrastructureFacilityNamedDto
+        :rtype: InfrastructureFacilityNamedDTO
         """
         return self.__from
 
@@ -351,7 +351,7 @@ class MoveDetailsDTO(object):
 
 
         :param _from: The _from of this MoveDetailsDTO.  # noqa: E501
-        :type: InfrastructureFacilityNamedDto
+        :type: InfrastructureFacilityNamedDTO
         """
 
         self.__from = _from
@@ -362,7 +362,7 @@ class MoveDetailsDTO(object):
 
 
         :return: The to of this MoveDetailsDTO.  # noqa: E501
-        :rtype: InfrastructureFacilityNamedDto
+        :rtype: InfrastructureFacilityNamedDTO
         """
         return self._to
 
@@ -372,7 +372,7 @@ class MoveDetailsDTO(object):
 
 
         :param to: The to of this MoveDetailsDTO.  # noqa: E501
-        :type: InfrastructureFacilityNamedDto
+        :type: InfrastructureFacilityNamedDTO
         """
 
         self._to = to

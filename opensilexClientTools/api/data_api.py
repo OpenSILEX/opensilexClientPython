@@ -795,7 +795,7 @@ class DataApi(object):
         :param str uri: Search by fileUri (required)
         :param str authorization: Authentication token (required)
         :param str accept_language: Request accepted language
-        :return: DataFileCreationDTO
+        :return: DataFileGetDTO
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -819,7 +819,7 @@ class DataApi(object):
         :param str uri: Search by fileUri (required)
         :param str authorization: Authentication token (required)
         :param str accept_language: Request accepted language
-        :return: DataFileCreationDTO
+        :return: DataFileGetDTO
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -877,7 +877,7 @@ class DataApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='DataFileCreationDTO',  # noqa: E501
+            response_type='DataFileGetDTO',  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),
@@ -1373,7 +1373,7 @@ class DataApi(object):
     def post_data_file(self, description, file, **kwargs):  # noqa: E501
         """Add a data file  # noqa: E501
 
-          # noqa: E501
+        {\"rdf_type\":\"http://www.opensilex.org/vocabulary/oeso#Image\", \"date\":\"2020-08-21T00:00:00+01:00\", \"timezone\":\"Europe/Paris\", \"scientific_objects\":[\"http://plot01\"], \"provenance\": { \"uri\":\"http://opensilex.dev/provenance/1598001689415\" }, \"metadata\":{ \"LabelView\" : \"side90\", \"paramA\" : \"90\"}}  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.post_data_file(description, file, async_req=True)
@@ -1398,7 +1398,7 @@ class DataApi(object):
     def post_data_file_with_http_info(self, description, file, **kwargs):  # noqa: E501
         """Add a data file  # noqa: E501
 
-          # noqa: E501
+        {\"rdf_type\":\"http://www.opensilex.org/vocabulary/oeso#Image\", \"date\":\"2020-08-21T00:00:00+01:00\", \"timezone\":\"Europe/Paris\", \"scientific_objects\":[\"http://plot01\"], \"provenance\": { \"uri\":\"http://opensilex.dev/provenance/1598001689415\" }, \"metadata\":{ \"LabelView\" : \"side90\", \"paramA\" : \"90\"}}  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.post_data_file_with_http_info(description, file, async_req=True)

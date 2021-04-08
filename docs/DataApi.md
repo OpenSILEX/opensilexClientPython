@@ -395,7 +395,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **get_data_file_description**
-> DataFileCreationDTO get_data_file_description(uri, authorization, accept_language=accept_language)
+> DataFileGetDTO get_data_file_description(uri, authorization, accept_language=accept_language)
 
 Get a data file description
 
@@ -433,7 +433,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**DataFileCreationDTO**](DataFileCreationDTO.md)
+[**DataFileGetDTO**](DataFileGetDTO.md)
 
 ### Authorization
 
@@ -682,7 +682,7 @@ No authorization required
 
 Add a data file
 
-
+{\"rdf_type\":\"http://www.opensilex.org/vocabulary/oeso#Image\", \"date\":\"2020-08-21T00:00:00+01:00\", \"timezone\":\"Europe/Paris\", \"scientific_objects\":[\"http://plot01\"], \"provenance\": { \"uri\":\"http://opensilex.dev/provenance/1598001689415\" }, \"metadata\":{ \"LabelView\" : \"side90\", \"paramA\" : \"90\"}}
 
 ### Example
 ```python

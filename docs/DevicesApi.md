@@ -7,12 +7,13 @@ Method | HTTP request | Description
 [**create_device**](DevicesApi.md#create_device) | **POST** /core/devices | Create a device
 [**delete_device**](DevicesApi.md#delete_device) | **DELETE** /core/devices/{uri} | Delete a device
 [**export_devices**](DevicesApi.md#export_devices) | **GET** /core/devices/export | export devices
-[**export_list**](DevicesApi.md#export_list) | **GET** /core/devices/exportList | export devices
+[**export_list**](DevicesApi.md#export_list) | **POST** /core/devices/export_by_uris | export devices
 [**get_device**](DevicesApi.md#get_device) | **GET** /core/devices/{uri} | Get device detail
 [**get_device_data_files_provenances**](DevicesApi.md#get_device_data_files_provenances) | **GET** /core/devices/{uri}/datafiles/provenances | Get provenances of datafiles linked to this device
 [**get_device_data_provenances**](DevicesApi.md#get_device_data_provenances) | **GET** /core/devices/{uri}/data/provenances | Get provenances of data that have been measured on this device
 [**get_device_variables**](DevicesApi.md#get_device_variables) | **GET** /core/devices/{uri}/variables | Get variables measured by the device
 [**search_device_data**](DevicesApi.md#search_device_data) | **GET** /core/devices/{uri}/data | Search device data
+[**search_device_datafiles**](DevicesApi.md#search_device_datafiles) | **GET** /core/devices/{uri}/datafiles | Search device datafiles descriptions
 [**search_devices**](DevicesApi.md#search_devices) | **GET** /core/devices | Search devices
 [**update_device**](DevicesApi.md#update_device) | **PUT** /core/devices | Update a device
 
@@ -189,7 +190,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **export_list**
-> export_list(authorization, devices_list=devices_list, accept_language=accept_language)
+> export_list(authorization, body=body, accept_language=accept_language)
 
 export devices
 
@@ -207,12 +208,12 @@ from pprint import pprint
 pythonClient = opensilexClientTools.ApiClient()
 pythonClient.connect_to_phis_ws(api_id="ws_custom",username="guest@opensilex.org",password="guest",host="https://localhost")
 api_instance = opensilexClientTools.DevicesApi(pythonClient)
-devices_list = ['\"dev:set/sensor_01\"'] # list[str] | List of device URI (optional)
+body = opensilexClientTools.URIsListPostDTO() # URIsListPostDTO | List of device URI (optional)
 
 
 try:
     # export devices
-    api_instance.export_list(devices_list=devices_list, )
+    api_instance.export_list(body=body, )
 except ApiException as e:
     print("Exception when calling DevicesApi->export_list: %s\n" % e)
 ```
@@ -221,7 +222,7 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **devices_list** | [**list[str]**](str.md)| List of device URI | [optional] 
+ **body** | [**URIsListPostDTO**](URIsListPostDTO.md)| List of device URI | [optional] 
 
 
 ### Return type
@@ -502,6 +503,80 @@ Name | Type | Description  | Notes
  **min_confidence** | **float**| Search by minimal confidence index | [optional] 
  **max_confidence** | **float**| Search by maximal confidence index | [optional] 
  **provenance** | [**list[str]**](str.md)| Search by provenance uri | [optional] 
+ **metadata** | **str**| Search by metadata | [optional] 
+ **order_by** | [**list[str]**](str.md)| List of fields to sort as an array of fieldName&#x3D;asc|desc | [optional] 
+ **page** | **int**| Page number | [optional] [default to 0]
+ **page_size** | **int**| Page size | [optional] [default to 20]
+
+
+### Return type
+
+[**list[DataGetDTO]**](DataGetDTO.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **search_device_datafiles**
+> list[DataGetDTO] search_device_datafiles(uri, authorization, rdf_type=rdf_type, start_date=start_date, end_date=end_date, timezone=timezone, experiment=experiment, scientific_objects=scientific_objects, provenances=provenances, metadata=metadata, order_by=order_by, page=page, page_size=page_size, accept_language=accept_language)
+
+Search device datafiles descriptions
+
+
+
+### Example
+```python
+from __future__ import print_function
+import time
+import opensilexClientTools
+from opensilexClientTools.rest import ApiException
+from pprint import pprint
+
+# create an instance of the API class
+pythonClient = opensilexClientTools.ApiClient()
+pythonClient.connect_to_phis_ws(api_id="ws_custom",username="guest@opensilex.org",password="guest",host="https://localhost")
+api_instance = opensilexClientTools.DevicesApi(pythonClient)
+uri = '\"http://example.com/\"' # str | Device URI
+rdf_type = 'rdf_type_example' # str | Search by rdf type uri (optional)
+start_date = '\"2020-08-21T00:00:00+01:00\"' # str | Search by minimal date (optional)
+end_date = '\"2020-09-21T00:00:00+01:00\"' # str | Search by maximal date (optional)
+timezone = '\"Europe/Paris\"' # str | Precise the timezone corresponding to the given dates (optional)
+experiment = ['\"http://opensilex/set/experiments/ZA17\"'] # list[str] | Search by experiments (optional)
+scientific_objects = ['\"http://opensilex.dev/opensilex/2020/o20000345\"'] # list[str] | Search by object uris list (optional)
+provenances = ['\"http://opensilex.dev/provenance/1598001689415\"'] # list[str] | Search by provenance uris list (optional)
+metadata = '\"{ \\\"LabelView\\\" : \\\"side90\\\",\\n\\\"paramA\\\" : \\\"90\\\"}\"' # str | Search by metadata (optional)
+order_by = ['\"date=desc\"'] # list[str] | List of fields to sort as an array of fieldName=asc|desc (optional)
+page = 0 # int | Page number (optional) (default to 0)
+page_size = 20 # int | Page size (optional) (default to 20)
+
+
+try:
+    # Search device datafiles descriptions
+    api_response = api_instance.search_device_datafiles(uri, rdf_type=rdf_type, start_date=start_date, end_date=end_date, timezone=timezone, experiment=experiment, scientific_objects=scientific_objects, provenances=provenances, metadata=metadata, order_by=order_by, page=page, page_size=page_size, )
+    pprint(api_response)
+except ApiException as e:
+    print("Exception when calling DevicesApi->search_device_datafiles: %s\n" % e)
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **uri** | **str**| Device URI | 
+ **rdf_type** | **str**| Search by rdf type uri | [optional] 
+ **start_date** | **str**| Search by minimal date | [optional] 
+ **end_date** | **str**| Search by maximal date | [optional] 
+ **timezone** | **str**| Precise the timezone corresponding to the given dates | [optional] 
+ **experiment** | [**list[str]**](str.md)| Search by experiments | [optional] 
+ **scientific_objects** | [**list[str]**](str.md)| Search by object uris list | [optional] 
+ **provenances** | [**list[str]**](str.md)| Search by provenance uris list | [optional] 
  **metadata** | **str**| Search by metadata | [optional] 
  **order_by** | [**list[str]**](str.md)| List of fields to sort as an array of fieldName&#x3D;asc|desc | [optional] 
  **page** | **int**| Page number | [optional] [default to 0]

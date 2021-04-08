@@ -34,23 +34,26 @@ class OWLClassPropertyRestrictionDTO(object):
         '_property': 'str',
         'required': 'bool',
         'list': 'bool',
-        'rdf_type': 'str'
+        'rdf_type': 'str',
+        'domain': 'str'
     }
 
     attribute_map = {
         '_property': 'property',
         'required': 'required',
         'list': 'list',
-        'rdf_type': 'rdf_type'
+        'rdf_type': 'rdf_type',
+        'domain': 'domain'
     }
 
-    def __init__(self, _property=None, required=None, list=None, rdf_type=None):  # noqa: E501
+    def __init__(self, _property=None, required=None, list=None, rdf_type=None, domain=None):  # noqa: E501
         """OWLClassPropertyRestrictionDTO - a model defined in Swagger"""  # noqa: E501
 
         self.__property = None
         self._required = None
         self._list = None
         self._rdf_type = None
+        self._domain = None
         self.discriminator = None
 
         if _property is not None:
@@ -60,6 +63,7 @@ class OWLClassPropertyRestrictionDTO(object):
         if list is not None:
             self.list = list
         self.rdf_type = rdf_type
+        self.domain = domain
 
     @property
     def _property(self):
@@ -148,6 +152,31 @@ class OWLClassPropertyRestrictionDTO(object):
             raise ValueError("Invalid value for `rdf_type`, must not be `None`")  # noqa: E501
 
         self._rdf_type = rdf_type
+
+    @property
+    def domain(self):
+        """Gets the domain of this OWLClassPropertyRestrictionDTO.  # noqa: E501
+
+        Domain URI  # noqa: E501
+
+        :return: The domain of this OWLClassPropertyRestrictionDTO.  # noqa: E501
+        :rtype: str
+        """
+        return self._domain
+
+    @domain.setter
+    def domain(self, domain):
+        """Sets the domain of this OWLClassPropertyRestrictionDTO.
+
+        Domain URI  # noqa: E501
+
+        :param domain: The domain of this OWLClassPropertyRestrictionDTO.  # noqa: E501
+        :type: str
+        """
+        if domain is None:
+            raise ValueError("Invalid value for `domain`, must not be `None`")  # noqa: E501
+
+        self._domain = domain
 
     def to_dict(self):
         """Returns the model properties as a dict"""
