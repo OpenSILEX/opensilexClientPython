@@ -1,0 +1,450 @@
+2021-04-23 09:06:52,201,201 ERROR    [functions.py:140] Exception : (500)
+Reason: 
+HTTP response headers: HTTPHeaderDict({'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'origin, content-type, accept, authorization', 'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS, HEAD', 'Vary': 'accept-encoding,accept-encoding', 'Content-Type': 'application/json', 'Content-Length': '5125', 'Date': 'Fri, 23 Apr 2021 07:06:51 GMT', 'Connection': 'close'})
+HTTP response body: {
+  "metadata" : {
+    "pagination" : {
+      "pageSize" : 0,
+      "currentPage" : 0,
+      "totalCount" : 0,
+      "totalPages" : 0
+    },
+    "status" : [ ],
+    "datafiles" : [ ]
+  },
+  "result" : {
+    "title" : "Unexpected internal error - java.lang.NullPointerException",
+    "message" : null,
+    "stack" : [ "org.opensilex.core.variable.api.entity.EntityAPI.createEntity(EntityAPI.java:75)" ],
+    "fullstack" : [ "org.opensilex.core.variable.api.entity.EntityAPI.createEntity(EntityAPI.java:75)", "jdk.internal.reflect.GeneratedMethodAccessor84.invoke(Unknown Source)", "java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)", "java.base/java.lang.reflect.Method.invoke(Method.java:566)", "org.glassfish.jersey.server.model.internal.ResourceMethodInvocationHandlerFactory.lambda$static$0(ResourceMethodInvocationHandlerFactory.java:52)", "org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher$1.run(AbstractJavaResourceMethodDispatcher.java:124)", "org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher.invoke(AbstractJavaResourceMethodDispatcher.java:167)", "org.glassfish.jersey.server.model.internal.JavaResourceMethodDispatcherProvider$ResponseOutInvoker.doDispatch(JavaResourceMethodDispatcherProvider.java:176)", "org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher.dispatch(AbstractJavaResourceMethodDispatcher.java:79)", "org.glassfish.jersey.server.model.ResourceMethodInvoker.invoke(ResourceMethodInvoker.java:469)", "org.glassfish.jersey.server.model.ResourceMethodInvoker.apply(ResourceMethodInvoker.java:391)", "org.glassfish.jersey.server.model.ResourceMethodInvoker.apply(ResourceMethodInvoker.java:80)", "org.glassfish.jersey.server.ServerRuntime$1.run(ServerRuntime.java:255)", "org.glassfish.jersey.internal.Errors$1.call(Errors.java:248)", "org.glassfish.jersey.internal.Errors$1.call(Errors.java:244)", "org.glassfish.jersey.internal.Errors.process(Errors.java:292)", "org.glassfish.jersey.internal.Errors.process(Errors.java:274)", "org.glassfish.jersey.internal.Errors.process(Errors.java:244)", "org.glassfish.jersey.process.internal.RequestScope.runInScope(RequestScope.java:265)", "org.glassfish.jersey.server.ServerRuntime.process(ServerRuntime.java:234)", "org.glassfish.jersey.server.ApplicationHandler.handle(ApplicationHandler.java:680)", "org.glassfish.jersey.servlet.WebComponent.serviceImpl(WebComponent.java:394)", "org.glassfish.jersey.servlet.WebComponent.service(WebComponent.java:346)", "org.glassfish.jersey.servlet.ServletContainer.service(ServletContainer.java:366)", "org.glassfish.jersey.servlet.ServletContainer.service(ServletContainer.java:319)", "org.glassfish.jersey.servlet.ServletContainer.service(ServletContainer.java:205)", "org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:231)", "org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)", "org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)", "org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)", "org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)", "org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:202)", "org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:97)", "org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:542)", "org.apache.catalina.valves.StuckThreadDetectionValve.invoke(StuckThreadDetectionValve.java:206)", "org.apache.catalina.valves.rewrite.RewriteValve.invoke(RewriteValve.java:295)", "org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:143)", "org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)", "org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:78)", "org.apache.catalina.valves.rewrite.RewriteValve.invoke(RewriteValve.java:552)", "org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:143)", "org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)", "org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:78)", "org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:343)", "org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:374)", "org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:65)", "org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:868)", "org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1590)", "org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:49)", "java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)", "java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)", "org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)", "java.base/java.lang.Thread.run(Thread.java:834)" ]
+  }
+}
+
+
+2021-04-23 09:07:14,391 ERROR    [functions.py:140] Exception : (500)
+Reason: 
+HTTP response headers: HTTPHeaderDict({'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'origin, content-type, accept, authorization', 'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS, HEAD', 'Vary': 'accept-encoding,accept-encoding', 'Content-Type': 'application/json', 'Content-Length': '5125', 'Date': 'Fri, 23 Apr 2021 07:07:13 GMT', 'Connection': 'close'})
+HTTP response body: {
+  "metadata" : {
+    "pagination" : {
+      "pageSize" : 0,
+      "currentPage" : 0,
+      "totalCount" : 0,
+      "totalPages" : 0
+    },
+    "status" : [ ],
+    "datafiles" : [ ]
+  },
+  "result" : {
+    "title" : "Unexpected internal error - java.lang.NullPointerException",
+    "message" : null,
+    "stack" : [ "org.opensilex.core.variable.api.entity.EntityAPI.createEntity(EntityAPI.java:75)" ],
+    "fullstack" : [ "org.opensilex.core.variable.api.entity.EntityAPI.createEntity(EntityAPI.java:75)", "jdk.internal.reflect.GeneratedMethodAccessor84.invoke(Unknown Source)", "java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)", "java.base/java.lang.reflect.Method.invoke(Method.java:566)", "org.glassfish.jersey.server.model.internal.ResourceMethodInvocationHandlerFactory.lambda$static$0(ResourceMethodInvocationHandlerFactory.java:52)", "org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher$1.run(AbstractJavaResourceMethodDispatcher.java:124)", "org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher.invoke(AbstractJavaResourceMethodDispatcher.java:167)", "org.glassfish.jersey.server.model.internal.JavaResourceMethodDispatcherProvider$ResponseOutInvoker.doDispatch(JavaResourceMethodDispatcherProvider.java:176)", "org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher.dispatch(AbstractJavaResourceMethodDispatcher.java:79)", "org.glassfish.jersey.server.model.ResourceMethodInvoker.invoke(ResourceMethodInvoker.java:469)", "org.glassfish.jersey.server.model.ResourceMethodInvoker.apply(ResourceMethodInvoker.java:391)", "org.glassfish.jersey.server.model.ResourceMethodInvoker.apply(ResourceMethodInvoker.java:80)", "org.glassfish.jersey.server.ServerRuntime$1.run(ServerRuntime.java:255)", "org.glassfish.jersey.internal.Errors$1.call(Errors.java:248)", "org.glassfish.jersey.internal.Errors$1.call(Errors.java:244)", "org.glassfish.jersey.internal.Errors.process(Errors.java:292)", "org.glassfish.jersey.internal.Errors.process(Errors.java:274)", "org.glassfish.jersey.internal.Errors.process(Errors.java:244)", "org.glassfish.jersey.process.internal.RequestScope.runInScope(RequestScope.java:265)", "org.glassfish.jersey.server.ServerRuntime.process(ServerRuntime.java:234)", "org.glassfish.jersey.server.ApplicationHandler.handle(ApplicationHandler.java:680)", "org.glassfish.jersey.servlet.WebComponent.serviceImpl(WebComponent.java:394)", "org.glassfish.jersey.servlet.WebComponent.service(WebComponent.java:346)", "org.glassfish.jersey.servlet.ServletContainer.service(ServletContainer.java:366)", "org.glassfish.jersey.servlet.ServletContainer.service(ServletContainer.java:319)", "org.glassfish.jersey.servlet.ServletContainer.service(ServletContainer.java:205)", "org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:231)", "org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)", "org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)", "org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)", "org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)", "org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:202)", "org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:97)", "org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:542)", "org.apache.catalina.valves.StuckThreadDetectionValve.invoke(StuckThreadDetectionValve.java:206)", "org.apache.catalina.valves.rewrite.RewriteValve.invoke(RewriteValve.java:295)", "org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:143)", "org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)", "org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:78)", "org.apache.catalina.valves.rewrite.RewriteValve.invoke(RewriteValve.java:552)", "org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:143)", "org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)", "org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:78)", "org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:343)", "org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:374)", "org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:65)", "org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:868)", "org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1590)", "org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:49)", "java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)", "java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)", "org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)", "java.base/java.lang.Thread.run(Thread.java:834)" ]
+  }
+}
+
+
+2021-04-23 09:07:58,211 INFO     [functions.py:140] {'broad_match': None,
+ 'close_match': None,
+ 'description': nan,
+ 'exact_match': None,
+ 'name': 'Canopy',
+ 'narrow_match': None,
+ 'uri': 'http://purl.obolibrary.org/obo/ENVO_01001242'}
+2021-04-23 09:07:58,213 ERROR    [functions.py:141] Exception : (500)
+Reason: 
+HTTP response headers: HTTPHeaderDict({'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'origin, content-type, accept, authorization', 'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS, HEAD', 'Vary': 'accept-encoding,accept-encoding', 'Content-Type': 'application/json', 'Content-Length': '5125', 'Date': 'Fri, 23 Apr 2021 07:07:57 GMT', 'Connection': 'close'})
+HTTP response body: {
+  "metadata" : {
+    "pagination" : {
+      "pageSize" : 0,
+      "currentPage" : 0,
+      "totalCount" : 0,
+      "totalPages" : 0
+    },
+    "status" : [ ],
+    "datafiles" : [ ]
+  },
+  "result" : {
+    "title" : "Unexpected internal error - java.lang.NullPointerException",
+    "message" : null,
+    "stack" : [ "org.opensilex.core.variable.api.entity.EntityAPI.createEntity(EntityAPI.java:75)" ],
+    "fullstack" : [ "org.opensilex.core.variable.api.entity.EntityAPI.createEntity(EntityAPI.java:75)", "jdk.internal.reflect.GeneratedMethodAccessor84.invoke(Unknown Source)", "java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)", "java.base/java.lang.reflect.Method.invoke(Method.java:566)", "org.glassfish.jersey.server.model.internal.ResourceMethodInvocationHandlerFactory.lambda$static$0(ResourceMethodInvocationHandlerFactory.java:52)", "org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher$1.run(AbstractJavaResourceMethodDispatcher.java:124)", "org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher.invoke(AbstractJavaResourceMethodDispatcher.java:167)", "org.glassfish.jersey.server.model.internal.JavaResourceMethodDispatcherProvider$ResponseOutInvoker.doDispatch(JavaResourceMethodDispatcherProvider.java:176)", "org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher.dispatch(AbstractJavaResourceMethodDispatcher.java:79)", "org.glassfish.jersey.server.model.ResourceMethodInvoker.invoke(ResourceMethodInvoker.java:469)", "org.glassfish.jersey.server.model.ResourceMethodInvoker.apply(ResourceMethodInvoker.java:391)", "org.glassfish.jersey.server.model.ResourceMethodInvoker.apply(ResourceMethodInvoker.java:80)", "org.glassfish.jersey.server.ServerRuntime$1.run(ServerRuntime.java:255)", "org.glassfish.jersey.internal.Errors$1.call(Errors.java:248)", "org.glassfish.jersey.internal.Errors$1.call(Errors.java:244)", "org.glassfish.jersey.internal.Errors.process(Errors.java:292)", "org.glassfish.jersey.internal.Errors.process(Errors.java:274)", "org.glassfish.jersey.internal.Errors.process(Errors.java:244)", "org.glassfish.jersey.process.internal.RequestScope.runInScope(RequestScope.java:265)", "org.glassfish.jersey.server.ServerRuntime.process(ServerRuntime.java:234)", "org.glassfish.jersey.server.ApplicationHandler.handle(ApplicationHandler.java:680)", "org.glassfish.jersey.servlet.WebComponent.serviceImpl(WebComponent.java:394)", "org.glassfish.jersey.servlet.WebComponent.service(WebComponent.java:346)", "org.glassfish.jersey.servlet.ServletContainer.service(ServletContainer.java:366)", "org.glassfish.jersey.servlet.ServletContainer.service(ServletContainer.java:319)", "org.glassfish.jersey.servlet.ServletContainer.service(ServletContainer.java:205)", "org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:231)", "org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)", "org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)", "org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)", "org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)", "org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:202)", "org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:97)", "org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:542)", "org.apache.catalina.valves.StuckThreadDetectionValve.invoke(StuckThreadDetectionValve.java:206)", "org.apache.catalina.valves.rewrite.RewriteValve.invoke(RewriteValve.java:295)", "org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:143)", "org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)", "org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:78)", "org.apache.catalina.valves.rewrite.RewriteValve.invoke(RewriteValve.java:552)", "org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:143)", "org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)", "org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:78)", "org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:343)", "org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:374)", "org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:65)", "org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:868)", "org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1590)", "org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:49)", "java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)", "java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)", "org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)", "java.base/java.lang.Thread.run(Thread.java:834)" ]
+  }
+}
+
+
+2021-04-23 09:08:56,253 INFO     [functions.py:140] {'broad_match': None,
+ 'close_match': None,
+ 'description': nan,
+ 'exact_match': None,
+ 'name': 'Canopy',
+ 'narrow_match': None,
+ 'uri': 'http://purl.obolibrary.org/obo/ENVO_01001242'}
+2021-04-23 09:08:56,254 ERROR    [functions.py:141] Exception : (500)
+Reason: 
+HTTP response headers: HTTPHeaderDict({'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'origin, content-type, accept, authorization', 'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS, HEAD', 'Vary': 'accept-encoding,accept-encoding', 'Content-Type': 'application/json', 'Content-Length': '5125', 'Date': 'Fri, 23 Apr 2021 07:08:55 GMT', 'Connection': 'close'})
+HTTP response body: {
+  "metadata" : {
+    "pagination" : {
+      "pageSize" : 0,
+      "currentPage" : 0,
+      "totalCount" : 0,
+      "totalPages" : 0
+    },
+    "status" : [ ],
+    "datafiles" : [ ]
+  },
+  "result" : {
+    "title" : "Unexpected internal error - java.lang.NullPointerException",
+    "message" : null,
+    "stack" : [ "org.opensilex.core.variable.api.entity.EntityAPI.createEntity(EntityAPI.java:75)" ],
+    "fullstack" : [ "org.opensilex.core.variable.api.entity.EntityAPI.createEntity(EntityAPI.java:75)", "jdk.internal.reflect.GeneratedMethodAccessor84.invoke(Unknown Source)", "java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)", "java.base/java.lang.reflect.Method.invoke(Method.java:566)", "org.glassfish.jersey.server.model.internal.ResourceMethodInvocationHandlerFactory.lambda$static$0(ResourceMethodInvocationHandlerFactory.java:52)", "org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher$1.run(AbstractJavaResourceMethodDispatcher.java:124)", "org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher.invoke(AbstractJavaResourceMethodDispatcher.java:167)", "org.glassfish.jersey.server.model.internal.JavaResourceMethodDispatcherProvider$ResponseOutInvoker.doDispatch(JavaResourceMethodDispatcherProvider.java:176)", "org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher.dispatch(AbstractJavaResourceMethodDispatcher.java:79)", "org.glassfish.jersey.server.model.ResourceMethodInvoker.invoke(ResourceMethodInvoker.java:469)", "org.glassfish.jersey.server.model.ResourceMethodInvoker.apply(ResourceMethodInvoker.java:391)", "org.glassfish.jersey.server.model.ResourceMethodInvoker.apply(ResourceMethodInvoker.java:80)", "org.glassfish.jersey.server.ServerRuntime$1.run(ServerRuntime.java:255)", "org.glassfish.jersey.internal.Errors$1.call(Errors.java:248)", "org.glassfish.jersey.internal.Errors$1.call(Errors.java:244)", "org.glassfish.jersey.internal.Errors.process(Errors.java:292)", "org.glassfish.jersey.internal.Errors.process(Errors.java:274)", "org.glassfish.jersey.internal.Errors.process(Errors.java:244)", "org.glassfish.jersey.process.internal.RequestScope.runInScope(RequestScope.java:265)", "org.glassfish.jersey.server.ServerRuntime.process(ServerRuntime.java:234)", "org.glassfish.jersey.server.ApplicationHandler.handle(ApplicationHandler.java:680)", "org.glassfish.jersey.servlet.WebComponent.serviceImpl(WebComponent.java:394)", "org.glassfish.jersey.servlet.WebComponent.service(WebComponent.java:346)", "org.glassfish.jersey.servlet.ServletContainer.service(ServletContainer.java:366)", "org.glassfish.jersey.servlet.ServletContainer.service(ServletContainer.java:319)", "org.glassfish.jersey.servlet.ServletContainer.service(ServletContainer.java:205)", "org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:231)", "org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)", "org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)", "org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)", "org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)", "org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:202)", "org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:97)", "org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:542)", "org.apache.catalina.valves.StuckThreadDetectionValve.invoke(StuckThreadDetectionValve.java:206)", "org.apache.catalina.valves.rewrite.RewriteValve.invoke(RewriteValve.java:295)", "org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:143)", "org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)", "org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:78)", "org.apache.catalina.valves.rewrite.RewriteValve.invoke(RewriteValve.java:552)", "org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:143)", "org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)", "org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:78)", "org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:343)", "org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:374)", "org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:65)", "org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:868)", "org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1590)", "org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:49)", "java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)", "java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)", "org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)", "java.base/java.lang.Thread.run(Thread.java:834)" ]
+  }
+}
+
+
+2021-04-23 09:09:30,459 INFO     [functions.py:142] {'broad_match': None,
+ 'close_match': None,
+ 'description': nan,
+ 'exact_match': None,
+ 'name': 'Canopy',
+ 'narrow_match': None,
+ 'uri': 'http://purl.obolibrary.org/obo/ENVO_01001242'}
+2021-04-23 09:09:30,461 ERROR    [functions.py:143] Exception : (500)
+Reason: 
+HTTP response headers: HTTPHeaderDict({'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'origin, content-type, accept, authorization', 'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS, HEAD', 'Vary': 'accept-encoding,accept-encoding', 'Content-Type': 'application/json', 'Content-Length': '5125', 'Date': 'Fri, 23 Apr 2021 07:09:29 GMT', 'Connection': 'close'})
+HTTP response body: {
+  "metadata" : {
+    "pagination" : {
+      "pageSize" : 0,
+      "currentPage" : 0,
+      "totalCount" : 0,
+      "totalPages" : 0
+    },
+    "status" : [ ],
+    "datafiles" : [ ]
+  },
+  "result" : {
+    "title" : "Unexpected internal error - java.lang.NullPointerException",
+    "message" : null,
+    "stack" : [ "org.opensilex.core.variable.api.entity.EntityAPI.createEntity(EntityAPI.java:75)" ],
+    "fullstack" : [ "org.opensilex.core.variable.api.entity.EntityAPI.createEntity(EntityAPI.java:75)", "jdk.internal.reflect.GeneratedMethodAccessor84.invoke(Unknown Source)", "java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)", "java.base/java.lang.reflect.Method.invoke(Method.java:566)", "org.glassfish.jersey.server.model.internal.ResourceMethodInvocationHandlerFactory.lambda$static$0(ResourceMethodInvocationHandlerFactory.java:52)", "org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher$1.run(AbstractJavaResourceMethodDispatcher.java:124)", "org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher.invoke(AbstractJavaResourceMethodDispatcher.java:167)", "org.glassfish.jersey.server.model.internal.JavaResourceMethodDispatcherProvider$ResponseOutInvoker.doDispatch(JavaResourceMethodDispatcherProvider.java:176)", "org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher.dispatch(AbstractJavaResourceMethodDispatcher.java:79)", "org.glassfish.jersey.server.model.ResourceMethodInvoker.invoke(ResourceMethodInvoker.java:469)", "org.glassfish.jersey.server.model.ResourceMethodInvoker.apply(ResourceMethodInvoker.java:391)", "org.glassfish.jersey.server.model.ResourceMethodInvoker.apply(ResourceMethodInvoker.java:80)", "org.glassfish.jersey.server.ServerRuntime$1.run(ServerRuntime.java:255)", "org.glassfish.jersey.internal.Errors$1.call(Errors.java:248)", "org.glassfish.jersey.internal.Errors$1.call(Errors.java:244)", "org.glassfish.jersey.internal.Errors.process(Errors.java:292)", "org.glassfish.jersey.internal.Errors.process(Errors.java:274)", "org.glassfish.jersey.internal.Errors.process(Errors.java:244)", "org.glassfish.jersey.process.internal.RequestScope.runInScope(RequestScope.java:265)", "org.glassfish.jersey.server.ServerRuntime.process(ServerRuntime.java:234)", "org.glassfish.jersey.server.ApplicationHandler.handle(ApplicationHandler.java:680)", "org.glassfish.jersey.servlet.WebComponent.serviceImpl(WebComponent.java:394)", "org.glassfish.jersey.servlet.WebComponent.service(WebComponent.java:346)", "org.glassfish.jersey.servlet.ServletContainer.service(ServletContainer.java:366)", "org.glassfish.jersey.servlet.ServletContainer.service(ServletContainer.java:319)", "org.glassfish.jersey.servlet.ServletContainer.service(ServletContainer.java:205)", "org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:231)", "org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)", "org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)", "org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)", "org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)", "org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:202)", "org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:97)", "org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:542)", "org.apache.catalina.valves.StuckThreadDetectionValve.invoke(StuckThreadDetectionValve.java:206)", "org.apache.catalina.valves.rewrite.RewriteValve.invoke(RewriteValve.java:295)", "org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:143)", "org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)", "org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:78)", "org.apache.catalina.valves.rewrite.RewriteValve.invoke(RewriteValve.java:552)", "org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:143)", "org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)", "org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:78)", "org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:343)", "org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:374)", "org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:65)", "org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:868)", "org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1590)", "org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:49)", "java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)", "java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)", "org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)", "java.base/java.lang.Thread.run(Thread.java:834)" ]
+  }
+}
+
+
+2021-04-23 09:09:48,031 ERROR    [functions.py:311] Exception : name 'description' is not defined
+
+2021-04-23 09:09:48,031 INFO     [functions.py:312] Variable failed
+2021-04-23 09:09:48,032 INFO     [functions.py:313] trait.label                                                     Canopy DNVI
+entity.uri                     http://purl.obolibrary.org/obo/ENVO_01001242
+entity.label                                                         Canopy
+entity.comment                                                          NaN
+characteristic.uri        https://emphasis.plant-phenotyping.eu/set/vari...
+characteristic.label                                           ND850nm675nm
+characteristic.comment                                                  NaN
+trait.uri                                                               NaN
+trait.comment                Canopy normalized difference vegetation index.
+method.uri                https://emphasis.plant-phenotyping.eu/variable...
+method.label                                          Wave band combination
+method.comment            Optimum number of measurements: i) Vegetative ...
+unit.uri                  https://emphasis.plant-phenotyping.eu/variable...
+unit.label                                                         Unitless
+unit.comment                                                            NaN
+uri                              http://phenome-emphasis/variable/4P:000019
+label                                         Can_ND850nm675nm_BndCmb_uless
+datatype                                                            decimal
+Name: 0, dtype: object
+2021-04-23 09:09:48,051 ERROR    [functions.py:311] Exception : name 'description' is not defined
+
+2021-04-23 09:09:48,051 INFO     [functions.py:312] Variable failed
+2021-04-23 09:09:48,051 INFO     [functions.py:313] trait.label                                                             NaN
+entity.uri                https://emphasis.plant-phenotyping.eu/variable...
+entity.label                                                            Air
+entity.comment                                                          NaN
+characteristic.uri              http://purl.obolibrary.org/obo/PATO_0000146
+characteristic.label                                            Temperature
+characteristic.comment                                                  NaN
+trait.uri                                                               NaN
+trait.comment                                                           NaN
+method.uri                https://emphasis.plant-phenotyping.eu/variable...
+method.label                                                   Thermocouple
+method.comment                                                          NaN
+unit.uri                  http://www.ontology-of-units-of-measure.org/re...
+unit.label                                                   degree Celsius
+unit.comment                                                            NaN
+uri                       https://emphasis.plant-phenotyping.eu/variable...
+label                                                       Air_temperature
+datatype                                                            decimal
+Name: 1, dtype: object
+2021-04-23 09:09:48,052 ERROR    [functions.py:311] Exception : name 'description' is not defined
+
+2021-04-23 09:09:48,053 INFO     [functions.py:312] Variable failed
+2021-04-23 09:09:48,053 INFO     [functions.py:313] trait.label                                                             NaN
+entity.uri                https://emphasis.plant-phenotyping.eu/variable...
+entity.label                                                            Air
+entity.comment                                                          NaN
+characteristic.uri        https://emphasis.plant-phenotyping.eu/variable...
+characteristic.label                                               Humidity
+characteristic.comment                                                  NaN
+trait.uri                                                               NaN
+trait.comment                                                           NaN
+method.uri                https://emphasis.plant-phenotyping.eu/variable...
+method.label                                                    Measurement
+method.comment                                                          NaN
+unit.uri                  http://www.ontology-of-units-of-measure.org/re...
+unit.label                                                          percent
+unit.comment              The percent is a unit of dimension one defined...
+uri                       https://emphasis.plant-phenotyping.eu/variable...
+label                                                          Air_humidity
+datatype                                                            decimal
+Name: 2, dtype: object
+2021-04-23 09:09:48,055 INFO     [functions.py:315] Number of variables to transfer : 0/3
+2021-04-23 09:10:35,487 ERROR    [functions.py:304] Exception : (500)
+Reason: 
+HTTP response headers: HTTPHeaderDict({'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'origin, content-type, accept, authorization', 'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS, HEAD', 'Vary': 'accept-encoding,accept-encoding', 'Content-Type': 'application/json', 'Content-Length': '5124', 'Date': 'Fri, 23 Apr 2021 07:10:34 GMT', 'Connection': 'close'})
+HTTP response body: {
+  "metadata" : {
+    "pagination" : {
+      "pageSize" : 0,
+      "currentPage" : 0,
+      "totalCount" : 0,
+      "totalPages" : 0
+    },
+    "status" : [ ],
+    "datafiles" : [ ]
+  },
+  "result" : {
+    "title" : "Unexpected internal error - java.lang.NullPointerException",
+    "message" : null,
+    "stack" : [ "org.opensilex.core.variable.api.VariableAPI.createVariable(VariableAPI.java:84)" ],
+    "fullstack" : [ "org.opensilex.core.variable.api.VariableAPI.createVariable(VariableAPI.java:84)", "jdk.internal.reflect.GeneratedMethodAccessor100.invoke(Unknown Source)", "java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)", "java.base/java.lang.reflect.Method.invoke(Method.java:566)", "org.glassfish.jersey.server.model.internal.ResourceMethodInvocationHandlerFactory.lambda$static$0(ResourceMethodInvocationHandlerFactory.java:52)", "org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher$1.run(AbstractJavaResourceMethodDispatcher.java:124)", "org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher.invoke(AbstractJavaResourceMethodDispatcher.java:167)", "org.glassfish.jersey.server.model.internal.JavaResourceMethodDispatcherProvider$ResponseOutInvoker.doDispatch(JavaResourceMethodDispatcherProvider.java:176)", "org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher.dispatch(AbstractJavaResourceMethodDispatcher.java:79)", "org.glassfish.jersey.server.model.ResourceMethodInvoker.invoke(ResourceMethodInvoker.java:469)", "org.glassfish.jersey.server.model.ResourceMethodInvoker.apply(ResourceMethodInvoker.java:391)", "org.glassfish.jersey.server.model.ResourceMethodInvoker.apply(ResourceMethodInvoker.java:80)", "org.glassfish.jersey.server.ServerRuntime$1.run(ServerRuntime.java:255)", "org.glassfish.jersey.internal.Errors$1.call(Errors.java:248)", "org.glassfish.jersey.internal.Errors$1.call(Errors.java:244)", "org.glassfish.jersey.internal.Errors.process(Errors.java:292)", "org.glassfish.jersey.internal.Errors.process(Errors.java:274)", "org.glassfish.jersey.internal.Errors.process(Errors.java:244)", "org.glassfish.jersey.process.internal.RequestScope.runInScope(RequestScope.java:265)", "org.glassfish.jersey.server.ServerRuntime.process(ServerRuntime.java:234)", "org.glassfish.jersey.server.ApplicationHandler.handle(ApplicationHandler.java:680)", "org.glassfish.jersey.servlet.WebComponent.serviceImpl(WebComponent.java:394)", "org.glassfish.jersey.servlet.WebComponent.service(WebComponent.java:346)", "org.glassfish.jersey.servlet.ServletContainer.service(ServletContainer.java:366)", "org.glassfish.jersey.servlet.ServletContainer.service(ServletContainer.java:319)", "org.glassfish.jersey.servlet.ServletContainer.service(ServletContainer.java:205)", "org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:231)", "org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)", "org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)", "org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)", "org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)", "org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:202)", "org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:97)", "org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:542)", "org.apache.catalina.valves.StuckThreadDetectionValve.invoke(StuckThreadDetectionValve.java:206)", "org.apache.catalina.valves.rewrite.RewriteValve.invoke(RewriteValve.java:295)", "org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:143)", "org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)", "org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:78)", "org.apache.catalina.valves.rewrite.RewriteValve.invoke(RewriteValve.java:552)", "org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:143)", "org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)", "org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:78)", "org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:343)", "org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:374)", "org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:65)", "org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:868)", "org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1590)", "org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:49)", "java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)", "java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)", "org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)", "java.base/java.lang.Thread.run(Thread.java:834)" ]
+  }
+}
+
+
+2021-04-23 09:10:35,487 INFO     [functions.py:305] Variable failed
+2021-04-23 09:10:35,488 INFO     [functions.py:306] {'alternative_name': 'Canopy DNVI',
+ 'broad_match': None,
+ 'characteristic': 'https://emphasis.plant-phenotyping.eu/set/variables#variable.quality.nd850nm675nm',
+ 'close_match': None,
+ 'datatype': 'http://www.w3.org/2001/XMLSchema#decimal',
+ 'description': False,
+ 'entity': 'http://purl.obolibrary.org/obo/ENVO_01001242',
+ 'exact_match': None,
+ 'method': 'https://emphasis.plant-phenotyping.eu/variable#variable.method.wave-band-combination',
+ 'name': 'Can_ND850nm675nm_BndCmb_uless',
+ 'narrow_match': None,
+ 'sampling_interval': None,
+ 'time_interval': None,
+ 'trait': nan,
+ 'trait_name': 'Canopy DNVI',
+ 'unit': 'https://emphasis.plant-phenotyping.eu/variable#variable.unit.unitless',
+ 'uri': 'http://phenome-emphasis/variable/4P:000019'}
+2021-04-23 09:10:35,488 INFO     [functions.py:307] Number of variables to transfer : 0/3
+2021-04-23 09:12:15,234 ERROR    [functions.py:304] Exception : (500)
+Reason: 
+HTTP response headers: HTTPHeaderDict({'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'origin, content-type, accept, authorization', 'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS, HEAD', 'Vary': 'accept-encoding,accept-encoding', 'Content-Type': 'application/json', 'Content-Length': '5124', 'Date': 'Fri, 23 Apr 2021 07:12:14 GMT', 'Connection': 'close'})
+HTTP response body: {
+  "metadata" : {
+    "pagination" : {
+      "pageSize" : 0,
+      "currentPage" : 0,
+      "totalCount" : 0,
+      "totalPages" : 0
+    },
+    "status" : [ ],
+    "datafiles" : [ ]
+  },
+  "result" : {
+    "title" : "Unexpected internal error - java.lang.NullPointerException",
+    "message" : null,
+    "stack" : [ "org.opensilex.core.variable.api.VariableAPI.createVariable(VariableAPI.java:84)" ],
+    "fullstack" : [ "org.opensilex.core.variable.api.VariableAPI.createVariable(VariableAPI.java:84)", "jdk.internal.reflect.GeneratedMethodAccessor100.invoke(Unknown Source)", "java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)", "java.base/java.lang.reflect.Method.invoke(Method.java:566)", "org.glassfish.jersey.server.model.internal.ResourceMethodInvocationHandlerFactory.lambda$static$0(ResourceMethodInvocationHandlerFactory.java:52)", "org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher$1.run(AbstractJavaResourceMethodDispatcher.java:124)", "org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher.invoke(AbstractJavaResourceMethodDispatcher.java:167)", "org.glassfish.jersey.server.model.internal.JavaResourceMethodDispatcherProvider$ResponseOutInvoker.doDispatch(JavaResourceMethodDispatcherProvider.java:176)", "org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher.dispatch(AbstractJavaResourceMethodDispatcher.java:79)", "org.glassfish.jersey.server.model.ResourceMethodInvoker.invoke(ResourceMethodInvoker.java:469)", "org.glassfish.jersey.server.model.ResourceMethodInvoker.apply(ResourceMethodInvoker.java:391)", "org.glassfish.jersey.server.model.ResourceMethodInvoker.apply(ResourceMethodInvoker.java:80)", "org.glassfish.jersey.server.ServerRuntime$1.run(ServerRuntime.java:255)", "org.glassfish.jersey.internal.Errors$1.call(Errors.java:248)", "org.glassfish.jersey.internal.Errors$1.call(Errors.java:244)", "org.glassfish.jersey.internal.Errors.process(Errors.java:292)", "org.glassfish.jersey.internal.Errors.process(Errors.java:274)", "org.glassfish.jersey.internal.Errors.process(Errors.java:244)", "org.glassfish.jersey.process.internal.RequestScope.runInScope(RequestScope.java:265)", "org.glassfish.jersey.server.ServerRuntime.process(ServerRuntime.java:234)", "org.glassfish.jersey.server.ApplicationHandler.handle(ApplicationHandler.java:680)", "org.glassfish.jersey.servlet.WebComponent.serviceImpl(WebComponent.java:394)", "org.glassfish.jersey.servlet.WebComponent.service(WebComponent.java:346)", "org.glassfish.jersey.servlet.ServletContainer.service(ServletContainer.java:366)", "org.glassfish.jersey.servlet.ServletContainer.service(ServletContainer.java:319)", "org.glassfish.jersey.servlet.ServletContainer.service(ServletContainer.java:205)", "org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:231)", "org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)", "org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)", "org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)", "org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)", "org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:202)", "org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:97)", "org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:542)", "org.apache.catalina.valves.StuckThreadDetectionValve.invoke(StuckThreadDetectionValve.java:206)", "org.apache.catalina.valves.rewrite.RewriteValve.invoke(RewriteValve.java:295)", "org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:143)", "org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)", "org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:78)", "org.apache.catalina.valves.rewrite.RewriteValve.invoke(RewriteValve.java:552)", "org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:143)", "org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)", "org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:78)", "org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:343)", "org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:374)", "org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:65)", "org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:868)", "org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1590)", "org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:49)", "java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)", "java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)", "org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)", "java.base/java.lang.Thread.run(Thread.java:834)" ]
+  }
+}
+
+
+2021-04-23 09:12:15,235 INFO     [functions.py:305] Variable failed
+2021-04-23 09:12:15,235 INFO     [functions.py:306] {'alternative_name': nan,
+ 'broad_match': None,
+ 'characteristic': 'http://purl.obolibrary.org/obo/PATO_0000146',
+ 'close_match': None,
+ 'datatype': 'http://www.w3.org/2001/XMLSchema#decimal',
+ 'description': 'No description',
+ 'entity': 'https://emphasis.plant-phenotyping.eu/variable#variable.entity.air',
+ 'exact_match': None,
+ 'method': 'https://emphasis.plant-phenotyping.eu/variable#variable.method.thermocouple',
+ 'name': 'Air_temperature',
+ 'narrow_match': None,
+ 'sampling_interval': None,
+ 'time_interval': None,
+ 'trait': None,
+ 'trait_name': None,
+ 'unit': 'http://www.ontology-of-units-of-measure.org/resource/om-2/degreeCelsius',
+ 'uri': 'https://emphasis.plant-phenotyping.eu/variable#variable.air_temperature'}
+2021-04-23 09:12:15,236 INFO     [functions.py:307] Number of variables to transfer : 0/3
+2021-04-23 09:17:20,909 INFO     [functions.py:306] Number of variables to transfer : 2/3
+2021-04-23 09:18:19,386 ERROR    [functions.py:298] Exception : (409)
+Reason: 
+HTTP response headers: HTTPHeaderDict({'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'origin, content-type, accept, authorization', 'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS, HEAD', 'Vary': 'Accept-Encoding', 'Content-Type': 'application/json', 'Content-Length': '374', 'Date': 'Fri, 23 Apr 2021 07:18:18 GMT'})
+HTTP response body: {
+  "metadata" : {
+    "pagination" : {
+      "pageSize" : 0,
+      "currentPage" : 0,
+      "totalCount" : 0,
+      "totalPages" : 0
+    },
+    "status" : [ ],
+    "datafiles" : [ ]
+  },
+  "result" : {
+    "title" : "Variable already exists",
+    "message" : "URI already exists: http://phenome-emphasis/variable/4P:000019",
+    "stack" : null,
+    "fullstack" : null
+  }
+}
+
+
+2021-04-23 09:18:19,386 INFO     [functions.py:299] Variable failed
+2021-04-23 09:18:19,386 INFO     [functions.py:300] {'alternative_name': None,
+ 'broad_match': None,
+ 'characteristic': 'https://emphasis.plant-phenotyping.eu/set/variables#variable.quality.nd850nm675nm',
+ 'close_match': None,
+ 'datatype': 'http://www.w3.org/2001/XMLSchema#decimal',
+ 'description': False,
+ 'entity': 'http://purl.obolibrary.org/obo/ENVO_01001242',
+ 'exact_match': None,
+ 'method': 'https://emphasis.plant-phenotyping.eu/variable#variable.method.wave-band-combination',
+ 'name': 'Can_ND850nm675nm_BndCmb_uless',
+ 'narrow_match': None,
+ 'sampling_interval': None,
+ 'time_interval': None,
+ 'trait': None,
+ 'trait_name': None,
+ 'unit': 'https://emphasis.plant-phenotyping.eu/variable#variable.unit.unitless',
+ 'uri': 'http://phenome-emphasis/variable/4P:000019'}
+2021-04-23 09:18:19,387 INFO     [functions.py:301] Number of variables to transfer : 0/3
+2021-04-23 09:18:35,388 INFO     [functions.py:296] Variable Can_ND850nm675nm_BndCmb_uless already exists
+2021-04-23 09:18:35,428 INFO     [functions.py:296] Variable Air_temperature already exists
+2021-04-23 09:18:35,464 INFO     [functions.py:296] Variable Air_humidity already exists
+2021-04-23 09:18:35,465 INFO     [functions.py:308] Number of variables to transfer : 0/3
+2021-04-23 09:19:30,043 INFO     [functions.py:294] Variable Can_ND850nm675nm_BndCmb_uless already exists
+2021-04-23 09:19:30,082 INFO     [functions.py:294] Variable Air_temperature already exists
+2021-04-23 09:19:30,117 INFO     [functions.py:294] Variable Air_humidity already exists
+2021-04-23 09:19:30,118 INFO     [functions.py:306] Number of variables to transfer : 0/3
+2021-04-23 09:23:04,982 INFO     [functions.py:294] Variable Can_ND850nm675nm_BndCmb_uless already exists
+2021-04-23 09:23:05,020 INFO     [functions.py:294] Variable Air_temperature already exists
+2021-04-23 09:23:05,060 INFO     [functions.py:294] Variable Air_humidity already exists
+2021-04-23 09:23:05,060 INFO     [functions.py:306] Number of variables to transfer : 0/3
+2021-04-23 09:24:56,739 ERROR    [functions.py:47] Exception : (409)
+Reason: 
+HTTP response headers: HTTPHeaderDict({'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'origin, content-type, accept, authorization', 'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS, HEAD', 'Vary': 'Accept-Encoding', 'Content-Type': 'application/json', 'Content-Length': '369', 'Date': 'Fri, 23 Apr 2021 07:24:56 GMT'})
+HTTP response body: {
+  "metadata" : {
+    "pagination" : {
+      "pageSize" : 0,
+      "currentPage" : 0,
+      "totalCount" : 0,
+      "totalPages" : 0
+    },
+    "status" : [ ],
+    "datafiles" : [ ]
+  },
+  "result" : {
+    "title" : "Experiment already exists",
+    "message" : "Duplicated URI: http://www.opensilex.org/demo/DIA2017-1",
+    "stack" : null,
+    "fullstack" : null
+  }
+}
+
+
+2021-04-23 09:24:57,605 INFO     [functions.py:295] Variable Can_ND850nm675nm_BndCmb_uless already exists
+2021-04-23 09:24:57,646 INFO     [functions.py:295] Variable Air_temperature already exists
+2021-04-23 09:24:57,681 INFO     [functions.py:295] Variable Air_humidity already exists
+2021-04-23 09:24:57,681 INFO     [functions.py:307] Number of variables to transfer : 0/3
+2021-04-23 09:24:57,717 ERROR    [functions.py:344] Exception : (500)
+Reason: 
+HTTP response headers: HTTPHeaderDict({'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'origin, content-type, accept, authorization', 'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS, HEAD', 'Vary': 'accept-encoding,accept-encoding', 'Content-Type': 'application/json', 'Content-Length': '6123', 'Date': 'Fri, 23 Apr 2021 07:24:56 GMT', 'Connection': 'close'})
+HTTP response body: {
+  "metadata" : {
+    "pagination" : {
+      "pageSize" : 0,
+      "currentPage" : 0,
+      "totalCount" : 0,
+      "totalPages" : 0
+    },
+    "status" : [ ],
+    "datafiles" : [ ]
+  },
+  "result" : {
+    "title" : "Unexpected internal error - com.mongodb.MongoWriteException",
+    "message" : "E11000 duplicate key error collection: opensilex.provenance index: uri_1 dup key: { uri: \"http://www.opensilex.org/demo/id/provenance/environmental-provenance-demo\" }",
+    "stack" : [ "org.opensilex.nosql.mongodb.MongoDBService.create(MongoDBService.java:140)", "org.opensilex.core.provenance.dal.ProvenanceDAO.create(ProvenanceDAO.java:41)", "org.opensilex.core.provenance.api.ProvenanceAPI.createProvenance(ProvenanceAPI.java:105)" ],
+    "fullstack" : [ "com.mongodb.client.internal.MongoCollectionImpl.executeSingleWriteRequest(MongoCollectionImpl.java:1017)", "com.mongodb.client.internal.MongoCollectionImpl.executeInsertOne(MongoCollectionImpl.java:470)", "com.mongodb.client.internal.MongoCollectionImpl.insertOne(MongoCollectionImpl.java:453)", "com.mongodb.client.internal.MongoCollectionImpl.insertOne(MongoCollectionImpl.java:447)", "org.opensilex.nosql.mongodb.MongoDBService.create(MongoDBService.java:140)", "org.opensilex.core.provenance.dal.ProvenanceDAO.create(ProvenanceDAO.java:41)", "org.opensilex.core.provenance.api.ProvenanceAPI.createProvenance(ProvenanceAPI.java:105)", "java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)", "java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)", "java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)", "java.base/java.lang.reflect.Method.invoke(Method.java:566)", "org.glassfish.jersey.server.model.internal.ResourceMethodInvocationHandlerFactory.lambda$static$0(ResourceMethodInvocationHandlerFactory.java:52)", "org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher$1.run(AbstractJavaResourceMethodDispatcher.java:124)", "org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher.invoke(AbstractJavaResourceMethodDispatcher.java:167)", "org.glassfish.jersey.server.model.internal.JavaResourceMethodDispatcherProvider$ResponseOutInvoker.doDispatch(JavaResourceMethodDispatcherProvider.java:176)", "org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher.dispatch(AbstractJavaResourceMethodDispatcher.java:79)", "org.glassfish.jersey.server.model.ResourceMethodInvoker.invoke(ResourceMethodInvoker.java:469)", "org.glassfish.jersey.server.model.ResourceMethodInvoker.apply(ResourceMethodInvoker.java:391)", "org.glassfish.jersey.server.model.ResourceMethodInvoker.apply(ResourceMethodInvoker.java:80)", "org.glassfish.jersey.server.ServerRuntime$1.run(ServerRuntime.java:255)", "org.glassfish.jersey.internal.Errors$1.call(Errors.java:248)", "org.glassfish.jersey.internal.Errors$1.call(Errors.java:244)", "org.glassfish.jersey.internal.Errors.process(Errors.java:292)", "org.glassfish.jersey.internal.Errors.process(Errors.java:274)", "org.glassfish.jersey.internal.Errors.process(Errors.java:244)", "org.glassfish.jersey.process.internal.RequestScope.runInScope(RequestScope.java:265)", "org.glassfish.jersey.server.ServerRuntime.process(ServerRuntime.java:234)", "org.glassfish.jersey.server.ApplicationHandler.handle(ApplicationHandler.java:680)", "org.glassfish.jersey.servlet.WebComponent.serviceImpl(WebComponent.java:394)", "org.glassfish.jersey.servlet.WebComponent.service(WebComponent.java:346)", "org.glassfish.jersey.servlet.ServletContainer.service(ServletContainer.java:366)", "org.glassfish.jersey.servlet.ServletContainer.service(ServletContainer.java:319)", "org.glassfish.jersey.servlet.ServletContainer.service(ServletContainer.java:205)", "org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:231)", "org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)", "org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)", "org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)", "org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)", "org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:202)", "org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:97)", "org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:542)", "org.apache.catalina.valves.StuckThreadDetectionValve.invoke(StuckThreadDetectionValve.java:206)", "org.apache.catalina.valves.rewrite.RewriteValve.invoke(RewriteValve.java:295)", "org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:143)", "org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)", "org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:78)", "org.apache.catalina.valves.rewrite.RewriteValve.invoke(RewriteValve.java:552)", "org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:143)", "org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)", "org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:78)", "org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:343)", "org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:374)", "org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:65)", "org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:868)", "org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1590)", "org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:49)", "java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)", "java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)", "org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)", "java.base/java.lang.Thread.run(Thread.java:834)" ]
+  }
+}
+
+
+2021-04-23 09:24:57,730 ERROR    [functions.py:344] Exception : (500)
+Reason: 
+HTTP response headers: HTTPHeaderDict({'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'origin, content-type, accept, authorization', 'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS, HEAD', 'Vary': 'accept-encoding,accept-encoding', 'Content-Type': 'application/json', 'Content-Length': '6121', 'Date': 'Fri, 23 Apr 2021 07:24:56 GMT', 'Connection': 'close'})
+HTTP response body: {
+  "metadata" : {
+    "pagination" : {
+      "pageSize" : 0,
+      "currentPage" : 0,
+      "totalCount" : 0,
+      "totalPages" : 0
+    },
+    "status" : [ ],
+    "datafiles" : [ ]
+  },
+  "result" : {
+    "title" : "Unexpected internal error - com.mongodb.MongoWriteException",
+    "message" : "E11000 duplicate key error collection: opensilex.provenance index: uri_1 dup key: { uri: \"http://www.opensilex.org/demo/id/provenance/phenotyping-provenance-demo\" }",
+    "stack" : [ "org.opensilex.nosql.mongodb.MongoDBService.create(MongoDBService.java:140)", "org.opensilex.core.provenance.dal.ProvenanceDAO.create(ProvenanceDAO.java:41)", "org.opensilex.core.provenance.api.ProvenanceAPI.createProvenance(ProvenanceAPI.java:105)" ],
+    "fullstack" : [ "com.mongodb.client.internal.MongoCollectionImpl.executeSingleWriteRequest(MongoCollectionImpl.java:1017)", "com.mongodb.client.internal.MongoCollectionImpl.executeInsertOne(MongoCollectionImpl.java:470)", "com.mongodb.client.internal.MongoCollectionImpl.insertOne(MongoCollectionImpl.java:453)", "com.mongodb.client.internal.MongoCollectionImpl.insertOne(MongoCollectionImpl.java:447)", "org.opensilex.nosql.mongodb.MongoDBService.create(MongoDBService.java:140)", "org.opensilex.core.provenance.dal.ProvenanceDAO.create(ProvenanceDAO.java:41)", "org.opensilex.core.provenance.api.ProvenanceAPI.createProvenance(ProvenanceAPI.java:105)", "java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)", "java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)", "java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)", "java.base/java.lang.reflect.Method.invoke(Method.java:566)", "org.glassfish.jersey.server.model.internal.ResourceMethodInvocationHandlerFactory.lambda$static$0(ResourceMethodInvocationHandlerFactory.java:52)", "org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher$1.run(AbstractJavaResourceMethodDispatcher.java:124)", "org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher.invoke(AbstractJavaResourceMethodDispatcher.java:167)", "org.glassfish.jersey.server.model.internal.JavaResourceMethodDispatcherProvider$ResponseOutInvoker.doDispatch(JavaResourceMethodDispatcherProvider.java:176)", "org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher.dispatch(AbstractJavaResourceMethodDispatcher.java:79)", "org.glassfish.jersey.server.model.ResourceMethodInvoker.invoke(ResourceMethodInvoker.java:469)", "org.glassfish.jersey.server.model.ResourceMethodInvoker.apply(ResourceMethodInvoker.java:391)", "org.glassfish.jersey.server.model.ResourceMethodInvoker.apply(ResourceMethodInvoker.java:80)", "org.glassfish.jersey.server.ServerRuntime$1.run(ServerRuntime.java:255)", "org.glassfish.jersey.internal.Errors$1.call(Errors.java:248)", "org.glassfish.jersey.internal.Errors$1.call(Errors.java:244)", "org.glassfish.jersey.internal.Errors.process(Errors.java:292)", "org.glassfish.jersey.internal.Errors.process(Errors.java:274)", "org.glassfish.jersey.internal.Errors.process(Errors.java:244)", "org.glassfish.jersey.process.internal.RequestScope.runInScope(RequestScope.java:265)", "org.glassfish.jersey.server.ServerRuntime.process(ServerRuntime.java:234)", "org.glassfish.jersey.server.ApplicationHandler.handle(ApplicationHandler.java:680)", "org.glassfish.jersey.servlet.WebComponent.serviceImpl(WebComponent.java:394)", "org.glassfish.jersey.servlet.WebComponent.service(WebComponent.java:346)", "org.glassfish.jersey.servlet.ServletContainer.service(ServletContainer.java:366)", "org.glassfish.jersey.servlet.ServletContainer.service(ServletContainer.java:319)", "org.glassfish.jersey.servlet.ServletContainer.service(ServletContainer.java:205)", "org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:231)", "org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)", "org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)", "org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)", "org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)", "org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:202)", "org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:97)", "org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:542)", "org.apache.catalina.valves.StuckThreadDetectionValve.invoke(StuckThreadDetectionValve.java:206)", "org.apache.catalina.valves.rewrite.RewriteValve.invoke(RewriteValve.java:295)", "org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:143)", "org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)", "org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:78)", "org.apache.catalina.valves.rewrite.RewriteValve.invoke(RewriteValve.java:552)", "org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:143)", "org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)", "org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:78)", "org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:343)", "org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:374)", "org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:65)", "org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:868)", "org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1590)", "org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:49)", "java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)", "java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)", "org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)", "java.base/java.lang.Thread.run(Thread.java:834)" ]
+  }
+}
+
+
+2021-04-23 09:24:57,741 ERROR    [functions.py:319] Exception : (409)
+Reason: 
+HTTP response headers: HTTPHeaderDict({'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'origin, content-type, accept, authorization', 'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS, HEAD', 'Vary': 'Accept-Encoding', 'Content-Type': 'application/json', 'Content-Length': '391', 'Date': 'Fri, 23 Apr 2021 07:24:57 GMT'})
+HTTP response body: {
+  "metadata" : {
+    "pagination" : {
+      "pageSize" : 0,
+      "currentPage" : 0,
+      "totalCount" : 0,
+      "totalPages" : 0
+    },
+    "status" : [ ],
+    "datafiles" : [ ]
+  },
+  "result" : {
+    "title" : "Device URI already exists",
+    "message" : "Duplicated URI: http://www.opensilex.org/demo/set/devices/station-demo-sensor",
+    "stack" : null,
+    "fullstack" : null
+  }
+}
+
+
+2021-04-23 09:39:43,608 INFO     [functions.py:299] Variable Can_ND850nm675nm_BndCmb_uless already exists
+2021-04-23 09:39:43,655 INFO     [functions.py:299] Variable Air_temperature already exists
+2021-04-23 09:39:43,704 INFO     [functions.py:299] Variable Air_humidity already exists
+2021-04-23 09:39:43,704 INFO     [functions.py:311] Number of variables to transfer : 0/3
+2021-04-23 09:46:04,995 INFO     [functions.py:316] Variable Can_ND850nm675nm_BndCmb_uless already exists
+2021-04-23 09:46:05,031 INFO     [functions.py:316] Variable Air_temperature already exists
+2021-04-23 09:46:05,069 INFO     [functions.py:316] Variable Air_humidity already exists
+2021-04-23 09:46:05,069 INFO     [functions.py:328] Number of variables to transfer : 0/3
+2021-04-23 09:46:15,278 ERROR    [functions.py:113] Missing mandatory - variable columns 
+2021-04-23 09:46:15,279 INFO     [functions.py:114] entity.label characteristic.label method.label unit.label label datatype are mandatory column
+2021-04-23 09:46:41,053 ERROR    [functions.py:113] Missing mandatory - variable columns 
+2021-04-23 09:46:41,053 INFO     [functions.py:114] entity.label 'characteristic.label' 'method.label' unit.label' 'label' 'datatype' are mandatory column
