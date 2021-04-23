@@ -1,12 +1,13 @@
-# opensilexClientToolsPython
+# Scripts
 ## Requirements.
 
-Python 2.7 and 3.4+
+Python 2.7 or 3.4+
 
 ## Prerequisites & Usage
 
-
 ```sh
+git clone https://github.com/OpenSILEX/opensilexPythonClient.git
+cd opensilexPythonClient
 pip install -r requirements.txt
 ```
 ### pip install without conda
