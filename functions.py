@@ -328,7 +328,7 @@ def migrate_variables(pythonClient, configVariableHeaders,variablesCSV):
     logging.info("Number of variables to transfer : " +  str(nbEntities) + '/' + str(totalCount))
 
 
-def create_sensor(sensor,  pythonClient):
+def create_sensor(pythonClient,sensor):
     device_api = opensilexClientToolsPython.DevicesApi(pythonClient)
     sensorTosend = opensilexClientToolsPython.DeviceCreationDTO(
         uri=sensor["uri"], name=sensor["name"], rdf_type=sensor["type"],
@@ -345,7 +345,7 @@ def create_sensor(sensor,  pythonClient):
 
 
 
-def create_provenances(provenances, pythonClient):
+def create_provenances(pythonClient,provenances):
     data_api = opensilexClientToolsPython.DataApi(pythonClient)
     provenanceUris = []
 
@@ -373,7 +373,7 @@ def create_provenances(provenances, pythonClient):
     return provenanceUris
 
 
-def create_objects_from_csv(csvFile, pythonClient):
+def create_objects_from_csv(pythonClient,csvFile ):
     os_api = opensilexClientToolsPython.ScientificObjectsApi(pythonClient)
 
     objectCSV = pd.read_csv(csvFile)
@@ -400,7 +400,7 @@ def transformDate(date):
     return date.astimezone().isoformat()
 
 
-def create_data_from_csv(csvFile, pythonClient):
+def create_data_from_csv(pythonClient,csvFile ):
     data_api = opensilexClientToolsPython.DataApi(pythonClient)
 
     dataCSV = pd.read_csv(csvFile)

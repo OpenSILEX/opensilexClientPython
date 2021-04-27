@@ -17,9 +17,10 @@ logging.info("Headers and token : " + str(pythonClient.default_headers) + '\n')
 # Import variable from csv and googlesheet
 # Googlesheet format example : https://docs.google.com/spreadsheets/d/1tjnKPQGp37Xd8d2SFMBQGR1NCzBO4iOSk05QjVgiHa8/edit?usp=sharing
 # Googlesheet url exemple: https://docs.google.com/spreadsheets/d/1tjnKPQGp37Xd8d2SFMBQGR1NCzBO4iOSk05QjVgiHa8/edit#gid=0
-# spreadsheet_url = "https://docs.google.com/spreadsheets/d/1tjnKPQGp37Xd8d2SFMBQGR1NCzBO4iOSk05QjVgiHa8"
-# gid_number = "0"
-# migrate_variables_from_googlesheet(pythonClient, None, spreadsheet_url, gid_number)
+spreadsheet_url = "https://docs.google.com/spreadsheets/d/1tjnKPQGp37Xd8d2SFMBQGR1NCzBO4iOSk05QjVgiHa8"
+gid_number = "0"
+
+migrate_variables_from_googlesheet(pythonClient, None, spreadsheet_url, gid_number)
 
 # with specific header
 # Header Key => "csv Name"
@@ -73,29 +74,29 @@ uri = create_experiment(pythonClient, expe)
  
 
 
-# provenancesToSend = [{
-#     'uri': "http://www.opensilex.org/demo/id/provenance/environmental-provenance-demo",
-#     "name": "ENVIRONMENTAL PROVENANCE DEMO - TRAINING",
-#     "description": "Collected by several sensors",
-#     "prov_agent": [
-#         {
-#             "uri": "http://www.opensilex.org/demo/set/devices/station-demo-sensor",
-#             "rdf_type": "vocabulary:Station",
-#             "settings": {}
-#         }
-#     ]
-# }, {
-#     'uri': "http://www.opensilex.org/demo/id/provenance/phenotyping-provenance-demo",
-#     "name": "PHENOTYPING PROVENANCE DEMO - TRAINING",
-#     "description": "Collected by drone",
-# }]
-# create_provenances(provenancesToSend, pythonClient)
+provenancesToSend = [{
+    'uri': "http://www.opensilex.org/demo/id/provenance/environmental-provenance-demo",
+    "name": "ENVIRONMENTAL PROVENANCE DEMO - TRAINING",
+    "description": "Collected by several sensors",
+    "prov_agent": [
+        {
+            "uri": "http://www.opensilex.org/demo/set/devices/station-demo-sensor",
+            "rdf_type": "vocabulary:Station",
+            "settings": {}
+        }
+    ]
+}, {
+    'uri': "http://www.opensilex.org/demo/id/provenance/phenotyping-provenance-demo",
+    "name": "PHENOTYPING PROVENANCE DEMO - TRAINING",
+    "description": "Collected by drone",
+}]
+create_provenances(pythonClient,provenancesToSend )
  
 
 # sensor = {"uri": "http://www.opensilex.org/demo/set/devices/station-demo-sensor", "name": "Demo sensor", "type": "vocabulary:Station",
 #           "serial_number": "8173803780", "description": "Weather station"}
 
-# create_sensor(sensor, pythonClient)
+# create_sensor(pythonClient,sensor)
 
 
 # http: // www.opensilex.org/demo/DIA2017-1
@@ -103,8 +104,8 @@ uri = create_experiment(pythonClient, expe)
 
 # In csv_example dir : "csv_example/objects.csv"
 # csvObjectsPath = os.path.join(os.path.abspath(os.path.dirname(__file__)),"csv_example","data.csv")
-# create_objects_from_csv(csvObjectsPath, pythonClient)
+# create_objects_from_csv(pythonClient, csvObjectsPath)
 
 # In csv_example dir : "csv_example/data.csv"
 # csvDataPath = os.path.join(os.path.abspath(os.path.dirname(__file__)),"csv_example","data.csv")
-# create_data_from_csv(csvDataPath, pythonClient)
+# create_data_from_csv(pythonClient, csvDataPath)
