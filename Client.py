@@ -20,7 +20,7 @@ from functions import *
 # ### V1.0
 pythonClient = opensilexClientToolsPython.ApiClient()
 pythonClient.connect_to_opensilex_ws(
-    username="admin@opensilex.org", password="admin", host="http://localhost:8666/rest")
+    identifier="admin@opensilex.org", password="admin", host="http://localhost:8666/rest")
 logging.info("Headers and token : " + str(pythonClient.default_headers) + '\n')
 
 # Functions
