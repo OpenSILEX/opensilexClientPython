@@ -1,4 +1,15 @@
-
+'''
+#!/usr/bin/env python3
+# -*- coding:utf-8 -*-
+******************************************************************************
+                                    Client.py
+ OpenSILEX
+ Copyright © INRAE 2021
+ Creation date:  22 April, 2021
+ Contact: arnaud.charleroy@inrae.fr, anne.tireau@inrae.fr, pascal.neveu@inrae.fr
+******************************************************************************
+'''
+ 
 import opensilexClientToolsPython
 import os
 import logging
@@ -20,7 +31,7 @@ logging.info("Headers and token : " + str(pythonClient.default_headers) + '\n')
 spreadsheet_url = "https://docs.google.com/spreadsheets/d/1tjnKPQGp37Xd8d2SFMBQGR1NCzBO4iOSk05QjVgiHa8"
 gid_number = "0"
 
-migrate_variables_from_googlesheet(pythonClient, None, spreadsheet_url, gid_number)
+# migrate_variables_from_googlesheet(pythonClient, None, spreadsheet_url, gid_number)
 
 # with specific header
 # Header Key => "csv Name"
@@ -45,17 +56,24 @@ migrate_variables_from_googlesheet(pythonClient, None, spreadsheet_url, gid_numb
 #         "dataType": "datatype",
 #         "alternativeLabel": "alternativeName"
 #     }
-# migrate_variables_from_googlesheet(pythonClient, configVariableHeaders, spreadsheet_url, gid_number)
 
-# migrate_variables_from_csv(pythonClient, configVariableHeaders, "/home/user/filepath")
+# Import variables from googlesheet 
+# You can defined row columns with the third argument configVariableHeaders
+# Uncomment following lines to execute 
+# migrate_variables_from_googlesheet(pythonClient, None, spreadsheet_url, gid_number)
 
+# Import variables from csv
+# Uncomment following lines to execute 
+# csvVariablePath = os.path.join(os.path.abspath(os.path.dirname(__file__)),"csv_example","variables.csv")
+# migrate_variables_from_csv(pythonClient, None, csvVariablePath)
 
-# Experimental
-
+# ############ # ############ # ############ # ############ # ############ 
+# ############# ############   EXPERIMENTAL  # ############ # ############ 
+# ############ # ############ # ############ # ############ # ############   
 # create an experiment
 expe = {
-    "uri": "http://www.opensilex.org/demo/DIA2017-1",
-    "name": "MAU17-PG",
+    "uri": "http://www.opensilex.org/demo/TRAINING2021-1",
+    "name": "TRAINING-2021",
     "objective": "For teaching purpose",
     "start_date": "2017-05-19",
     "end_date": "2017-09-22",
@@ -67,8 +85,8 @@ expe = {
     "description": "Training OpenSILEX",
     "groups": []
 }
-
-uri = create_experiment(pythonClient, expe) 
+# Uncomment to execute
+# uri = create_experiment(pythonClient, expe) 
 
 provenancesToSend = [{
     'uri': "http://www.opensilex.org/demo/id/provenance/environmental-provenance-demo",
@@ -86,33 +104,36 @@ provenancesToSend = [{
     "name": "PHENOTYPING PROVENANCE DEMO - TRAINING",
     "description": "Collected by drone",
 }]
-create_provenances(pythonClient,provenancesToSend )
+# Uncomment to execute
+# create_provenances(pythonClient,provenancesToSend )
  
 
 sensor = {"uri": "http://www.opensilex.org/demo/set/devices/station-demo-sensor", "name": "Demo sensor", "type": "vocabulary:Station",
           "serial_number": "8173803780", "description": "Weather station"}
-
-create_sensor(pythonClient,sensor)
+# Uncomment to execute
+# create_sensor(pythonClient,sensor)
 
 
 # http: // www.opensilex.org/demo/DIA2017-1
 # csvFileName = "/home/charlero/savedisk/Projets/OpenSILEX/Presentation/Objets/objetsZA17.csv"
 
 # In csv_example dir : "csv_example/objects.csv"
+# Uncomment to execute
 # csvObjectsPath = os.path.join(os.path.abspath(os.path.dirname(__file__)),"csv_example","data.csv")
 # create_objects_from_csv(pythonClient, csvObjectsPath)
 spreadsheet_url = "https://docs.google.com/spreadsheets/d/1tjnKPQGp37Xd8d2SFMBQGR1NCzBO4iOSk05QjVgiHa8"
 gid_number = "1931021280"
-# create_objects_from_googlesheet(pythonClient,spreadsheet_url,gid_number)
+# Uncomment to execute
+#create_objects_from_googlesheet(pythonClient,spreadsheet_url,gid_number)
 #update_objects_from_googlesheet(pythonClient,spreadsheet_url,gid_number)
 
 
 # In csv_example dir : "csv_example/data.csv"
-# csvDataPath = os.path.join(os.path.abspath(os.path.dirname(__file__)),"csv_example","data.csv")
+csvDataPath = os.path.join(os.path.abspath(os.path.dirname(__file__)),"csv_example","data.csv")
+# Uncomment to execute
 # add_data_from_csv(pythonClient, csvDataPath)
 
-
-# create_objects_from_csv(pythonClient, csvObjectsPath)
 spreadsheet_url = "https://docs.google.com/spreadsheets/d/1tjnKPQGp37Xd8d2SFMBQGR1NCzBO4iOSk05QjVgiHa8"
-gid_number = "2145718207"
-add_data_from_googlesheet(pythonClient,spreadsheet_url,gid_number)
+gid_number = "2145718207" 
+# Uncomment to execute
+# add_data_from_googlesheet(pythonClient,spreadsheet_url,gid_number)
