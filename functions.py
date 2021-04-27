@@ -325,7 +325,7 @@ def migrate_variables(pythonClient, configVariableHeaders,variablesCSV):
             logging.info("Variable failed")
             logging.info(row)
 
-    logging.info("Number of variables to transfer : " +  str(nbEntities) + '/' + str(totalCount))
+    logging.info("number of transfered variables : " +  str(nbEntities) + '/' + str(totalCount))
 
 
 def create_sensor(pythonClient,sensor):
@@ -365,7 +365,7 @@ def create_provenances(pythonClient,provenances):
             provenance["uri"] = result.get("result")[0]
             provenanceUris.append(provenance)
         except Exception as e:
-            if "exists" not in str(e):
+            if "exists" not in str(e) and "duplicate"  not in str(e) :
                 logging.error("Exception : %s\n" % e)
                 exit()
             else:
@@ -373,12 +373,39 @@ def create_provenances(pythonClient,provenances):
     return provenanceUris
 
 
-def create_objects_from_csv(pythonClient,csvFile ):
-    os_api = opensilexClientToolsPython.ScientificObjectsApi(pythonClient)
 
-    objectCSV = pd.read_csv(csvFile)
-    logging.info(str(len(objectCSV)) + " objects")
-    for index, row in objectCSV.iterrows():
+def update_objects_from_googlesheet(pythonClient, spreadsheet_url, gid_number):
+    variables_url = spreadsheet_url + "/gviz/tq?tqx=out:csv&gid=" + str(gid_number)
+    r = requests.get(variables_url).content
+    variablesCsvString = requests.get(variables_url).content
+    object_csv = pd.read_csv(io.StringIO(variablesCsvString.decode('utf-8')))
+    return create_update_objects(pythonClient, object_csv,True)
+
+def update_objects_from_csv(pythonClient, csv_path):
+    object_csv = pd.read_csv(csv_path)
+    return create_update_objects(pythonClient, object_csv,True)
+
+ 
+def update_objects(pythonClient, object_csv ):
+    return create_update_objects(pythonClient, object_csv,True)
+
+def create_objects_from_googlesheet(pythonClient, spreadsheet_url, gid_number):
+    variables_url = spreadsheet_url + "/gviz/tq?tqx=out:csv&gid=" + str(gid_number)
+    r = requests.get(variables_url).content
+    variablesCsvString = requests.get(variables_url).content
+    object_csv = pd.read_csv(io.StringIO(variablesCsvString.decode('utf-8')))
+    return create_update_objects(pythonClient, object_csv,False)
+
+def create_objects_from_csv(pythonClient, csv_path):
+    object_csv = pd.read_csv(csv_path)
+    return create_update_objects(pythonClient, object_csv,False)
+
+ 
+def create_update_objects(pythonClient,object_csv,update):
+    os_api = opensilexClientToolsPython.ScientificObjectsApi(pythonClient)
+ 
+    logging.info(str(len(object_csv)) + " objects")
+    for index, row in object_csv.iterrows():
         new_os = opensilexClientToolsPython.ScientificObjectCreationDTO(
             uri=row.uri,
             rdf_type=row.type,
@@ -386,10 +413,17 @@ def create_objects_from_csv(pythonClient,csvFile ):
             experiment=row.experimentUri
         )
         try:
-            logging.info(str(index + 1) + "/" + str(len(objectCSV)))
-            os_api.update_scientific_object(body=new_os)
+            logging.info(str(index + 1) + "/" + str(len(object_csv)))
+            if update is None or update is False:
+                os_api.create_scientific_object(body=new_os)
+            else:
+                os_api.update_scientific_object(body=new_os)
         except Exception as e:
-            logging.error("Exception : %s\n" % e)
+            if "exists" not in str(e) and "duplicate"  not in str(e) :
+                logging.error("Exception : %s\n" % e)
+                exit()
+            else: 
+                logging.info("scientific object " + str(row["name"]) + " exists") 
 
 
 def transformDate(date):
@@ -400,12 +434,22 @@ def transformDate(date):
     return date.astimezone().isoformat()
 
 
-def create_data_from_csv(pythonClient,csvFile ):
-    data_api = opensilexClientToolsPython.DataApi(pythonClient)
 
-    dataCSV = pd.read_csv(csvFile)
+def add_data_from_googlesheet(pythonClient, spreadsheet_url, gid_number):
+    variables_url = spreadsheet_url + "/gviz/tq?tqx=out:csv&gid=" + str(gid_number)
+    r = requests.get(variables_url).content
+    variablesCsvString = requests.get(variables_url).content
+    data_csv = pd.read_csv(io.StringIO(variablesCsvString.decode('utf-8')))
+    return add_data_from(pythonClient, data_csv)
+
+def add_data_from_csv(pythonClient, csv_path):
+    data_csv = pd.read_csv(csv_path)
+    return add_data_from(pythonClient, data_csv)
+
+def add_data_from(pythonClient,data_csv):
+    data_api = opensilexClientToolsPython.DataApi(pythonClient) 
     data_list = []
-    for index, row in dataCSV.iterrows():
+    for index, row in data_csv.iterrows():
         provenanceData = opensilexClientToolsPython.DataProvenanceModel(
             uri=row["provenanceURI"], experiments=[row["experimentURI"]],)
 
@@ -423,3 +467,6 @@ def create_data_from_csv(pythonClient,csvFile ):
         data_api.add_list_data(body=data_list)
     except Exception as e:
         logging.error("Exception : %s\n" % e)
+        if "DUPLICATE" in str(e):
+            logging.error("Duplicate data")
+        exit()

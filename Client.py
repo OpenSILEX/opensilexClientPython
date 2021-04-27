@@ -68,11 +68,7 @@ expe = {
     "groups": []
 }
 
-uri = create_experiment(pythonClient, expe)
-
- 
- 
-
+uri = create_experiment(pythonClient, expe) 
 
 provenancesToSend = [{
     'uri': "http://www.opensilex.org/demo/id/provenance/environmental-provenance-demo",
@@ -81,7 +77,7 @@ provenancesToSend = [{
     "prov_agent": [
         {
             "uri": "http://www.opensilex.org/demo/set/devices/station-demo-sensor",
-            "rdf_type": "vocabulary:Station",
+            "rdf_type": "vocabulary:SensingDevice",
             "settings": {}
         }
     ]
@@ -93,10 +89,10 @@ provenancesToSend = [{
 create_provenances(pythonClient,provenancesToSend )
  
 
-# sensor = {"uri": "http://www.opensilex.org/demo/set/devices/station-demo-sensor", "name": "Demo sensor", "type": "vocabulary:Station",
-#           "serial_number": "8173803780", "description": "Weather station"}
+sensor = {"uri": "http://www.opensilex.org/demo/set/devices/station-demo-sensor", "name": "Demo sensor", "type": "vocabulary:Station",
+          "serial_number": "8173803780", "description": "Weather station"}
 
-# create_sensor(pythonClient,sensor)
+create_sensor(pythonClient,sensor)
 
 
 # http: // www.opensilex.org/demo/DIA2017-1
@@ -105,7 +101,18 @@ create_provenances(pythonClient,provenancesToSend )
 # In csv_example dir : "csv_example/objects.csv"
 # csvObjectsPath = os.path.join(os.path.abspath(os.path.dirname(__file__)),"csv_example","data.csv")
 # create_objects_from_csv(pythonClient, csvObjectsPath)
+spreadsheet_url = "https://docs.google.com/spreadsheets/d/1tjnKPQGp37Xd8d2SFMBQGR1NCzBO4iOSk05QjVgiHa8"
+gid_number = "1931021280"
+# create_objects_from_googlesheet(pythonClient,spreadsheet_url,gid_number)
+#update_objects_from_googlesheet(pythonClient,spreadsheet_url,gid_number)
+
 
 # In csv_example dir : "csv_example/data.csv"
 # csvDataPath = os.path.join(os.path.abspath(os.path.dirname(__file__)),"csv_example","data.csv")
-# create_data_from_csv(pythonClient, csvDataPath)
+# add_data_from_csv(pythonClient, csvDataPath)
+
+
+# create_objects_from_csv(pythonClient, csvObjectsPath)
+spreadsheet_url = "https://docs.google.com/spreadsheets/d/1tjnKPQGp37Xd8d2SFMBQGR1NCzBO4iOSk05QjVgiHa8"
+gid_number = "2145718207"
+add_data_from_googlesheet(pythonClient,spreadsheet_url,gid_number)
