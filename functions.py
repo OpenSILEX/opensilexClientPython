@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.INFO, handlers=[
 ],format='%(asctime)s %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s')
 
 
-def create_experiment(experiment, pythonClient):
+def create_experiment(pythonClient, experiment):
     results = {}
     experiment_os_api = opensilexClientToolsPython.ExperimentsApi(pythonClient)
 

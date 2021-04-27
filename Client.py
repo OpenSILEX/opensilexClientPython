@@ -52,22 +52,22 @@ logging.info("Headers and token : " + str(pythonClient.default_headers) + '\n')
 # Experimental
 
 # create an experiment
-# expe = {
-#     "uri": "http://www.opensilex.org/demo/DIA2017-1",
-#     "name": "MAU17-PG",
-#     "objective": "For teaching purpose",
-#     "start_date": "2017-05-19",
-#     "end_date": "2017-09-22",
-#     "species": ["http://aims.fao.org/aos/agrovoc/c_12332"],
-#     "technical_supervisors": [],
-#     "scientific_supervisors": [],
-#     "projects": [],
-#     "is_public": True,
-#     "description": "Training OpenSILEX",
-#     "groups": []
-# }
+expe = {
+    "uri": "http://www.opensilex.org/demo/DIA2017-1",
+    "name": "MAU17-PG",
+    "objective": "For teaching purpose",
+    "start_date": "2017-05-19",
+    "end_date": "2017-09-22",
+    "species": ["http://aims.fao.org/aos/agrovoc/c_12332"],
+    "technical_supervisors": [],
+    "scientific_supervisors": [],
+    "projects": [],
+    "is_public": True,
+    "description": "Training OpenSILEX",
+    "groups": []
+}
 
-# uri = create_experiment(expe, pythonClient)
+uri = create_experiment(pythonClient, expe)
 
  
  
