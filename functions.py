@@ -133,16 +133,14 @@ def migrate_variables(pythonClient, configVariableHeaders,variablesCSV):
 
     nbEntities = 0
 
-    
-
     for index, row in variablesCSV.iterrows():
         try: 
             if configVariableHeaders['entityLabel'] in csvColumns:
                 entityUri = None
                 if configVariableHeaders['entityUri'] in csvColumns:
                     entityUri = row[configVariableHeaders['entityUri']]
-                if entityUri is not None and entityUri not in entities:
-                    if row[configVariableHeaders['entityLabel']] not in entities.values(): 
+                if entityUri is not None and entityUri not in entities.values():
+                    if row[configVariableHeaders['entityLabel']] not in entities: 
                         description = None
                         if configVariableHeaders['entityComment'] in csvColumns:
                             description = format_comment(row[configVariableHeaders['entityComment']])
@@ -153,7 +151,7 @@ def migrate_variables(pythonClient, configVariableHeaders,variablesCSV):
                             name=row[configVariableHeaders['entityLabel']],
                             description= description)
                         try:
-                            result = variable_os_api.create_entity(body=entity)
+                            result = variable_os_api.update_entity(body=entity)
                             entities[row[configVariableHeaders['entityLabel']]] = result.get('result')[0]
                         except Exception as e:
                             if "exists" not in str(e):
@@ -169,8 +167,8 @@ def migrate_variables(pythonClient, configVariableHeaders,variablesCSV):
                 characteristicUri = None
                 if configVariableHeaders['characteristicUri'] in csvColumns:
                      characteristicUri = row[configVariableHeaders['characteristicUri']]
-                if(characteristicUri is not None and characteristicUri not in characteristics):
-                    if(row[configVariableHeaders['characteristicLabel']] not in characteristics.values()):
+                if(characteristicUri is not None and characteristicUri not in characteristics.values()):
+                    if(row[configVariableHeaders['characteristicLabel']] not in characteristics):
                         description = None
                         if configVariableHeaders['characteristicComment'] in csvColumns:
                             description = format_comment(row[configVariableHeaders['characteristicComment']])
@@ -196,8 +194,8 @@ def migrate_variables(pythonClient, configVariableHeaders,variablesCSV):
                 methodUri = None
                 if configVariableHeaders['methodUri'] in csvColumns:
                     methodUri = row[configVariableHeaders['methodUri']]
-                if(methodUri is not None and methodUri not in methods):
-                    if(row[configVariableHeaders['methodLabel']] not in methods.values()):
+                if(methodUri is not None and methodUri not in methods.values()):
+                    if(row[configVariableHeaders['methodLabel']] not in methods):
                         description = None
                         if configVariableHeaders['methodComment'] in csvColumns:
                             description = format_comment(row[configVariableHeaders['methodComment']])
@@ -210,7 +208,7 @@ def migrate_variables(pythonClient, configVariableHeaders,variablesCSV):
                         )
                         try:
                             result = variable_os_api.create_method(body=method)
-                            methods[row[configVariableHeaders['methodLabel']]]= row[configVariableHeaders['methodUri']]
+                            methods[row[configVariableHeaders['methodLabel']]]  = result.get('result')[0]
                         except Exception as e:
                             if "exists" not in str(e):
                                 logging.error("Exception : %s\n" % e)
@@ -223,11 +221,12 @@ def migrate_variables(pythonClient, configVariableHeaders,variablesCSV):
                 unitUri = None
                 if configVariableHeaders['unitUri'] in csvColumns:
                     unitUri = row[configVariableHeaders['unitUri']]
-                if(unitUri is None and unitUri not in units.values()):
+                if(unitUri is not None and unitUri not in units.values()):
                     if(row[configVariableHeaders['unitLabel']] not in units):
+                        
                         description = None
-                        if configVariableHeaders['methodComment'] in csvColumns:
-                            description = format_comment(row[configVariableHeaders['methodComment']])
+                        if configVariableHeaders['unitComment'] in csvColumns:
+                            description = format_comment(row[configVariableHeaders['unitComment']])
                         else:
                             description = "No description"
                         unit = opensilexClientToolsPython.UnitCreationDTO(
@@ -235,9 +234,9 @@ def migrate_variables(pythonClient, configVariableHeaders,variablesCSV):
                             name=row[configVariableHeaders['unitLabel']],
                             description=description 
                         )
-                        try:
+                        try: 
                             result = variable_os_api.create_unit(body=unit)
-                            units[row[configVariableHeaders['unitLabel']]] =row[configVariableHeaders['unitUri']]
+                            units[row[configVariableHeaders['unitLabel']]] = result.get('result')[0]
                         except Exception as e:
                             if "exists" not in str(e):
                                 logging.error("Exception : %s\n" % e)
@@ -282,18 +281,18 @@ def migrate_variables(pythonClient, configVariableHeaders,variablesCSV):
                 logging.error("Not existing - " + configVariableHeaders['dataType'] + " in columns")
                 exit()
 
-            if(traitUri is None and traitLabel is None):
-                description = None
-                if configVariableHeaders['variableComment'] in csvColumns:
-                    description = format_comment(row[configVariableHeaders['variableComment']])
-                else:
-                    description = "No description"
-
             alternative_name = None
             if configVariableHeaders['alternativeLabel'] in csvColumns:
                 if not isEmpty(row[configVariableHeaders['alternativeLabel']]):
                     alternative_name = row[configVariableHeaders['alternativeLabel']]
              
+
+            var_description = None
+            if configVariableHeaders['variableComment'] in csvColumns:
+                var_description = format_comment(row[configVariableHeaders['variableComment']])
+            else:
+                var_description = "No description"
+
             variable = opensilexClientToolsPython.VariableCreationDTO(
                 uri=row[configVariableHeaders['variableUri']],
                 name=row[configVariableHeaders['variableLabel']],
@@ -302,8 +301,7 @@ def migrate_variables(pythonClient, configVariableHeaders,variablesCSV):
                 characteristic=row[configVariableHeaders['characteristicUri']],
                 method=row[configVariableHeaders['methodUri']],
                 unit=row[configVariableHeaders['unitUri']],
-                description=configVariableHeaders['variableComment'] in csvColumns if format_comment(
-                                    row[configVariableHeaders['unitComment']]) else  "No description" ,
+                description=var_description ,
                 datatype=datatypeUri,
                 trait= traitUri,
                 trait_name=traitLabel
