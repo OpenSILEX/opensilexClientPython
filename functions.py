@@ -11,7 +11,7 @@ from dateparser import parse
 import logging
 from functions import *
 
-logging.basicConfig(level=logging.INFO, handlers=[
+logging.basicConfig(level=logging.DEBUG, handlers=[
     logging.FileHandler("debug.log"),
     logging.StreamHandler()
 ],format='%(asctime)s %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s')
@@ -52,6 +52,8 @@ def create_experiment(pythonClient, experiment):
 
 
 def isEmpty(raw_value):
+    if raw_value is None:
+        return True
     value = str(raw_value)
     if(value == "NA" or value == None or value == "nan"):
         return True
@@ -65,18 +67,21 @@ def format_comment(raw_comment):
     return raw_comment
 
 
-def migrate_variables_from_googlesheet(pythonClient, configVariableHeaders, spreadsheet_url, gid_number):
+def migrate_variables_from_googlesheet(pythonClient, configVariableHeaders, spreadsheet_url, gid_number,update):
     variables_url = spreadsheet_url + "/gviz/tq?tqx=out:csv&gid=" + str(gid_number)
+    logging.info(variables_url)
     r = requests.get(variables_url).content
     variablesCsvString = requests.get(variables_url).content
+ 
     variablesCSV = pd.read_csv(io.StringIO(variablesCsvString.decode('utf-8')))
-    return migrate_variables(pythonClient, configVariableHeaders, variablesCSV)
+    return migrate_variables(pythonClient, configVariableHeaders, variablesCSV,update)
 
-def migrate_variables_from_csv(pythonClient, configVariableHeaders, csv_path):
+def migrate_variables_from_csv(pythonClient, configVariableHeaders, csv_path,update):
     variablesCSV = pd.read_csv(csv_path)
-    return migrate_variables(pythonClient, configVariableHeaders, variablesCSV)
+    return migrate_variables(pythonClient, configVariableHeaders, variablesCSV,update)
 
-def migrate_variables(pythonClient, configVariableHeaders,variablesCSV):
+def migrate_variables(pythonClient, configVariableHeaders,variablesCSV,update):
+    variablesCSV = variablesCSV.where(pd.notnull(variablesCSV), None)
     default_config = {
         "entityLabel": "entity.label",
         "entityUri": "entity.uri",
@@ -98,7 +103,14 @@ def migrate_variables(pythonClient, configVariableHeaders,variablesCSV):
         "dataType": "datatype",
         "alternativeLabel": "alternativeName"
     }
-    
+
+    if update is True :
+        update = True 
+    else:
+        update = False
+
+    logging.info("Update mode variable is set to " + str(update) )
+
     if configVariableHeaders is None :
         configVariableHeaders = default_config
 
@@ -134,116 +146,93 @@ def migrate_variables(pythonClient, configVariableHeaders,variablesCSV):
     nbEntities = 0
 
     for index, row in variablesCSV.iterrows():
-        try: 
-            if configVariableHeaders['entityLabel'] in csvColumns:
-                entityUri = None
-                if configVariableHeaders['entityUri'] in csvColumns:
-                    entityUri = row[configVariableHeaders['entityUri']]
-                if entityUri is not None and entityUri not in entities.values():
-                    if row[configVariableHeaders['entityLabel']] not in entities: 
-                        description = None
-                        if configVariableHeaders['entityComment'] in csvColumns:
-                            description = format_comment(row[configVariableHeaders['entityComment']])
-                        else:
-                            description = "No description"
-                        entity = opensilexClientToolsPython.EntityCreationDTO(
-                            uri=entityUri,
-                            name=row[configVariableHeaders['entityLabel']],
-                            description= description)
-                        try:
-                            result = variable_os_api.update_entity(body=entity)
-                            entities[row[configVariableHeaders['entityLabel']]] = result.get('result')[0]
-                        except Exception as e:
-                            if "exists" not in str(e):
-                                logging.info(entity)
-                                logging.error("Exception : %s\n" % e)
-                                exit()
-            else:
-                logging.info("Not existing - " + configVariableHeaders['entityLabel'] + configVariableHeaders['entityUri'] + " columns")
-           
-
+        try:
+            entity_info = create_base_variable(configVariableHeaders,csvColumns, row, entities, 'entity')
+            if entity_info is None:
+                exit()
+            entity = opensilexClientToolsPython.EntityCreationDTO(
+                            uri=entity_info['uri'],
+                            name=entity_info['name'],
+                            description= entity_info['description'])
+            try:
+                if update:
+                    result = variable_os_api.update_entity(body=entity)
+                else :
+                    result = variable_os_api.create_entity(body=entity)
+                
+                entities[row[configVariableHeaders['entityLabel']]] = result.get('result')[0]
+                entity.uri = result.get('result')[0] 
+            except Exception as e:
+                if "exists" not in str(e):
+                    logging.info(entity)
+                    logging.error("Exception : %s\n" % e)
+                    exit() 
             
-            if configVariableHeaders['characteristicLabel'] in csvColumns:
-                characteristicUri = None
-                if configVariableHeaders['characteristicUri'] in csvColumns:
-                     characteristicUri = row[configVariableHeaders['characteristicUri']]
-                if(characteristicUri is not None and characteristicUri not in characteristics.values()):
-                    if(row[configVariableHeaders['characteristicLabel']] not in characteristics):
-                        description = None
-                        if configVariableHeaders['characteristicComment'] in csvColumns:
-                            description = format_comment(row[configVariableHeaders['characteristicComment']])
-                        else:
-                            description = "No description"
-                        characteristic = opensilexClientToolsPython.CharacteristicCreationDTO(
-                            uri=row[configVariableHeaders['characteristicUri']],
-                            name=row[configVariableHeaders['characteristicLabel']],
-                            description=description)
-                        try:
-                            result = variable_os_api.create_characteristic(
-                                body=characteristic)
-                            characteristics[row[configVariableHeaders['characteristicLabel']]] = result.get('result')[0]
-                        except Exception as e:
-                            if "exists" not in str(e):
-                                logging.error("Exception : %s\n" % e)
-                                exit()
-            else:
-                logging.info("Not existing - " + configVariableHeaders['characteristicLabel'] + configVariableHeaders['characteristicUri'] + " columns")
-           
+            
+            characteristic_info = create_base_variable(configVariableHeaders,csvColumns, row, characteristics, 'characteristic')
+            if characteristic_info is None:
+                exit()
 
-            if configVariableHeaders['methodLabel']  in csvColumns:
-                methodUri = None
-                if configVariableHeaders['methodUri'] in csvColumns:
-                    methodUri = row[configVariableHeaders['methodUri']]
-                if(methodUri is not None and methodUri not in methods.values()):
-                    if(row[configVariableHeaders['methodLabel']] not in methods):
-                        description = None
-                        if configVariableHeaders['methodComment'] in csvColumns:
-                            description = format_comment(row[configVariableHeaders['methodComment']])
-                        else:
-                            description = "No description"
-                        method = opensilexClientToolsPython.MethodCreationDTO(
-                            uri=row[configVariableHeaders['methodUri']],
-                            name=row[configVariableHeaders['methodLabel']],
-                            description=description
-                        )
-                        try:
-                            result = variable_os_api.create_method(body=method)
-                            methods[row[configVariableHeaders['methodLabel']]]  = result.get('result')[0]
-                        except Exception as e:
-                            if "exists" not in str(e):
-                                logging.error("Exception : %s\n" % e)
-                                exit()
-                
-            else:
-                logging.info("Not existing - " + configVariableHeaders['methodLabel'] + configVariableHeaders['methodUri'] + " columns")
-           
-            if configVariableHeaders['unitLabel']  in csvColumns:
-                unitUri = None
-                if configVariableHeaders['unitUri'] in csvColumns:
-                    unitUri = row[configVariableHeaders['unitUri']]
-                if(unitUri is not None and unitUri not in units.values()):
-                    if(row[configVariableHeaders['unitLabel']] not in units):
-                        
-                        description = None
-                        if configVariableHeaders['unitComment'] in csvColumns:
-                            description = format_comment(row[configVariableHeaders['unitComment']])
-                        else:
-                            description = "No description"
-                        unit = opensilexClientToolsPython.UnitCreationDTO(
-                            uri=row[configVariableHeaders['unitUri']],
-                            name=row[configVariableHeaders['unitLabel']],
-                            description=description 
-                        )
-                        try: 
-                            result = variable_os_api.create_unit(body=unit)
-                            units[row[configVariableHeaders['unitLabel']]] = result.get('result')[0]
-                        except Exception as e:
-                            if "exists" not in str(e):
-                                logging.error("Exception : %s\n" % e)
-                                exit()
-                
-            else:
-                logging.info("Not existing - " + configVariableHeaders['methodLabel'] + configVariableHeaders['methodUri'] + " columns")
+            characteristic = opensilexClientToolsPython.CharacteristicCreationDTO(
+                    uri=characteristic_info['uri'],
+                    name=characteristic_info['name'],
+                    description= characteristic_info['description'])
+            try:    
+                if update:
+                    result = variable_os_api.update_characteristic(
+                        body=characteristic)
+                else :
+                    result = variable_os_api.create_characteristic(
+                        body=characteristic)
+                characteristics[row[configVariableHeaders['characteristicLabel']]] = result.get('result')[0]
+                characteristic.uri = result.get('result')[0]
+            except Exception as e:
+                if "exists" not in str(e):
+                    logging.error("Exception : %s\n" % e)
+                    exit() 
+
+            method_info = create_base_variable(configVariableHeaders,csvColumns, row, methods, 'method')
+            if method_info is None:
+                exit()
+ 
+            method = opensilexClientToolsPython.MethodCreationDTO(
+                uri=method_info['uri'],
+                name=method_info['name'],
+                description= method_info['description']
+            )
+            try:
+                if update:
+                    result = variable_os_api.update_method(body=method)
+                else :
+                    result = variable_os_api.create_method(body=method)
+                methods[row[configVariableHeaders['methodLabel']]] = result.get('result')[0]
+                method.uri = result.get('result')[0]
+            except Exception as e:
+                if "exists" not in str(e):
+                    logging.error("Exception : %s\n" % e)
+                    exit()
+                 
+        
+            unit_info = create_base_variable(configVariableHeaders,csvColumns, row, units, 'unit')
+            if unit_info is None:
+                exit()
+            unit = opensilexClientToolsPython.UnitCreationDTO(
+                uri=method_info['uri'],
+                name=method_info['name'],
+                description= method_info['description']
+            )
+            try: 
+                if update:
+                    result = variable_os_api.update_unit(body=unit)
+                else :
+                    result = variable_os_api.create_unit(body=unit)
+
+                units[row[configVariableHeaders['unitLabel']]] = result.get('result')[0]
+                unit.uri = result.get('result')[0]
+            except Exception as e:
+                if "exists" not in str(e):
+                    logging.error("Exception : %s\n" % e)
+                    exit()  
            
             traitUri = None
             if configVariableHeaders['traitUri']  in csvColumns:
@@ -292,22 +281,26 @@ def migrate_variables(pythonClient, configVariableHeaders,variablesCSV):
                 var_description = format_comment(row[configVariableHeaders['variableComment']])
             else:
                 var_description = "No description"
-
+            
             variable = opensilexClientToolsPython.VariableCreationDTO(
                 uri=row[configVariableHeaders['variableUri']],
                 name=row[configVariableHeaders['variableLabel']],
                 alternative_name=alternative_name,
-                entity=row[configVariableHeaders['entityUri']],
-                characteristic=row[configVariableHeaders['characteristicUri']],
-                method=row[configVariableHeaders['methodUri']],
-                unit=row[configVariableHeaders['unitUri']],
+                entity=entity.uri,
+                characteristic=characteristic.uri,
+                method=method.uri,
+                unit=unit.uri,
                 description=var_description ,
                 datatype=datatypeUri,
                 trait= traitUri,
                 trait_name=traitLabel
             )  
+            
             try:
-                variable_os_api.create_variable(body=variable)
+                if update:
+                    variable_os_api.update_variable(body=variable)
+                else:
+                    variable_os_api.create_variable(body=variable)
                 nbEntities = nbEntities + 1
             except Exception as e:
                 if "exists" in str(e):
@@ -321,9 +314,29 @@ def migrate_variables(pythonClient, configVariableHeaders,variablesCSV):
         except Exception as e:
             logging.error("Exception : %s\n" % e)
             logging.info("Variable failed")
-            logging.info(row)
+            logging.info(variable)
 
     logging.info("number of transfered variables : " +  str(nbEntities) + '/' + str(totalCount))
+
+def create_base_variable(configVariableHeaders,csvColumns, row, save_list, variable_subtype) :
+    result ={}
+    name = row[configVariableHeaders[variable_subtype +'Label']] 
+    uri = row[configVariableHeaders[variable_subtype +'Uri']]
+    description = None
+    if configVariableHeaders[variable_subtype +'Label'] in csvColumns and configVariableHeaders[variable_subtype +'Uri'] in csvColumns : 
+        if uri is None or uri not in save_list.values():
+            if name not in save_list: 
+                description = None
+                if configVariableHeaders[variable_subtype +'Comment'] in csvColumns:
+                    description = format_comment(row[configVariableHeaders[variable_subtype +'Comment']])
+                else:
+                    description = "No description"
+                    
+    
+        return { "name": name,  "uri" : uri, "description" : description  }
+    else:
+        logging.info("Not existing - " + configVariableHeaders[variable_subtype +'Label'] + "or" +  configVariableHeaders[variable_subtype +'Uri'] + " columns")
+        return None
 
 
 def create_sensor(pythonClient,sensor):
@@ -435,6 +448,7 @@ def transformDate(date):
 
 def add_data_from_googlesheet(pythonClient, spreadsheet_url, gid_number):
     variables_url = spreadsheet_url + "/gviz/tq?tqx=out:csv&gid=" + str(gid_number)
+    logging.debug("variables url : " + variables_url)
     r = requests.get(variables_url).content
     variablesCsvString = requests.get(variables_url).content
     data_csv = pd.read_csv(io.StringIO(variablesCsvString.decode('utf-8')))

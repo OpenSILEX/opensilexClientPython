@@ -28,11 +28,11 @@ logging.info("Headers and token : " + str(pythonClient.default_headers) + '\n')
 # Import variable from csv and googlesheet
 # Googlesheet format example : https://docs.google.com/spreadsheets/d/1tjnKPQGp37Xd8d2SFMBQGR1NCzBO4iOSk05QjVgiHa8/edit?usp=sharing
 # Googlesheet url exemple: https://docs.google.com/spreadsheets/d/1tjnKPQGp37Xd8d2SFMBQGR1NCzBO4iOSk05QjVgiHa8/edit#gid=0
-spreadsheet_url = "https://docs.google.com/spreadsheets/d/1tjnKPQGp37Xd8d2SFMBQGR1NCzBO4iOSk05QjVgiHa8"
+spreadsheet_url = "https://docs.google.com/spreadsheets/d/1mqmXkSekWhdde7Ic4baiw9R3jSkS90CwTuQbZoaUIVk"
 gid_number = "0"
 
-# migrate_variables_from_googlesheet(pythonClient, None, spreadsheet_url, gid_number)
-
+migrate_variables_from_googlesheet(pythonClient, None, spreadsheet_url, gid_number, False)
+exit()
 # with specific header
 # Header Key => "csv Name"
 # configVariableHeaders = {
@@ -60,36 +60,37 @@ gid_number = "0"
 # Import variables from googlesheet 
 # You can defined row columns with the third argument configVariableHeaders
 # Uncomment following lines to execute 
-# migrate_variables_from_googlesheet(pythonClient, None, spreadsheet_url, gid_number)
+# migrate_variables_from_googlesheet(pythonClient, None, spreadsheet_url, gid_number, False)
 
 # Import variables from csv
 # Uncomment following lines to execute 
 # csvVariablePath = os.path.join(os.path.abspath(os.path.dirname(__file__)),"csv_example","variables.csv")
-# migrate_variables_from_csv(pythonClient, None, csvVariablePath)
+# migrate_variables_from_csv(pythonClient, None, csvVariablePath, False)
 
 # ############ # ############ # ############ # ############ # ############ 
 # ############# ############   EXPERIMENTAL  # ############ # ############ 
 # ############ # ############ # ############ # ############ # ############   
 # create an experiment
-expe = {
-    "uri": "http://www.opensilex.org/demo/TRAINING2021-1",
-    "name": "TRAINING-2021",
-    "objective": "For teaching purpose",
-    "start_date": "2017-05-19",
-    "end_date": "2017-09-22",
-    "species": ["http://aims.fao.org/aos/agrovoc/c_12332"],
-    "technical_supervisors": [],
-    "scientific_supervisors": [],
-    "projects": [],
-    "is_public": True,
-    "description": "Training OpenSILEX",
-    "groups": []
+expeTocreate = {
+   "uri": "http://www.opensilex.org/demo/Formation-2021",
+   "name": "Formation2021",
+   "objective": "For teaching purpose",
+   "start_date": "2021-04-27",
+   "end_date": "2021-04-27",
+   "species": ["http://aims.fao.org/aos/agrovoc/c_12332"],
+   "technical_supervisors": [],
+   "scientific_supervisors": [],
+   "projects": [],
+   "is_public": True,
+   "description": "Training OpenSILEX",
+   "groups": []
 }
+# uri = create_experiment(pythonClient,expeTocreate)
+
 # Uncomment to execute
 # uri = create_experiment(pythonClient, expe) 
 
 provenancesToSend = [{
-    'uri': "http://www.opensilex.org/demo/id/provenance/environmental-provenance-demo",
     "name": "ENVIRONMENTAL PROVENANCE DEMO - TRAINING",
     "description": "Collected by several sensors",
     "prov_agent": [
@@ -102,10 +103,10 @@ provenancesToSend = [{
 }, {
     'uri': "http://www.opensilex.org/demo/id/provenance/phenotyping-provenance-demo",
     "name": "PHENOTYPING PROVENANCE DEMO - TRAINING",
-    "description": "Collected by drone",
+    "description": "Collected by an operator",
 }]
 # Uncomment to execute
-# create_provenances(pythonClient,provenancesToSend )
+create_provenances(pythonClient,provenancesToSend )
  
 
 sensor = {"uri": "http://www.opensilex.org/demo/set/devices/station-demo-sensor", "name": "Demo sensor", "type": "vocabulary:Station",
@@ -136,4 +137,4 @@ csvDataPath = os.path.join(os.path.abspath(os.path.dirname(__file__)),"csv_examp
 spreadsheet_url = "https://docs.google.com/spreadsheets/d/1tjnKPQGp37Xd8d2SFMBQGR1NCzBO4iOSk05QjVgiHa8"
 gid_number = "2145718207" 
 # Uncomment to execute
-# add_data_from_googlesheet(pythonClient,spreadsheet_url,gid_number)
+add_data_from_googlesheet(pythonClient,spreadsheet_url,gid_number)
