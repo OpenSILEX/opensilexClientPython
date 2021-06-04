@@ -6,7 +6,7 @@ Python 2.7 or 3.4+
 ## Prerequisites & Usage
 
 ```sh
-git clone https://github.com/OpenSILEX/opensilexPythonClient.git@1.0.0-beta
+git clone https://github.com/OpenSILEX/opensilexPythonClient.git
 cd opensilexPythonClient
 pip install -r requirements.txt
 ```
