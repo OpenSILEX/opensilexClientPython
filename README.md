@@ -6,7 +6,7 @@ Python 2.7 or 3.4+
 ## Prerequisites & Usage
 
 ```sh
-git clone https://github.com/OpenSILEX/opensilexPythonClient.git
+git clone https://github.com/OpenSILEX/opensilexPythonClient.git@1.0.0-beta
 cd opensilexPythonClient
 pip install -r requirements.txt
 ```
@@ -15,9 +15,9 @@ pip install -r requirements.txt
 You can install directly from Github
 
 ```shy
-pip install git+https://github.com/OpenSILEX/opensilexClientToolsPython.git
+pip install git+https://github.com/OpenSILEX/opensilexClientToolsPython.git@1.0.0-beta
 ```
-(you may need to run `pip` with root permission: `sudo pip install git+https://github.com/OpenSILEX/opensilexClientToolsPython.git`)
+(you may need to run `pip` with root permission: `sudo pip install git+https://github.com/OpenSILEX/opensilexClientToolsPython.git@1.0.0-beta`)
 
 #### with conda, you must install pip and git first
 
