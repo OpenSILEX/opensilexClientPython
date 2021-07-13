@@ -483,8 +483,7 @@ def add_data_from(pythonClient,data_csv):
             logging.error("Duplicate data")
         exit()
 
-
-def getVariablesbyURI(uri="", pythonClient=""):
+def getVariablesbyURI(uri=[], pythonClient=None):
     if isEmpty(uri):
         uri = []
     if type(uri) is not list:
@@ -526,13 +525,11 @@ def getVariablesbyURI(uri="", pythonClient=""):
         return None
 
 
-def getVariablesByExperiment(experiment="", name="", year="", species="", factors="", pythonClient=""):
+def getVariablesByExperiment(experiment="", name="", year="", species=[], factors=[], pythonClient=None):
     if isEmpty(species):
         species = []
     if isEmpty(factors):
         factors = []
-    if pythonClient=="":
-        return print("STOP : You must provide the API connection object: pythonClient")  ## moyen moyen cette solution
 
     exp_api = opensilexClientToolsPython.ExperimentsApi(pythonClient)
     try:
@@ -546,7 +543,7 @@ def getVariablesByExperiment(experiment="", name="", year="", species="", factor
         return None
 
 
-def get_data(experiment=[], variables=[], scientific_objects=[], pythonClient="", start_date=[], end_date=[]):
+def get_data(experiment=[], variables=[], scientific_objects=[], pythonClient=None, start_date=None, end_date=None):
     params = dict()
     if variables != []:
         params["variables"] = variables
