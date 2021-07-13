@@ -482,3 +482,106 @@ def add_data_from(pythonClient,data_csv):
         if "DUPLICATE" in str(e):
             logging.error("Duplicate data")
         exit()
+
+
+def getVariablesbyURI(uri="", pythonClient=""):
+    if isEmpty(uri):
+        uri = []
+    if type(uri) is not list:
+        uri = [uri]
+    var_api = opensilexClientToolsPython.VariablesApi(pythonClient)
+    try:
+        result = var_api.get_variables_by_ur_is(uris=uri)
+        Name = []
+        Uri = []
+        Alternative_name = []
+        Entity_name = []
+        Entity_uri = []
+        Characteristic_name = []
+        Characteristic_uri = []
+        Method_name = []
+        Method_uri = []
+        Unit_name = []
+        Unit_uri = []
+        Description = []
+        for var in result['result']:
+            Name.append(var.name)
+            Uri.append(var.uri)
+            Alternative_name.append(var.alternative_name)
+            Entity_name.append(var.entity.name)
+            Entity_uri.append(var.entity.uri)
+            Characteristic_name.append(var.characteristic.name)
+            Characteristic_uri.append(var.characteristic.uri)
+            Method_name.append(var.method.name)
+            Method_uri.append(var.method.uri)
+            Unit_name.append(var.unit.name)
+            Unit_uri.append(var.unit.uri)
+            Description.append(var.description)
+            variable_list = {"name": Name, "Uri": Uri, "alternative_name": Alternative_name, "entity_name": Entity_name, "entity_uri": Entity_uri, "characteristic_name": Characteristic_name,
+                             "characteristic_uri": Characteristic_uri, "method_name": Method_name, "method_uri": Method_uri, "unit_name": Unit_name, "unit_uri": Unit_uri, "description": Description}
+            var_data = pd.DataFrame(variable_list)
+        return var_data
+    except Exception as e:
+        print("Exception : %s\n" % e)
+        return None
+
+
+def getVariablesByExperiment(experiment="", name="", year="", species="", factors="", pythonClient=""):
+    if isEmpty(species):
+        species = []
+    if isEmpty(factors):
+        factors = []
+    if pythonClient=="":
+        return print("STOP : You must provide the API connection object: pythonClient")  ## moyen moyen cette solution
+
+    exp_api = opensilexClientToolsPython.ExperimentsApi(pythonClient)
+    try:
+        var_in_expe = exp_api.get_used_variables(uri=experiment)
+        variables_details = pd.DataFrame()
+        for variables in var_in_expe['result']:
+            variables_details = variables_details.append(getVariablesbyURI(uri=[variables.uri], pythonClient = pythonClient))
+        return variables_details
+    except Exception as e:
+        print("Exception : %s\n" % e)
+        return None
+
+
+def get_data(experiment=[], variables=[], scientific_objects=[], pythonClient="", start_date=[], end_date=[]):
+    params = dict()
+    if variables != []:
+        params["variables"] = variables
+    if experiment != []:
+        params["experiment"] = experiment
+    if scientific_objects != []:
+        params["scientific_objects"] = scientific_objects
+    if end_date != []:
+        params["end_date"] = end_date
+    if start_date != []:
+        params["start_date"] = start_date
+    data_api = opensilexClientToolsPython.DataApi(pythonClient)
+    try:
+        result = data_api.search_data_list(**params)
+        Date = []
+        Confidence = []
+        Metadata = []
+        Provenance = []
+        Scientific_objects = []
+        Uri = []
+        Value = []
+        Variable = []
+        for var in result.get('result'):
+            Date.append(var._date)
+            Confidence.append(var.confidence)
+            Metadata.append(var.metadata)
+            Provenance.append(var.provenance)
+            Scientific_objects.append(var.scientific_objects)
+            Uri.append(var.uri)
+            Value.append(var.value)
+            Variable.append(var.variable)
+        dataFrame = {"date": Date, "confidence": Confidence, "metadata": Metadata, "provenance": Provenance, "scientific_objects": Scientific_objects,
+                     "uri": Uri, "value": Value, "variable": Variable}
+        data = pd.DataFrame(dataFrame)
+        return data
+    except Exception as e:
+        print("Exception : %s\n" % e)
+        return None
