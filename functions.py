@@ -577,3 +577,55 @@ def get_data(experiment=[], variables=[], scientific_objects=[], pythonClient=No
     except Exception as e:
         print("Exception : %s\n" % e)
         return None
+
+def getDevice(uri = [], name = [], existance_date = [], brand = [], model = [], serial_number = [], rdfType = [], pythonClient = None):
+    params = dict()
+    if uri != []:
+        params["uri"] = uri
+    if name != []:
+        params["name"] = name
+    if existance_date != []:
+        params["existance_date"] = existance_date
+    if brand != []:
+        params["brand"] = brand
+    if model != []:
+        params["model"] = model
+    if serial_number != []:
+        params["serial_number"] = serial_number
+    if rdfType != []:
+        params["rdfType"] = rdfType
+    device_api = opensilexClientToolsPython.DevicesApi(pythonClient)
+    try:
+        result = device_api.search_devices(**params)
+        Uri = []
+        Brand = []
+        Constructor_model = []
+        Description = []
+        Name = []
+        Person_In_Charge = []
+        RdfType = []
+        RdfType_name = []
+        Relations = []
+        Removal = []
+        Serial_Number = []
+        Start_up = []
+        for device in result['result']:
+            Uri.append(device.uri)
+            Brand.append(device.brand)
+            Constructor_model.append(device.constructor_model)
+            Description.append(device.description)
+            Name.append(device.name)
+            Person_In_Charge.append(device.person_in_charge)
+            RdfType.append(device.rdf_type)
+            RdfType_name.append(device.rdf_type_name)
+            Relations.append(device.relations)
+            Removal.append(device.removal)
+            Serial_Number.append(device.serial_number)
+            Start_up.append(device.start_up)
+        Devices = {"uri": Uri, "brand": Brand, "constructor_model": Constructor_model, "description": Description, "name": Name,
+                     "person_in_charge": Person_In_Charge, "rdf_type": RdfType, "rdf_type_name": RdfType_name, "relations": Relations, "removal": Removal, "serial_number": Serial_Number, "start_up": Start_up}
+        data = pd.DataFrame(Devices)
+        return data
+    except Exception as e:
+        print("Exception : %s\n" % e)
+        return None   
