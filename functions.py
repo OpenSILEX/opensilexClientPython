@@ -628,4 +628,51 @@ def getDevice(uri = [], name = [], existance_date = [], brand = [], model = [], 
         return data
     except Exception as e:
         print("Exception : %s\n" % e)
-        return None   
+        return None
+
+def getDataByDevice(uri = "", experiment=[], variable=[], provenance=[], min_confidance = "", max_confidance = "",timezone = "", start_date="", end_date="", pythonClient=None):
+    params = dict()
+    if uri != []:
+        params["uri"] = uri
+    if variable != []:
+        params["variable"] = variable
+    if experiment != []:
+        params["experiment"] = experiment
+    if provenance != []:
+        params["provenance"] = provenance
+    if end_date != "":
+        params["end_date"] = end_date
+    if start_date != "":
+        params["start_date"] = start_date
+    if min_confidance != "":
+        params["min_confidance"] = min_confidance
+    if max_confidance != "":
+        params["max_confidance"] = max_confidance
+    if timezone != "":
+        params["timezone"] = timezone   
+    device_api = opensilexClientToolsPython.DevicesApi(pythonClient)
+    try:
+        result = device_api.search_device_data(**params)
+        Date = []
+        Confidence = []
+        Metadata = []
+        Provenance = []
+        Uri = []
+        Value = []
+        Variable = []
+        for var in result.get('result'):
+            Date.append(var._date)
+            Confidence.append(var.confidence)
+            Metadata.append(var.metadata)
+            Provenance.append(var.provenance)
+            Uri.append(var.uri)
+            Value.append(var.value)
+            Variable.append(var.variable)
+        dataFrame = {"date": Date, "confidence": Confidence, "metadata": Metadata, "provenance": Provenance, 
+                     "uri": Uri, "value": Value, "variable": Variable}
+        data = pd.DataFrame(dataFrame)
+        return data
+    except Exception as e:
+        print("Exception : %s\n" % e)
+        return None
+   
