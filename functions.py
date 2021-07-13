@@ -525,12 +525,7 @@ def getVariablesbyURI(uri=[], pythonClient=None):
         return None
 
 
-def getVariablesByExperiment(experiment="", name="", year="", species=[], factors=[], pythonClient=None):
-    if isEmpty(species):
-        species = []
-    if isEmpty(factors):
-        factors = []
-
+def getVariablesByExperiment(experiment="", pythonClient=None):
     exp_api = opensilexClientToolsPython.ExperimentsApi(pythonClient)
     try:
         var_in_expe = exp_api.get_used_variables(uri=experiment)
