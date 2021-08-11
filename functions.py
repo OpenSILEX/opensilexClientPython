@@ -26,6 +26,7 @@ from __future__ import print_function
 import opensilexClientToolsPython
 from pprint import pprint
 from datetime import datetime
+from opensilexClientToolsPython.models.entity_creation_dto import EntityCreationDTO
 import requests
 import re
 import io
@@ -278,302 +279,382 @@ def migrate_variables_from_csv(
 def migrate_variables(
     pythonClient: opensilexClientToolsPython.ApiClient, 
     variables_csv: pd.DataFrame, 
-    entity_label: str = "entity.label",
-    characteristic_label: str = "characteristic.label",
-    method_label: str = "method.label",
-    unit_label: str = "unit.label",
-    variable_label: str = "variable.label",
-    data_type: str = "variable.dataype",
-    entity_comment: str = None,
-    entity_uri: str = None,
-    characteristic_uri: str = None,
-    characteristic_comment: str = None,
-    method_uri: str = None,
-    method_comment: str = None,
-    unit_uri: str = None,
-    unit_comment: str = None,
-    trait_uri: str = None,
-    trait_label: str = None,
-    variable_uri: str = None,
-    variable_comment: str = None,
-    alternative_label: str = None,
+    variables_schema: dict = {
+        'trait':'trait.uri',
+        'trait_name':'trait.label',
+        'entity':{
+            'name':'entity.label',
+            'uri':'entity.uri',
+            'description':'entity.comment'
+        },
+        'characteristic':{
+            'name':'characteristic.label',
+            'uri':'characteristic.uri',
+            'description':'characteristic.comment'
+        },
+        'method':{
+            'name':'method.label',
+            'uri':'method.uri',
+            'description':'method.comment'
+        },
+        'unit':{
+            'name':'unit.label',
+            'uri':'unit.uri',
+            'description':'unit.comment'
+        },
+        'uri':'variable.uri',
+        'name':'variable.label',
+        'description':'variable.description',
+        'datatype':'variable.datatype',
+        'alternative_name':'variable.alternative_name',
+        'time_interval':'variable.timeinterval',
+        'sampling_interval':'variable.sampleinterval'
+    },
     update: bool = False
-):
+) -> None:
+    """Create variables from a pandas.DataFrame
 
-    logging.info("Update mode variable is set to " + str(update) )
+        Parameters
+        ----------
+        pythonClient: opensilexClientToolsPython.ApiClient
+            The authenticated client to connect to Opensilex
+        variables_csv: pd.DataFrame
+            A pandas DataFrame containing the data needed to create the variables
+        variables_schema: dict
+            Dictionnary that describes the header of the in correspondance
+            with the names in opensilex.
+            Format is 'opensilexname':'columnname'
+            or 'opensilexsubtype':{'opensilexname':'columnname'}
+            By default : {
+                'trait':'trait.uri',
+                'trait_name':'trait.label',
+                'entity':{
+                    'name':'entity.label',
+                    'uri':'entity.uri',
+                    'description':'entity.comment'
+                },
+                'characteristic':{
+                    'name':'characteristic.label',
+                    'uri':'characteristic.uri',
+                    'description':'characteristic.comment'
+                },
+                'method':{
+                    'name':'method.label',
+                    'uri':'method.uri',
+                    'description':'method.comment'
+                },
+                'unit':{
+                    'name':'unit.label',
+                    'uri':'unit.uri',
+                    'description':'unit.comment'
+                },
+                'uri':'variable.uri',
+                'name':'variable.label',
+                'description':'variable.description',
+                'datatype':'variable.datatype',
+                'alternative_name':'variable.alternative_name',
+                'time_interval':'variable.timeinterval',
+                'sampling_interval':'variable.sampleinterval'
+            }
+        update: bool = False
+            TODO (wether or not to update?)
 
-    # Group parameters together to pass as kwargs
-    loc = locals()
-    excluded = [
-        "pythonClient",
-        "variables_csv",
-        "update"
-    ]
-    config_variable_headers = {
-        k: loc[k] 
-        for k in loc.keys() 
-        if (k not in excluded and loc[k] != None)
-    }
+        Returns
+        -------
+        None
+        """
 
-    csv_columns = variables_csv.columns
+    logging.info("Update mode variable is set to " + str(update) + "\n\n")
 
-    # Create the Api needed to manage variables
-    variable_os_api = opensilexClientToolsPython.VariablesApi(pythonClient)
+    # DataFrame for results of objects creations
+    variables_df = pd.DataFrame(
+        columns=variables_schema
+    )
 
-    # Counting lines in the data
-    total_count = len(variables_csv.index)
+    # Create all objects that need to be created on opensilex
+    for key in variables_schema.keys():
 
-    entities = {} 
+        # Create objects on opensilex if needed
+        if type(variables_schema[key])==dict:
+            
+            # Subset of the dataframe with the data needed to create the objects
+            sub_df = variables_csv[variables_schema[key].values()]
+            
+            # Change column labels to opensilex labels
+            col_exchange = {
+                v:k
+                for k,v in variables_schema[key].items()
+            }
+            sub_df.rename(columns=col_exchange, inplace=True)
+            
+            # DataFrame for results
+            df_res = pd.DataFrame(columns=sub_df.columns)
 
-    # Collect all columns related to entities
-    entities_df = variables_csv[[
-        config_variable_headers[k]
-        for k in config_variable_headers.keys()
-        if "entity" in k
-    ]]
+            # Create all the objects line by line
+            for index, row in sub_df.iterrows():
 
-    # Drop duplicates as entities only need to be created once
-    entities_df.drop_duplicates(inplace=True)
+                # Check if row is a duplicate of previous rows
+                duplicate_of = (
+                    sub_df.loc[:index-1,:].values == row.values
+                ).all(axis=1)
 
-    # Take care of the ones that have no missing info first
-    no_na = entities_df.dropna()
+                # If it is a duplicate use the data already in df_res
+                if duplicate_of.any():
+                    # Use the first row of all the duplicates
+                    df_res.loc[index] = sub_df.loc[:index-1,:]\
+                        .loc[duplicate_of].iloc[0]
 
-    # If all uris are unique ------------------------------STOPED HERE
-    if no_na[[]].duplicated().any():
-        # Create all
+                # Otherwise create the object
+                else:
+                    try:
+                        object_info = create_base_variable(
+                            pythonClient=pythonClient,
+                            row=row,
+                            index=index,
+                            variable_subtype=key,
+                        )
+                        # NOTE : sets the entire row to false if object creation failed
+                        df_res.loc[index]=object_info
+                        
+                    except Exception as e:
+                        logging.info(object_info)
+                        logging.error("Exception : %s\n" % e)
+            
+            # The column for the variable subtype is set to contain the uris
+            variables_df[key] = df_res.uri
 
-    for index, row in no_na.iterrows():
-        try:
+        # Special case : 'datatype'
+        elif key == "datatype":
+            var_api_instance = opensilexClientToolsPython.VariablesApi(pythonClient)
+            datatypes = var_api_instance.get_datatypes()
 
+            # Subset of the dataframe with the datatypes
+            sub_df = pd.DataFrame(variables_csv[variables_schema[key]])
+            
+            # Change column labels to opensilex labels
+            sub_df.rename(columns={variables_schema[key]:key}, inplace=True)
+            
+            # DataFrame for results
+            df_res = pd.DataFrame(columns=sub_df.columns)
 
-
-    characteristics = {} 
-
-    methods = {} 
-
-    units = {} 
-
-    nb_entities = 0
-
-    for index, row in variables_csv.iterrows():
-        try:
-            entity_info = create_base_variable(
-                config_variable_headers, csv_columns, row, entities, 'entity'
-            )
-            if entity_info is None:
-                exit()
-            entity = opensilexClientToolsPython.EntityCreationDTO(
-                            uri=entity_info['uri'],
-                            name=entity_info['name'],
-                            description= entity_info['description'])
-            try:
-                if update:
-                    result = variable_os_api.update_entity(body=entity)
-                else :
-                    result = variable_os_api.create_entity(body=entity)
+            # Set the datatypes line by line
+            for index, row in sub_df.iterrows():
+                # TODO may want to ignore case here
+                datatype_matches = [
+                    dt.uri
+                    for dt in datatypes["result"]
+                    if row[key] in dt.name
+                ]
                 
-                entities[row[config_variable_headers['entity_label']]] = result.get('result')[0]
-                entity.uri = result.get('result')[0] 
-            except Exception as e:
-                if "exists" not in str(e):
-                    logging.info(entity)
-                    logging.error("Exception : %s\n" % e)
-                    exit() 
-            
-            
-            characteristic_info = create_base_variable(config_variable_headers,csv_columns, row, characteristics, 'characteristic')
-            if characteristic_info is None:
-                exit()
+                if any(datatype_matches):
+                    # If multiple matches, keep first one
+                    df_res.loc[index, key] = datatype_matches[0]
+                else:
+                    # If no matches, set to False
+                    df_res.loc[index, key] = False
+                    logging.info(
+                        """Couldn't find a datatype for : {}\n""".format(
+                            variables_csv.loc[index, key]
+                        )
+                    )
+            variables_df[key] = df_res[key]
 
-            characteristic = opensilexClientToolsPython.CharacteristicCreationDTO(
-                    uri=characteristic_info['uri'],
-                    name=characteristic_info['name'],
-                    description= characteristic_info['description'])
-            try:    
-                if update:
-                    result = variable_os_api.update_characteristic(
-                        body=characteristic)
-                else :
-                    result = variable_os_api.create_characteristic(
-                        body=characteristic)
-                characteristics[row[config_variable_headers['characteristic_label']]] = result.get('result')[0]
-                characteristic.uri = result.get('result')[0]
-            except Exception as e:
-                if "exists" not in str(e):
-                    logging.error("Exception : %s\n" % e)
-                    exit() 
-
-            method_info = create_base_variable(config_variable_headers,csv_columns, row, methods, 'method')
-            if method_info is None:
-                exit()
- 
-            method = opensilexClientToolsPython.MethodCreationDTO(
-                uri=method_info['uri'],
-                name=method_info['name'],
-                description= method_info['description']
-            )
-            try:
-                if update:
-                    result = variable_os_api.update_method(body=method)
-                else :
-                    result = variable_os_api.create_method(body=method)
-                methods[row[config_variable_headers['method_label']]] = result.get('result')[0]
-                method.uri = result.get('result')[0]
-            except Exception as e:
-                if "exists" not in str(e):
-                    logging.error("Exception : %s\n" % e)
-                    exit()
-                 
+        else:
+            variables_df[key] = variables_csv[variables_schema[key]]
+    
+    # Now that all necessary objects were created the Variable can be created
+    for index, row in variables_df.iterrows():
         
-            unit_info = create_base_variable(config_variable_headers,csv_columns, row, units, 'unit')
-            if unit_info is None:
-                exit()
-            unit = opensilexClientToolsPython.UnitCreationDTO(
-                uri=method_info['uri'],
-                name=method_info['name'],
-                description= method_info['description']
+        # If at least one object couldn't be created
+        if (row==False).any():
+            logging.info(
+                """This variable couldn't be created because one or more objects couldn't be created:
+{}\n""".format(dict(row))
             )
-            try: 
-                if update:
-                    result = variable_os_api.update_unit(body=unit)
-                else :
-                    result = variable_os_api.create_unit(body=unit)
-
-                units[row[config_variable_headers['unit_label']]] = result.get('result')[0]
-                unit.uri = result.get('result')[0]
-            except Exception as e:
-                if "exists" not in str(e):
-                    logging.error("Exception : %s\n" % e)
-                    exit()  
-           
-            trait_uri = None
-            if config_variable_headers['trait_uri']  in csv_columns:
-                if not is_empty(row[config_variable_headers['trait_uri']]):
-                    trait_uri = row[config_variable_headers['trait_uri']]
-            else :
-                logging.info("Not existing - " + config_variable_headers['trait_uri'] + " in columns")
-
-            trait_label = None 
-            if trait_uri is not None :
-                if config_variable_headers['trait_label'] in csv_columns:
-                    if row[config_variable_headers['trait_label']] is not None:
-                        trait_label = row[config_variable_headers['trait_label']]
-                else :
-                    logging.info("Not existing - " + config_variable_headers['trait_label'] + " in columns")
- 
-            data_typeUri = "http://www.w3.org/2001/XMLSchema#string"
-            if config_variable_headers['trait_label']  in csv_columns:
-                
-                search_list_decimal = ['decimal']
-                # re.IGNORECASE is used to ignore case
-                if re.compile('|'.join(search_list_decimal), re.IGNORECASE).search(row[config_variable_headers['data_type']]):
-                    data_typeUri = "http://www.w3.org/2001/XMLSchema#decimal"
-
-                search_list_integer = ['integer']
-                # re.IGNORECASE is used to ignore case
-                if re.compile('|'.join(search_list_integer), re.IGNORECASE).search(row[config_variable_headers['data_type']]):
-                    data_typeUri = "http://www.w3.org/2001/XMLSchema#integer"
-
-                search_list_integer = ['date']
-                # re.IGNORECASE is used to ignore case
-                if re.compile('|'.join(search_list_integer), re.IGNORECASE).search(row[config_variable_headers['data_type']]):
-                    data_typeUri = "http://www.w3.org/2001/XMLSchema#date"
-            else :
-                logging.error("Not existing - " + config_variable_headers['data_type'] + " in columns")
-                exit()
-
-            alternative_name = None
-            if config_variable_headers['alternative_label'] in csv_columns:
-                if not is_empty(row[config_variable_headers['alternative_label']]):
-                    alternative_name = row[config_variable_headers['alternative_label']]
-             
-
-            var_description = None
-            if config_variable_headers['variable_comment'] in csv_columns:
-                var_description = format_comment(row[config_variable_headers['variable_comment']])
-            else:
-                var_description = "No description"
-            
-            variable = opensilexClientToolsPython.VariableCreationDTO(
-                uri=row[config_variable_headers['variable_uri']],
-                name=row[config_variable_headers['variable_label']],
-                alternative_name=alternative_name,
-                entity=entity.uri,
-                characteristic=characteristic.uri,
-                method=method.uri,
-                unit=unit.uri,
-                description=var_description ,
-                data_type=data_typeUri,
-                trait= trait_uri,
-                trait_name=trait_label
-            )  
-            
+            # TODO may want to add a success/failure column
+        else:
             try:
-                if update:
-                    variable_os_api.update_variable(body=variable)
-                else:
-                    variable_os_api.create_variable(body=variable)
-                nb_entities = nb_entities + 1
-            except Exception as e:
-                if "exists" in str(e):
-                   logging.info("Variable " + row[config_variable_headers['variable_label']] + " already exists")
-                else:
-                    logging.error("Exception : %s\n" % e)
-                    logging.info("Variable failed")
-                    logging.info(variable)
-                    logging.info("Number of variables to transfered : " +  str(nb_entities) + '/' + str(total_count))
-                    exit()
-        except Exception as e:
-            logging.error("Exception : %s\n" % e)
-            logging.info("Variable failed")
-            logging.info(variable)
+                # Create the variable
+                var_info = create_base_variable(
+                    pythonClient=pythonClient,
+                    row=row,
+                    index=index,
+                    variable_subtype='variable'
+                )
+                
+                # Update the values after variable creation
+                variables_df.loc[index, var_info.keys()] = var_info
 
-    logging.info("number of transfered variables : " +  str(nb_entities) + '/' + str(total_count))
+            except Exception as e:
+                logging.info(dict(row))
+                logging.error("Exception : %s\n" % e)
 
 # %%
+
 def create_base_variable(
-    config_variable_headers,csv_columns, row, save_list, variable_subtype
-) :
+    pythonClient: opensilexClientToolsPython.ApiClient,
+    row: pd.Series,
+    index: int,
+    variable_subtype: str
+)-> Union[dict, bool]:
+    """Create objects in opensilex
+
+    Parameters
+    ----------
+    pythonClient: opensilexClientToolsPython.ApiClient
+        The authenticated client to connect to Opensilex
+    row: pd.Series
+        The series containing the data to create the object on opensilex
+    variable_subtype: str
+        The subtype of the object to be created (entity, unit, etc...)
+
+    Returns
+    -------
+    created_object: Union[dict, bool]
+        Returns a dict corresponding to the object created or found that 
+        already existed on opensilex or False if it failed
+    """
+
+    # Dictionnary of DTO functions to use for each object subtype
+    dtos = {
+        "entity": opensilexClientToolsPython.EntityCreationDTO,
+        "characteristic": opensilexClientToolsPython.CharacteristicCreationDTO,
+        "unit": opensilexClientToolsPython.UnitCreationDTO,
+        "method": opensilexClientToolsPython.MethodCreationDTO,
+        "variable": opensilexClientToolsPython.VariableCreationDTO
+    }
+
+    # Dictionnary of apis to use for each object subtype
+    apis = {
+        "entity": opensilexClientToolsPython.VariablesApi(pythonClient),
+        "characteristic": opensilexClientToolsPython.VariablesApi(pythonClient),
+        "unit": opensilexClientToolsPython.VariablesApi(pythonClient),
+        "method": opensilexClientToolsPython.VariablesApi(pythonClient),
+        "variable": opensilexClientToolsPython.VariablesApi(pythonClient)
+    }
     
-    name = row[config_variable_headers[variable_subtype +'Label']] 
-    uri = row[config_variable_headers[variable_subtype +'Uri']]
-    description = None
-    # First if is useless?
-    if (config_variable_headers[variable_subtype +'Label'] in csv_columns 
-    and config_variable_headers[variable_subtype +'Uri'] in csv_columns) : 
+    # Dictionnary of creation functions to use for each object subtype
+    creation_func = {
+        "entity": apis["entity"].create_entity,
+        "characteristic": apis["characteristic"].create_characteristic,
+        "unit": apis["unit"].create_unit,
+        "method": apis["method"].create_method,
+        "variable": apis["variable"].create_variable,
+    }
 
-        # If no uri in the df, or the given uri is already created
-        if uri is None or uri not in save_list.values():
+    # Dictionnary of search functions to use for each object subtype
+    search_func = {
+        "entity": apis["entity"].search_entities,
+        "characteristic": apis["characteristic"].search_characteristics,
+        "unit": apis["unit"].search_units,
+        "method": apis["method"].search_methods,
+        "variable": apis["variable"].search_variables
+    }
+    
+    # Dictionnary of get functions to use for each object subtype
+    get_func = {
+        "entity": apis["entity"].get_entity,
+        "characteristic": apis["characteristic"].get_characteristic,
+        "unit": apis["unit"].get_unit,
+        "method": apis["method"].get_method,
+        "variable": apis["variable"].get_variable
+    }
+    
+    # Check if the object already exists
+    try:
+        old_object = search_func[variable_subtype](name=row["name"])
 
-            # If the name is not in the already created objects
-            if name not in save_list: 
+        # TODO ask if it should act this way or create a new object
+        if len(old_object["result"]) != 0:
 
-                # Why set the description to None?
-                description = None
+            #Making sure to have a consistent output
+            old_object = get_func[variable_subtype](
+                uri = old_object["result"][0].uri
+            )
+            v = vars(old_object["result"])
+            return_dict = {
+                col: v["_"+col]
+                for col in row.index
+            }
+            logging.info(
+                """Object {0} at row {1} wasn't created as an object with that name already exists.
+That object was skipped and will appear in the "already_existed.csv" file.
+The object used instead is {2}\n""".format(dict(row), index, return_dict)
+            )
+            # TODO add row to already_existed.csv
+            return return_dict
 
-                # If a comment column exists for this type of object
-                if (config_variable_headers[variable_subtype +'Comment'] 
-                in csv_columns):
+    except Exception as e:
+        logging.error("Exception : {}\n".format(e))
+        # TODO add row to failed.csv
+        pass
+    
+    # Try to use DTO function
+    try:
+        new_dto = dtos[variable_subtype](**row)
 
-                    # Get the description from the df
-                    description = format_comment(
-                        row[config_variable_headers[variable_subtype +'Comment']]
-                    )
+        # Try to use creation function
+        try:
+            new_object = creation_func[variable_subtype](body=new_dto)
+            new_object = get_func[variable_subtype](
+                uri = new_object["result"][0]
+            )
+            
+            v = vars(new_object["result"])
+            return_dict = {
+                col: v["_"+col]
+                for col in row.index
+            }
+            logging.info("Object created: {}\n".format(return_dict))
+            # TODO add row to created.csv
+            return return_dict
+
+        except Exception as e:
+            # Catch uri 'already exists' exception separately
+            if("URI already exists" in str(e)):
+                old_object = get_func[variable_subtype](
+                    uri = row['uri']
+                )
                 
-                # If there is no comment column, set the description to default
-                else:
-                    description = "No description"
-                    
-        # If uri 
-        return { "name": name,  "uri" : uri, "description" : description  }
-    else:
-        logging.info(
-            "Not existing - " + config_variable_headers[variable_subtype +'Label'] 
-            + "or" +  config_variable_headers[variable_subtype +'Uri'] + " columns"
-        )
-        return None
+                v = vars(old_object["result"])
+                return_dict = {
+                    col: v["_"+col]
+                    for col in row.index
+                }
+                logging.info(
+                    """Object {0} at row {1} couldn't be created as this URI already exists.
+That object was skipped and will appear in the "skipped.csv" file.
+The object with that URI will be used instead : {2}
+For the exact error see the following:
+ValueError: {3}\n""".format(dict(row), index, return_dict, e)
+                )
+                # TODO add row to already_existed.csv
+                return return_dict
+            else:
+                logging.error("Exception : {}\n".format(e))
+                # TODO add row to failed.csv
+                pass
+
+    except Exception as e:
+
+        # Catch missing name exception separately
+        if("Invalid value for `name`, must not be `None`" in str(e)):
+            logging.info(
+                """Object {0} at row {1} couldn't be created as no name was given.
+That object was skipped and will appear in the "skipped.csv" file.
+For the exact error see the following:
+ValueError: {2}\n""".format(dict(row), index, e)
+            )
+            # TODO add row to skipped.csv
+            return False
+        else:
+            logging.error("Exception : {}\n".format(e))
+            # TODO add row to failed.csv
+            pass
 
 
+
+# %%
 def create_sensor(pythonClient,sensor):
     device_api = opensilexClientToolsPython.DevicesApi(pythonClient)
     sensorTosend = opensilexClientToolsPython.DeviceCreationDTO(
