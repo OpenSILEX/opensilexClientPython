@@ -38,7 +38,7 @@ from pydantic import validate_arguments
 from functions import *
 
 # %%
-
+# Setup logging file
 logging.basicConfig(level=logging.DEBUG, handlers=[
     logging.FileHandler("debug.log"),
     logging.StreamHandler()
@@ -139,7 +139,7 @@ def create_experiment(
             .create_experiment(body=new_expriment)
         # Updating the uri in case none was specified
         experiment["uri"] = experiment_result.get("result")[0]
-        logging.info("new experiment" + experiment["name"] + " created")
+        logging.info("new experiment " + experiment["name"] + " created")
 
         # Return the updated dict
         return experiment
@@ -150,7 +150,7 @@ def create_experiment(
         if "exists" not in str(e):
             logging.error("Exception : %s\n" % e)
         else:
-            logging.info("experiment " + experiment["name"] + " exists")
+            logging.info("experiment " + experiment["name"] + " already exists")
 
 # %%
 @validate_arguments(config=dict(arbitrary_types_allowed=True))
@@ -199,86 +199,6 @@ def migrate_variables_from_googlesheet(
     pythonClient: opensilexClientToolsPython.ApiClient, 
     spreadsheet_url: str, 
     gid_number: str, 
-    config_variable_headers: dict = None, 
-    update: bool = False
-):
-    """Get variables data from googlesheet
-
-    Parameters
-    ----------
-    pythonClient: opensilexClientToolsPython.ApiClient
-        The authenticated client to connect to Opensilex
-    spreadsheet_url: str
-        The url of the googlesheet to get the variables from
-    gid_number: str
-        TODO
-    config_variable_headers: dict
-        Dictionnary that describes the header of the file
-    update: bool = False
-        TODO (wether or not to update?)
-
-    Returns
-    -------
-    pythonClient: opensilexClientToolsPython.ApiClient
-        The authenticated client to connect to Opensilex
-    config_variable_headers: dict
-        Dictionnary that describes the header of the file
-    variables_csv pandas.DataFrame
-        Pandas dataframe that contains the variables data
-    update
-        TODO
-    """
-
-    variables_url = spreadsheet_url + "/gviz/tq?tqx=out:csv&gid=" + gid_number
-    logging.info(variables_url)
-    r = requests.get(variables_url).content
-    variables_csvString = requests.get(variables_url).content
- 
-    variables_csv = pd.read_csv(io.StringIO(variables_csvString.decode('utf-8')))
-    return migrate_variables(
-        pythonClient, config_variable_headers, variables_csv, update
-    )
-
-@validate_arguments(config=dict(arbitrary_types_allowed=True))
-def migrate_variables_from_csv(
-    pythonClient: opensilexClientToolsPython.ApiClient, 
-    csv_path: str, 
-    config_variable_headers: dict = None, 
-    update: bool = False
-):
-    """Get variables data from a csv
-
-    Parameters
-    ----------
-    pythonClient: opensilexClientToolsPython.ApiClient
-        The authenticated client to connect to Opensilex
-    csv_path: str
-        The path to the csv file to get the variables from
-    config_variable_headers: dict
-        Dictionnary that describes the header of the file
-    update: bool = False
-        TODO (wether or not to update?)
-
-    Returns
-    -------
-    pythonClient: opensilexClientToolsPython.ApiClient
-        The authenticated client to connect to Opensilex
-    config_variable_headers: dict
-        Dictionnary that describes the header of the file
-    variables_csv pandas.DataFrame
-        Pandas dataframe that contains the variables data
-    update
-        TODO
-    """
-    variables_csv = pd.read_csv(csv_path)
-    return migrate_variables(
-        pythonClient, config_variable_headers, variables_csv, update
-    )
-
-@validate_arguments(config=dict(arbitrary_types_allowed=True))
-def migrate_variables(
-    pythonClient: opensilexClientToolsPython.ApiClient, 
-    variables_csv: pd.DataFrame, 
     variables_schema: dict = {
         'trait':'trait.uri',
         'trait_name':'trait.label',
@@ -309,6 +229,206 @@ def migrate_variables(
         'alternative_name':'variable.alternative_name',
         'time_interval':'variable.timeinterval',
         'sampling_interval':'variable.sampleinterval'
+    }, 
+    update: bool = False
+) -> None:
+    """Get variables data from googlesheet
+
+    Parameters
+    ----------
+    pythonClient: opensilexClientToolsPython.ApiClient
+        The authenticated client to connect to Opensilex
+    spreadsheet_url: str
+        The url of the googlesheet to get the variables from
+    gid_number: str
+        TODO
+    variables_schema: dict
+        Dictionnary that describes the header of the in correspondance
+        with the names in opensilex.
+        Format is 'opensilexname':'columnname'
+        or 'opensilexsubtype':{'opensilexname':'columnname'}
+        Example : {
+            'trait':'trait.uri',
+            'trait_name':'trait.label',
+            'entity':{
+                'name':'entity.label',
+                'uri':'entity.uri',
+                'description':'entity.comment'
+            },
+            'characteristic':{
+                'name':'characteristic.label',
+                'uri':'characteristic.uri',
+                'description':'characteristic.comment'
+            },
+            'method':{
+                'name':'method.label',
+                'uri':'method.uri',
+                'description':'method.comment'
+            },
+            'unit':{
+                'name':'unit.label',
+                'uri':'unit.uri',
+                'description':'unit.comment'
+            },
+            'uri':'variable.uri',
+            'name':'variable.label',
+            'description':'variable.description',
+            'datatype':'variable.datatype',
+            'alternative_name':'variable.alternative_name',
+            'time_interval':'variable.timeinterval',
+            'sampling_interval':'variable.sampleinterval'
+        }
+    update: bool = False
+        TODO (wether or not to update?)
+
+    Returns
+    -------
+    None
+    """
+
+    variables_url = spreadsheet_url + "/gviz/tq?tqx=out:csv&gid=" + gid_number
+    logging.info(variables_url)
+    r = requests.get(variables_url).content
+    variables_csvString = requests.get(variables_url).content
+ 
+    variables_csv = pd.read_csv(io.StringIO(variables_csvString.decode('utf-8')))
+    return migrate_variables(
+        pythonClient=pythonClient, 
+        variables_csv=variables_csv, 
+        variables_schema=variables_schema,
+        update=update
+    )
+
+@validate_arguments(config=dict(arbitrary_types_allowed=True))
+def migrate_variables_from_csv(
+    pythonClient: opensilexClientToolsPython.ApiClient, 
+    csv_path: str, 
+    variables_schema: dict = {
+        'trait':'trait.uri',
+        'trait_name':'trait.label',
+        'entity':{
+            'name':'entity.label',
+            'uri':'entity.uri',
+            'description':'entity.comment'
+        },
+        'characteristic':{
+            'name':'characteristic.label',
+            'uri':'characteristic.uri',
+            'description':'characteristic.comment'
+        },
+        'method':{
+            'name':'method.label',
+            'uri':'method.uri',
+            'description':'method.comment'
+        },
+        'unit':{
+            'name':'unit.label',
+            'uri':'unit.uri',
+            'description':'unit.comment'
+        },
+        'uri':'variable.uri',
+        'name':'variable.label',
+        'description':'variable.description',
+        'datatype':'variable.datatype',
+        'alternative_name':'variable.alternative_name',
+        'time_interval':'variable.timeinterval',
+        'sampling_interval':'variable.sampleinterval'
+    }, 
+    update: bool = False
+) -> None:
+    """Get variables data from a csv
+
+    Parameters
+    ----------
+    pythonClient: opensilexClientToolsPython.ApiClient
+        The authenticated client to connect to Opensilex
+    csv_path: str
+        The path to the csv file to get the variables from
+    variables_schema: dict
+        Dictionnary that describes the header of the in correspondance
+        with the names in opensilex.
+        Format is 'opensilexname':'columnname'
+        or 'opensilexsubtype':{'opensilexname':'columnname'}
+        Example : {
+            'trait':'trait.uri',
+            'trait_name':'trait.label',
+            'entity':{
+                'name':'entity.label',
+                'uri':'entity.uri',
+                'description':'entity.comment'
+            },
+            'characteristic':{
+                'name':'characteristic.label',
+                'uri':'characteristic.uri',
+                'description':'characteristic.comment'
+            },
+            'method':{
+                'name':'method.label',
+                'uri':'method.uri',
+                'description':'method.comment'
+            },
+            'unit':{
+                'name':'unit.label',
+                'uri':'unit.uri',
+                'description':'unit.comment'
+            },
+            'uri':'variable.uri',
+            'name':'variable.label',
+            'description':'variable.description',
+            'datatype':'variable.datatype',
+            'alternative_name':'variable.alternative_name',
+            'time_interval':'variable.timeinterval',
+            'sampling_interval':'variable.sampleinterval'
+        }
+    update: bool = False
+        TODO (wether or not to update?)
+
+    Returns
+    -------
+    None
+    """
+    variables_csv = pd.read_csv(csv_path)
+    return migrate_variables(
+        pythonClient=pythonClient, 
+        variables_csv=variables_csv, 
+        variables_schema=variables_schema,
+        update=update
+    )
+
+@validate_arguments(config=dict(arbitrary_types_allowed=True))
+def migrate_variables(
+    pythonClient: opensilexClientToolsPython.ApiClient, 
+    variables_csv: pd.DataFrame, 
+    variables_schema: dict = {
+        'trait':'trait.uri',
+        'trait_name':'trait.label',
+        'entity':{
+            'name':'entity.label',
+            'uri':'entity.uri',
+            'description':'entity.comment'
+        },
+        'characteristic':{
+            'name':'characteristic.label',
+            'uri':'characteristic.uri',
+            'description':'characteristic.comment'
+        },
+        'method':{
+            'name':'method.label',
+            'uri':'method.uri',
+            'description':'method.comment'
+        },
+        'unit':{
+            'name':'unit.label',
+            'uri':'unit.uri',
+            'description':'unit.comment',
+        },
+        'uri':'variable.uri',
+        'name':'variable.label',
+        'description':'variable.description',
+        'datatype':'variable.datatype',
+        'alternative_name':'variable.alternative_name',
+        'time_interval':'variable.timeinterval',
+        'sampling_interval':'variable.sampleinterval'
     },
     update: bool = False
 ) -> None:
@@ -325,7 +445,7 @@ def migrate_variables(
             with the names in opensilex.
             Format is 'opensilexname':'columnname'
             or 'opensilexsubtype':{'opensilexname':'columnname'}
-            By default : {
+            Example : {
                 'trait':'trait.uri',
                 'trait_name':'trait.label',
                 'entity':{
