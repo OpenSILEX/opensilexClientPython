@@ -33,7 +33,7 @@ import io
 import pandas as pd
 from dateparser import parse
 import logging
-from typing import Callable, Iterator, Union, Optional, List
+from typing import Union, List
 from pydantic import validate_arguments
 from functions import *
 
