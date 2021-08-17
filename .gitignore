@@ -1,0 +1,5 @@
+# ignore log file
+debug.log
+
+# ignore credentials file
+credentials.json
