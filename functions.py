@@ -292,6 +292,7 @@ def migrate_variables_from_googlesheet(
     variables_csvString = requests.get(variables_url).content
  
     variables_csv = pd.read_csv(io.StringIO(variables_csvString.decode('utf-8')))
+
     return migrate_variables(
         pythonClient=pythonClient, 
         variables_csv=variables_csv, 
@@ -388,6 +389,10 @@ def migrate_variables_from_csv(
     None
     """
     variables_csv = pd.read_csv(csv_path)
+
+    if len(variables_csv.columns) <= 2:
+        variables_csv = pd.read_csv(csv_path, sep=";")
+
     return migrate_variables(
         pythonClient=pythonClient, 
         variables_csv=variables_csv, 
