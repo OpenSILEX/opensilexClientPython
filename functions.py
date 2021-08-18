@@ -46,6 +46,62 @@ logging.basicConfig(level=logging.DEBUG, handlers=[
      [%(filename)s:%(lineno)d] %(message)s')
 
 # %%
+# Define full schema
+full_schema = {
+    'trait':'trait.uri',
+    'trait_name':'trait.label',
+    'entity':{
+        'name':'entity.label',
+        'uri':'entity.uri',
+        'description':'entity.comment',
+        'exact_match':'exact_match',
+        'close_match':'close_match',
+        'broad_match':'broad_match',
+        'narrow_match':'narrow_match'
+    },
+    'characteristic':{
+        'name':'characteristic.label',
+        'uri':'characteristic.uri',
+        'description':'characteristic.comment',
+        'exact_match':'exact_match',
+        'close_match':'close_match',
+        'broad_match':'broad_match',
+        'narrow_match':'narrow_match'
+    },
+    'method':{
+        'name':'method.label',
+        'uri':'method.uri',
+        'description':'method.comment',
+        'exact_match':'exact_match',
+        'close_match':'close_match',
+        'broad_match':'broad_match',
+        'narrow_match':'narrow_match'
+    },
+    'unit':{
+        'name':'unit.label',
+        'uri':'unit.uri',
+        'description':'unit.comment',
+        'symbol':'symbol',
+        'alternative_symbol':'alternative_symbol',
+        'exact_match':'exact_match',
+        'close_match':'close_match',
+        'broad_match':'broad_match',
+        'narrow_match':'narrow_match'
+    },
+    'uri':'variable.uri',
+    'name':'variable.label',
+    'description':'variable.description',
+    'datatype':'variable.datatype',
+    'alternative_name':'variable.alternative_name',
+    'time_interval':'variable.timeinterval',
+    'sampling_interval':'variable.sampleinterval',
+    'exact_match':'exact_match',
+    'close_match':'close_match',
+    'broad_match':'broad_match',
+    'narrow_match':'narrow_match'
+}
+
+# %%
 
 @validate_arguments(config=dict(arbitrary_types_allowed=True))
 def create_experiment(
@@ -491,9 +547,32 @@ def migrate_variables(
 
     logging.info("Update mode variable is set to " + str(update) + "\n\n")
 
+    # Check if the names given in the schema exist in the DataFrame
+    cols = []
+    for val in variables_schema.values():
+        if type(val)==str:
+            cols.append(val)
+        else:
+            cols = cols + list(val.values())
+
+    col_match = [
+        col
+        for col in cols
+        if col not in variables_csv.columns
+    ]
+
+    if col_match:
+        raise ValueError(
+            """The following names in the schema couldn't be matched to any columns :
+    {0}
+The actual columns found are :
+    {1}
+            """.format(col_match, variables_csv.columns)
+        )
+
     # DataFrame for results of objects creations
     variables_df = pd.DataFrame(
-        columns=variables_schema
+        columns=[key for key in full_schema]
     )
 
     # Create all objects that need to be created on opensilex
@@ -513,7 +592,7 @@ def migrate_variables(
             sub_df.rename(columns=col_exchange, inplace=True)
             
             # DataFrame for results
-            df_res = pd.DataFrame(columns=sub_df.columns)
+            df_res = pd.DataFrame(columns=full_schema[key].keys(), dtype=object)
 
             # Create all the objects line by line
             for index, row in sub_df.iterrows():
@@ -560,15 +639,15 @@ def migrate_variables(
             sub_df.rename(columns={variables_schema[key]:key}, inplace=True)
             
             # DataFrame for results
-            df_res = pd.DataFrame(columns=sub_df.columns)
+            df_res = pd.DataFrame(columns=full_schema.keys(), dtype=object)
 
             # Set the datatypes line by line
             for index, row in sub_df.iterrows():
-                # TODO may want to ignore case here
+                
                 datatype_matches = [
                     dt.uri
                     for dt in datatypes["result"]
-                    if row[key] in dt.name
+                    if row[key].lower() in dt.name.lower()
                 ]
                 
                 if any(datatype_matches):
@@ -579,7 +658,7 @@ def migrate_variables(
                     df_res.loc[index, key] = False
                     logging.info(
                         """Couldn't find a datatype for : {}\n""".format(
-                            variables_csv.loc[index, key]
+                            row.loc[key]
                         )
                     )
             variables_df[key] = df_res[key]
@@ -599,10 +678,13 @@ def migrate_variables(
             # TODO may want to add a success/failure column
         else:
             try:
+                # Replace nan with None
+                r = row.where(pd.notnull(row), None)
+
                 # Create the variable
                 var_info = create_base_variable(
                     pythonClient=pythonClient,
-                    row=row,
+                    row=r,
                     index=index,
                     variable_subtype='variable'
                 )
@@ -698,8 +780,9 @@ def create_base_variable(
             )
             v = vars(old_object["result"])
             return_dict = {
-                col: v["_"+col]
-                for col in row.index
+                col.replace("_",""): v[col]
+                for col in v
+                if "_" in col
             }
             logging.info(
                 """Object {0} at row {1} wasn't created as an object with that name already exists.
@@ -710,7 +793,10 @@ The object used instead is {2}\n""".format(dict(row), index, return_dict)
             return return_dict
 
     except Exception as e:
-        logging.error("Exception : {}\n".format(e))
+        logging.error("""Exception on object{0} :
+    {1}
+    
+    """.format(dict(row), e))
         # TODO add row to failed.csv
         pass
     
@@ -756,7 +842,10 @@ ValueError: {3}\n""".format(dict(row), index, return_dict, e)
                 # TODO add row to already_existed.csv
                 return return_dict
             else:
-                logging.error("Exception : {}\n".format(e))
+                logging.error("""Exception on object{0} :
+    {1}
+    
+    """.format(dict(row), e))
                 # TODO add row to failed.csv
                 pass
 
@@ -773,7 +862,10 @@ ValueError: {2}\n""".format(dict(row), index, e)
             # TODO add row to skipped.csv
             return False
         else:
-            logging.error("Exception : {}\n".format(e))
+            logging.error("""Exception on object{0} :
+    {1}
+    
+    """.format(dict(row), e))
             # TODO add row to failed.csv
             pass
 
