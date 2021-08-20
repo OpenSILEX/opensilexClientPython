@@ -782,6 +782,43 @@ def create_base_variable(
         "method": apis["method"].get_method,
         "variable": apis["variable"].get_variable
     }
+          
+    # If no name was given, custom message
+    if row["name"] == None:
+        
+        # If no uri was given custom message
+        if row["uri"] == None:
+            logging.info(
+                """The object {} couldn't be created as no name was given and couldn't be found as no uri was given\n"""\
+                    .format(dict(row))
+            )
+            return(False) 
+
+        #Trying to match uri
+        try:
+            old_object = get_func[variable_subtype](
+                uri = row["uri"]
+            )
+        except:
+            # If no name was given and the uri doesn't match any object, custom message
+            logging.info(
+                """The object {} couldn't be created as no name was given and couldn't be found as no object with that uri exist\n"""\
+                    .format(dict(row))
+            )
+            return(False)
+        v = vars(old_object["result"])
+        return_dict = {
+            col.replace("_", "", 1): v[col]
+            for col in v
+            if "_" in col
+        }
+        logging.info(
+            """Object {0} at row {1} wasn't created as no name was given and an object with that uri already exists.
+That object was skipped and will appear in the "already_existed.csv" file.
+The object used instead is {2}\n""".format(dict(row), index, return_dict)
+        )
+        # TODO add row to already_existed.csv
+        return return_dict
     
     # Check if the object already exists
     try:
@@ -866,27 +903,15 @@ ValueError: {3}\n""".format(dict(row), index, return_dict, e)
     
     """.format(dict(row), e))
                 # TODO add row to failed.csv
-                pass
+                return False
 
     except Exception as e:
-
-        # Catch missing name exception separately
-        if("Invalid value for `name`, must not be `None`" in str(e)):
-            logging.info(
-                """Object {0} at row {1} couldn't be created as no name was given.
-That object was skipped and will appear in the "skipped.csv" file.
-For the exact error see the following:
-ValueError: {2}\n""".format(dict(row), index, e)
-            )
-            # TODO add row to skipped.csv
-            return False
-        else:
-            logging.error("""Exception on object{0} :
+        logging.error("""Exception on object{0} :
     {1}
-    
-    """.format(dict(row), e))
-            # TODO add row to failed.csv
-            pass
+
+""".format(dict(row), e))
+        # TODO add row to failed.csv
+        return False
 
 
 
