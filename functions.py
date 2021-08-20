@@ -349,6 +349,11 @@ def migrate_variables_from_googlesheet(
  
     variables_csv = pd.read_csv(io.StringIO(variables_csvString.decode('utf-8')))
 
+    # Replace nan with None
+    variables_csv = variables_csv.where(
+        pd.notnull(variables_csv), None
+    )
+
     return migrate_variables(
         pythonClient=pythonClient, 
         variables_csv=variables_csv, 
@@ -449,6 +454,11 @@ def migrate_variables_from_csv(
     if len(variables_csv.columns) <= 2:
         variables_csv = pd.read_csv(csv_path, sep=";")
 
+    # Replace nan with None
+    variables_csv = variables_csv.where(
+        pd.notnull(variables_csv), None
+    )
+    
     return migrate_variables(
         pythonClient=pythonClient, 
         variables_csv=variables_csv, 
@@ -575,6 +585,10 @@ The actual columns found are :
         columns=[key for key in full_schema]
     )
 
+    # Fetch all datatypes for Variable creation
+    var_api_instance = opensilexClientToolsPython.VariablesApi(pythonClient)
+    datatypes = var_api_instance.get_datatypes()
+
     # Create all objects that need to be created on opensilex
     for key in variables_schema.keys():
 
@@ -623,14 +637,13 @@ The actual columns found are :
                     except Exception as e:
                         logging.info(object_info)
                         logging.error("Exception : %s\n" % e)
+                        df_res.loc[index] = False
             
             # The column for the variable subtype is set to contain the uris
             variables_df[key] = df_res.uri
 
         # Special case : 'datatype'
         elif key == "datatype":
-            var_api_instance = opensilexClientToolsPython.VariablesApi(pythonClient)
-            datatypes = var_api_instance.get_datatypes()
 
             # Subset of the dataframe with the datatypes
             sub_df = pd.DataFrame(variables_csv[variables_schema[key]])
@@ -802,7 +815,7 @@ The object used instead is {2}\n""".format(dict(row), index, return_dict)
     
     """.format(dict(row), e))
         # TODO add row to failed.csv
-        pass
+        return False
     
     # Try to use DTO function
     try:
