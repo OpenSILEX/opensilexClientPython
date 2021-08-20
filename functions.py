@@ -569,7 +569,7 @@ The actual columns found are :
     {1}
             """.format(col_match, variables_csv.columns)
         )
-
+    
     # DataFrame for results of objects creations
     variables_df = pd.DataFrame(
         columns=[key for key in full_schema]
@@ -695,9 +695,12 @@ The actual columns found are :
             except Exception as e:
                 logging.info(dict(row))
                 logging.error("Exception : %s\n" % e)
+    
+    return variables_df
 
 # %%
-
+# Create variables or objects on opensilex
+@validate_arguments(config=dict(arbitrary_types_allowed=True))
 def create_base_variable(
     pythonClient: opensilexClientToolsPython.ApiClient,
     row: pd.Series,
@@ -769,9 +772,10 @@ def create_base_variable(
     
     # Check if the object already exists
     try:
-        old_object = search_func[variable_subtype](name=row["name"])
+        # Escape regex for exact match
+        escaped_name = re.escape(row["name"])
+        old_object = search_func[variable_subtype](name=escaped_name)
 
-        # TODO ask if it should act this way or create a new object
         if len(old_object["result"]) != 0:
 
             #Making sure to have a consistent output
@@ -780,7 +784,7 @@ def create_base_variable(
             )
             v = vars(old_object["result"])
             return_dict = {
-                col.replace("_",""): v[col]
+                col.replace("_", "", 1): v[col]
                 for col in v
                 if "_" in col
             }
@@ -813,8 +817,9 @@ The object used instead is {2}\n""".format(dict(row), index, return_dict)
             
             v = vars(new_object["result"])
             return_dict = {
-                col: v["_"+col]
-                for col in row.index
+                col.replace("_", "", 1): v[col]
+                for col in v
+                if "_" in col
             }
             logging.info("Object created: {}\n".format(return_dict))
             # TODO add row to created.csv
@@ -829,8 +834,9 @@ The object used instead is {2}\n""".format(dict(row), index, return_dict)
                 
                 v = vars(old_object["result"])
                 return_dict = {
-                    col: v["_"+col]
-                    for col in row.index
+                    col.replace("_", "", 1): v[col]
+                    for col in v
+                    if "_" in col
                 }
                 logging.info(
                     """Object {0} at row {1} couldn't be created as this URI already exists.
@@ -1015,3 +1021,120 @@ def add_data_from(pythonClient,data_csv):
         if "DUPLICATE" in str(e):
             logging.error("Duplicate data")
         exit()
+
+# %%
+# Fetch variables
+@validate_arguments(config=dict(arbitrary_types_allowed=True))
+def get_variables(
+    pythonClient: opensilexClientToolsPython.ApiClient, 
+    variables_schema: dict = {
+        'trait':'trait.uri',
+        'trait_name':'trait.label',
+        'entity':{
+            'name':'entity.label',
+            'uri':'entity.uri',
+            'description':'entity.comment'
+        },
+        'characteristic':{
+            'name':'characteristic.label',
+            'uri':'characteristic.uri',
+            'description':'characteristic.comment'
+        },
+        'method':{
+            'name':'method.label',
+            'uri':'method.uri',
+            'description':'method.comment'
+        },
+        'unit':{
+            'name':'unit.label',
+            'uri':'unit.uri',
+            'description':'unit.comment',
+        },
+        'uri':'variable.uri',
+        'name':'variable.label',
+        'description':'variable.description',
+        'datatype':'variable.datatype',
+        'alternative_name':'variable.alternative_name',
+        'time_interval':'variable.timeinterval',
+        'sampling_interval':'variable.sampleinterval'
+    } 
+) -> None:
+    """TODO UPDDATE DOCSTRING
+    Create variables from a pandas.DataFrame
+
+        Parameters
+        ----------
+        pythonClient: opensilexClientToolsPython.ApiClient
+            The authenticated client to connect to Opensilex
+        variables_csv: pd.DataFrame
+            A pandas DataFrame containing the data needed to create the variables
+        variables_schema: dict
+            Dictionnary that describes the header of the in correspondance
+            with the names in opensilex.
+            Format is 'opensilexname':'columnname'
+            or 'opensilexsubtype':{'opensilexname':'columnname'}
+            Example : {
+                'trait':'trait.uri',
+                'trait_name':'trait.label',
+                'entity':{
+                    'name':'entity.label',
+                    'uri':'entity.uri',
+                    'description':'entity.comment'
+                },
+                'characteristic':{
+                    'name':'characteristic.label',
+                    'uri':'characteristic.uri',
+                    'description':'characteristic.comment'
+                },
+                'method':{
+                    'name':'method.label',
+                    'uri':'method.uri',
+                    'description':'method.comment'
+                },
+                'unit':{
+                    'name':'unit.label',
+                    'uri':'unit.uri',
+                    'description':'unit.comment'
+                },
+                'uri':'variable.uri',
+                'name':'variable.label',
+                'description':'variable.description',
+                'datatype':'variable.datatype',
+                'alternative_name':'variable.alternative_name',
+                'time_interval':'variable.timeinterval',
+                'sampling_interval':'variable.sampleinterval'
+            }
+        update: bool = False
+            TODO (wether or not to update?)
+
+        Returns
+        -------
+        None
+        """
+
+    # Flattened full schema
+    cols = []
+    for val in variables_schema.values():
+        if type(val)==str:
+            cols.append(val)
+        else:
+            cols = cols + list(val.values())
+
+    # Pandas DataFrame for the results
+    df_res = pd.DataFrame(columns=cols)
+
+    # Get all existing variables
+    var_api = opensilexClientToolsPython.VariablesApi(pythonClient)
+    res_vars = var_api.search_variables_details()
+    
+    # Populate DataFrame with results
+    for res in res_vars:
+        for key in variables_schema.keys():
+            # TODO Stopped here
+            pass
+        
+    return res_vars
+
+
+
+# %%
