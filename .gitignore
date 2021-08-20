@@ -3,3 +3,6 @@ debug.log
 
 # ignore credentials file
 credentials.json
+
+# ignore variable exports csv
+variables_export.csv
