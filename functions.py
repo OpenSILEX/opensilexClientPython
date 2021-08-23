@@ -613,13 +613,14 @@ The actual columns found are :
 
                 # Check if row is a duplicate of previous rows
                 duplicate_of = (
-                    sub_df.loc[:index-1,:].values == row.values
+                    sub_df.loc[:index-1].values == row.values
                 ).all(axis=1)
 
                 # If it is a duplicate use the data already in df_res
                 if duplicate_of.any():
+
                     # Use the first row of all the duplicates
-                    df_res.loc[index] = sub_df.loc[:index-1,:]\
+                    df_res.loc[index] = df_res.loc[:index-1]\
                         .loc[duplicate_of].iloc[0]
 
                 # Otherwise create the object
@@ -706,7 +707,7 @@ The actual columns found are :
                 variables_df.loc[index, var_info.keys()] = var_info
 
             except Exception as e:
-                logging.info(dict(row))
+                logging.info(dict(r))
                 logging.error("Exception : %s\n" % e)
     
     return variables_df
@@ -784,10 +785,10 @@ def create_base_variable(
     }
           
     # If no name was given, custom message
-    if row["name"] == None:
+    if "name" in row.index and row["name"] == None:
         
         # If no uri was given custom message
-        if row["uri"] == None:
+        if ("uri" in row.index and row["uri"] == None) or "uri" not in row.index:
             logging.info(
                 """The object {} couldn't be created as no name was given and couldn't be found as no uri was given\n"""\
                     .format(dict(row))
