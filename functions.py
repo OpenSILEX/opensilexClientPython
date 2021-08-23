@@ -703,8 +703,13 @@ The actual columns found are :
                     variable_subtype='variable'
                 )
                 
-                # Update the values after variable creation
-                variables_df.loc[index, var_info.keys()] = var_info
+                if var_info:
+                    # Update the values after variable creation
+                    variables_df.loc[index, var_info.keys()] = var_info
+                
+                # If creation failed, make name and uri =False
+                else:
+                    variables_df.loc[index, ["uri", "name"]] = False
 
             except Exception as e:
                 logging.info(dict(r))
@@ -825,7 +830,9 @@ The object used instead is {2}\n""".format(dict(row), index, return_dict)
     try:
         # Escape regex for exact match
         escaped_name = re.escape(row["name"])
-        old_object = search_func[variable_subtype](name=escaped_name)
+        old_object = search_func[variable_subtype](
+            name="^" + escaped_name + "$"
+        )
 
         if len(old_object["result"]) != 0:
 
