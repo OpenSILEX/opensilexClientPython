@@ -585,6 +585,16 @@ The actual columns found are :
         columns=[key for key in full_schema]
     )
 
+    # DataFrame for objects already existed
+    already_df = pd.DataFrame(
+        columns=[key for key in full_schema]
+    )
+
+    # DataFrame for failed objects
+    failed_df = pd.DataFrame(
+        columns=[key for key in variables_schema]
+    )
+
     # Fetch all datatypes for Variable creation
     var_api_instance = opensilexClientToolsPython.VariablesApi(pythonClient)
     datatypes = var_api_instance.get_datatypes()
@@ -632,12 +642,24 @@ The actual columns found are :
                             index=index,
                             variable_subtype=key,
                         )
-                        # NOTE : sets the entire row to false if object creation failed
-                        df_res.loc[index]=object_info
+                        
+                        # If failed set the row to False and save it in failed
+                        if object_info[1] == "failed":
+                            failed_df = failed_df.append(row, ignore_index=True)
+                            df_res.loc[index] = False
+
+                        # If already existed update the info and save it in already existed
+                        elif object_info[1] == "failed":
+                            already_df = already_df.append(object_info[0], ignore_index=True)
+                            df_res.loc[index] = object_info[0]
+
+                        else:
+                            df_res.loc[index] = object_info[0]
                         
                     except Exception as e:
                         logging.info(object_info)
                         logging.error("Exception : %s\n" % e)
+                        failed_df = failed_df.append(row, ignore_index=True)
                         df_res.loc[index] = False
             
             # The column for the variable subtype is set to contain the uris
@@ -675,12 +697,14 @@ The actual columns found are :
                             row.loc[key]
                         )
                     )
+                    failed_df = failed_df.append(row, ignore_index=True)
+                    df_res.loc[index, key] = False
             variables_df[key] = df_res[key]
 
         else:
             variables_df[key] = variables_csv[variables_schema[key]]
     
-    # Now that all necessary objects were created the Variable can be created
+    # Now that all necessary objects were created the Variables can be created
     for index, row in variables_df.iterrows():
         
         # If at least one object couldn't be created
@@ -689,7 +713,11 @@ The actual columns found are :
                 """This variable couldn't be created because one or more objects couldn't be created:
 {}\n""".format(dict(row))
             )
-            # TODO may want to add a success/failure column
+
+            # Save it in the failed and remove it from the successes
+            failed_df = failed_df.append(row, ignore_index=True)
+            variables_df.drop(index=index, inplace=True)
+
         else:
             try:
                 # Replace nan with None
@@ -703,18 +731,33 @@ The actual columns found are :
                     variable_subtype='variable'
                 )
                 
-                if var_info:
-                    # Update the values after variable creation
-                    variables_df.loc[index, var_info.keys()] = var_info
+                if var_info[1] == "failed":
+                    # Save it in the failed and remove it from the successes
+                    failed_df = failed_df.append(row, ignore_index=True)
+                    variables_df.drop(index=index, inplace=True)
                 
-                # If creation failed, make name and uri =False
+                elif var_info[1] == "already":
+                    # Save it in the failed and remove it from the successes
+                    already_df = already_df.append(var_info[0], ignore_index=True)
+                    variables_df.drop(index=index, inplace=True)
+
                 else:
-                    variables_df.loc[index, ["uri", "name"]] = False
+                    # Update the values after variable creation
+                    variables_df.loc[index, var_info[0].keys()] = var_info[0]
 
             except Exception as e:
                 logging.info(dict(r))
                 logging.error("Exception : %s\n" % e)
     
+    # Export variables DataFrame to csv
+    variables_df.to_csv("variables_created.csv", index=False)
+    
+    # Export already existed DataFrame to csv
+    already_df.to_csv("already_existed_created.csv", index=False)
+    
+    # Export failed objects DataFrame to csv
+    failed_df.to_csv("failed_created.csv", index=False)
+
     return variables_df
 
 # %%
@@ -725,7 +768,7 @@ def create_base_variable(
     row: pd.Series,
     index: int,
     variable_subtype: str
-)-> Union[dict, bool]:
+)-> Union[dict, str]:
     """Create objects in opensilex
 
     Parameters
@@ -798,7 +841,7 @@ def create_base_variable(
                 """The object {} couldn't be created as no name was given and couldn't be found as no uri was given\n"""\
                     .format(dict(row))
             )
-            return(False) 
+            return(dict(row), "failed") 
 
         #Trying to match uri
         try:
@@ -811,7 +854,7 @@ def create_base_variable(
                 """The object {} couldn't be created as no name was given and couldn't be found as no object with that uri exist\n"""\
                     .format(dict(row))
             )
-            return(False)
+            return(dict(row), "failed")
         v = vars(old_object["result"])
         return_dict = {
             col.replace("_", "", 1): v[col]
@@ -824,7 +867,7 @@ That object was skipped and will appear in the "already_existed.csv" file.
 The object used instead is {2}\n""".format(dict(row), index, return_dict)
         )
         # TODO add row to already_existed.csv
-        return return_dict
+        return (return_dict, "already")
     
     # Check if the object already exists
     try:
@@ -852,7 +895,7 @@ That object was skipped and will appear in the "already_existed.csv" file.
 The object used instead is {2}\n""".format(dict(row), index, return_dict)
             )
             # TODO add row to already_existed.csv
-            return return_dict
+            return (return_dict, "already")
 
     except Exception as e:
         logging.error("""Exception on object{0} :
@@ -860,7 +903,7 @@ The object used instead is {2}\n""".format(dict(row), index, return_dict)
     
     """.format(dict(row), e))
         # TODO add row to failed.csv
-        return False
+        return (dict(row), "failed")
     
     # Try to use DTO function
     try:
@@ -881,7 +924,7 @@ The object used instead is {2}\n""".format(dict(row), index, return_dict)
             }
             logging.info("Object created: {}\n".format(return_dict))
             # TODO add row to created.csv
-            return return_dict
+            return (return_dict, "created")
 
         except Exception as e:
             # Catch uri 'already exists' exception separately
@@ -904,14 +947,14 @@ For the exact error see the following:
 ValueError: {3}\n""".format(dict(row), index, return_dict, e)
                 )
                 # TODO add row to already_existed.csv
-                return return_dict
+                return (return_dict, "already")
             else:
                 logging.error("""Exception on object{0} :
     {1}
     
     """.format(dict(row), e))
                 # TODO add row to failed.csv
-                return False
+                return (dict(row), "failed")
 
     except Exception as e:
         logging.error("""Exception on object{0} :
@@ -919,7 +962,7 @@ ValueError: {3}\n""".format(dict(row), index, return_dict, e)
 
 """.format(dict(row), e))
         # TODO add row to failed.csv
-        return False
+        return (dict(row), "failed")
 
 
 

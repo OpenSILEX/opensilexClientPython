@@ -6,3 +6,8 @@ credentials.json
 
 # ignore variable exports csv
 variables_export.csv
+
+# ignore output csv
+already_existed_created.csv
+failed_created.csv
+variables_created.csv
