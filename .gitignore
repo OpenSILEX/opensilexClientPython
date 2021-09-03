@@ -11,3 +11,4 @@ variables_export.csv
 already_existed_created.csv
 failed_created.csv
 variables_created.csv
+__pycache__/*
