@@ -1,3 +1,20 @@
+'''
+File: functions.py
+Project: opensilex-ws-python-client
+Created Date: 01 May 2021
+Author: Arnaud Charleroy
+-----
+Last Modified: Thu Sep 09 2021
+Modified By: Gabriel Besombes
+-----
+HISTORY:
+Date      	By	Comments
+----------	---	---------------------------------------------------------
+'''
+
+from __future__ import print_function
+from os import truncate # Must be here
+
 """Custom functions for data imports
 
 TOCHANGE : This script allows the user to print to the console all columns in the
@@ -22,7 +39,6 @@ the following functions:
 
 # %%
 
-from __future__ import print_function
 import opensilexClientToolsPython
 from pprint import pprint
 from datetime import datetime
@@ -753,10 +769,10 @@ The actual columns found are :
     variables_df.to_csv("variables_created.csv", index=False)
     
     # Export already existed DataFrame to csv
-    already_df.to_csv("already_existed_created.csv", index=False)
+    already_df.to_csv("already_existed.csv", index=False)
     
     # Export failed objects DataFrame to csv
-    failed_df.to_csv("failed_created.csv", index=False)
+    failed_df.to_csv("failed.csv", index=False)
 
     return variables_df
 
@@ -1117,6 +1133,8 @@ def add_data_from(pythonClient,data_csv):
 def get_variables(
     pythonClient: opensilexClientToolsPython.ApiClient, 
     csv_path: str = "variables_export.csv",
+    uri_match = None,
+    name_match = None,
     variables_schema: dict = {
         'trait':'trait.uri',
         'trait_name':'trait.label',
@@ -1233,47 +1251,53 @@ def get_variables(
     
     # Populate DataFrame with results
     for res in res_vars["result"]:
+        
+        if(
+            (uri_match and uri_match in res.uri)
+            or (name_match and name_match in res.name)
+            or (not uri_match and not name_match)
+        ):
 
-        # Extract the attributes of the resultDTO object
-        v = vars(res)
-        var_dict = {
-            col.replace("_", "", 1): v[col]
-            for col in v
-            if "_" in col
-        }
-        
-        # Dictionary to extract the data from one result
-        res_dict = {}
-        
-        for key in variables_schema.keys():
-            if type(variables_schema[key]) == str:
-                res_dict[variables_schema[key]] = var_dict[key]
+            # Extract the attributes of the resultDTO object
+            v = vars(res)
+            var_dict = {
+                col.replace("_", "", 1): v[col]
+                for col in v
+                if "_" in col
+            }
             
-            else:
-                
-                # Isolate sub values
-                sub_schema = variables_schema[key]
-
-                # In case Method/Unit/Characteristic/Entity is None
-                # (Shouldn't be possible but still happens)
-                if var_dict[key] != None:
-                    sub_res = get_func[key](uri=var_dict[key].uri)
-                    
-                    # Extract the attributes of the resultDTO object
-                    sub_v = vars(sub_res["result"])
-                    sub_dict = {
-                        col.replace("_", "", 1): sub_v[col]
-                        for col in sub_v
-                        if "_" in col
-                    }
-                    for key_2 in sub_schema.keys():
-                        res_dict[sub_schema[key_2]] = sub_dict[key_2]
+            # Dictionary to extract the data from one result
+            res_dict = {}
+            
+            for key in variables_schema.keys():
+                if type(variables_schema[key]) == str:
+                    res_dict[variables_schema[key]] = var_dict[key]
                 
                 else:
-                    for key_2 in sub_schema.keys():
-                        res_dict[sub_schema[key_2]] = None
+                    
+                    # Isolate sub values
+                    sub_schema = variables_schema[key]
 
-        df_res = df_res.append(res_dict, ignore_index=True)
+                    # In case Method/Unit/Characteristic/Entity is None
+                    # (Shouldn't be possible but still happens)
+                    if var_dict[key] != None:
+                        sub_res = get_func[key](uri=var_dict[key].uri)
+                        
+                        # Extract the attributes of the resultDTO object
+                        sub_v = vars(sub_res["result"])
+                        sub_dict = {
+                            col.replace("_", "", 1): sub_v[col]
+                            for col in sub_v
+                            if "_" in col
+                        }
+                        for key_2 in sub_schema.keys():
+                            res_dict[sub_schema[key_2]] = sub_dict[key_2]
+                    
+                    else:
+                        for key_2 in sub_schema.keys():
+                            res_dict[sub_schema[key_2]] = None
+
+            df_res = df_res.append(res_dict, ignore_index=True)
     
     # Saving the result as a csv
     df_res.to_csv(csv_path, index=False)
