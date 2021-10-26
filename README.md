@@ -28,6 +28,6 @@ pip install git+https://github.com/OpenSILEX/opensilexClientToolsPython.git
 
 # Usage
  
-* Examples can be found in Client.py file:
+* Examples can be found in Examples.ipynb file:
 
 Note : This script will produce a debug.log file
