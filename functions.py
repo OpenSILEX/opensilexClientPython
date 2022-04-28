@@ -15,6 +15,11 @@ Date      	By	Comments
 from __future__ import print_function
 from os import truncate # Must be here
 
+# TODO : make a class instead 
+# with a connect method that auto reconnects every x minutes unless signaled to stop
+# recurcive method?
+# Proper way is probably with an event loop : https://stackoverflow.com/questions/474528/what-is-the-best-way-to-repeatedly-execute-a-function-every-x-seconds
+
 """Custom functions for data imports
 
 TOCHANGE : This script allows the user to print to the console all columns in the
@@ -121,7 +126,7 @@ full_schema = {
 
 @validate_arguments(config=dict(arbitrary_types_allowed=True))
 def create_experiment(
-    pythonClient: opensilexClientToolsPython.ApiClient, 
+    python_client: opensilexClientToolsPython.ApiClient, 
     name: str, 
     objective: str, 
     start_date: datetime, 
@@ -142,12 +147,12 @@ def create_experiment(
 
     Parameters
     ----------
-    pythonClient : opensilexClientToolsPython.ApiClient
+    python_client : opensilexClientToolsPython.ApiClient
         The authenticated client to connect to Opensilex
 
     All the following arguments can be unpacked from a dict for easier use.
     To do so you just have to call the function as follows :
-        create_experiment(pythonClient, **my_dict)
+        create_experiment(python_client, **my_dict)
 
     name: str 
         The name of the experiment (required)
@@ -193,12 +198,12 @@ def create_experiment(
     experiment = {
         k: loc[k] 
         for k in loc.keys() 
-        if(k!="pythonClient" and loc[k]!=None)
+        if(k!="python_client" and loc[k]!=None)
     }
 
     # Create an instance of the Experiment Api
     experiment_os_api = opensilexClientToolsPython\
-        .ExperimentsApi(pythonClient)
+        .ExperimentsApi(python_client)
 
     # Creating an object of ExperimentCreationDTO class to use for 
     # experiment creation
@@ -268,7 +273,7 @@ def format_comment(comment: str) -> str:
 # %%
 @validate_arguments(config=dict(arbitrary_types_allowed=True))
 def migrate_variables_from_googlesheet(
-    pythonClient: opensilexClientToolsPython.ApiClient, 
+    python_client: opensilexClientToolsPython.ApiClient, 
     spreadsheet_url: str, 
     gid_number: str, 
     variables_schema: dict = {
@@ -308,7 +313,7 @@ def migrate_variables_from_googlesheet(
 
     Parameters
     ----------
-    pythonClient: opensilexClientToolsPython.ApiClient
+    python_client: opensilexClientToolsPython.ApiClient
         The authenticated client to connect to Opensilex
     spreadsheet_url: str
         The url of the googlesheet to get the variables from
@@ -360,10 +365,9 @@ def migrate_variables_from_googlesheet(
 
     variables_url = spreadsheet_url + "/gviz/tq?tqx=out:csv&gid=" + gid_number
     logging.info(variables_url)
-    r = requests.get(variables_url).content
-    variables_csvString = requests.get(variables_url).content
+    variables_csv_string = requests.get(variables_url).content
  
-    variables_csv = pd.read_csv(io.StringIO(variables_csvString.decode('utf-8')))
+    variables_csv = pd.read_csv(io.StringIO(variables_csv_string.decode('utf-8')))
 
     # Replace nan with None
     variables_csv = variables_csv.where(
@@ -371,7 +375,7 @@ def migrate_variables_from_googlesheet(
     )
 
     return migrate_variables(
-        pythonClient=pythonClient, 
+        python_client=python_client, 
         variables_csv=variables_csv, 
         variables_schema=variables_schema,
         update=update
@@ -379,7 +383,7 @@ def migrate_variables_from_googlesheet(
 
 @validate_arguments(config=dict(arbitrary_types_allowed=True))
 def migrate_variables_from_csv(
-    pythonClient: opensilexClientToolsPython.ApiClient, 
+    python_client: opensilexClientToolsPython.ApiClient, 
     csv_path: str, 
     variables_schema: dict = {
         'trait':'trait.uri',
@@ -418,7 +422,7 @@ def migrate_variables_from_csv(
 
     Parameters
     ----------
-    pythonClient: opensilexClientToolsPython.ApiClient
+    python_client: opensilexClientToolsPython.ApiClient
         The authenticated client to connect to Opensilex
     csv_path: str
         The path to the csv file to get the variables from
@@ -476,15 +480,17 @@ def migrate_variables_from_csv(
     )
     
     return migrate_variables(
-        pythonClient=pythonClient, 
+        python_client=python_client, 
         variables_csv=variables_csv, 
         variables_schema=variables_schema,
         update=update
     )
 
+# TODO Create a func to exchange heys and values in a dict
+
 @validate_arguments(config=dict(arbitrary_types_allowed=True))
 def migrate_variables(
-    pythonClient: opensilexClientToolsPython.ApiClient, 
+    python_client: opensilexClientToolsPython.ApiClient, 
     variables_csv: pd.DataFrame, 
     variables_schema: dict = {
         'trait':'trait.uri',
@@ -523,7 +529,7 @@ def migrate_variables(
 
         Parameters
         ----------
-        pythonClient: opensilexClientToolsPython.ApiClient
+        python_client: opensilexClientToolsPython.ApiClient
             The authenticated client to connect to Opensilex
         variables_csv: pd.DataFrame
             A pandas DataFrame containing the data needed to create the variables
@@ -571,6 +577,7 @@ def migrate_variables(
         None
         """
 
+    # The update isn't currently implemented
     logging.info("Update mode variable is set to " + str(update) + "\n\n")
 
     # Check if the names given in the schema exist in the DataFrame
@@ -612,7 +619,7 @@ The actual columns found are :
     )
 
     # Fetch all datatypes for Variable creation
-    var_api_instance = opensilexClientToolsPython.VariablesApi(pythonClient)
+    var_api_instance = opensilexClientToolsPython.VariablesApi(python_client)
     datatypes = var_api_instance.get_datatypes()
 
     # Create all objects that need to be created on opensilex
@@ -620,6 +627,8 @@ The actual columns found are :
 
         # Create objects on opensilex if needed
         if type(variables_schema[key])==dict:
+
+            # TODO work from unique values then join the results to get the right format
             
             # Subset of the dataframe with the data needed to create the objects
             sub_df = variables_csv[variables_schema[key].values()]
@@ -653,7 +662,7 @@ The actual columns found are :
                 else:
                     try:
                         object_info = create_base_variable(
-                            pythonClient=pythonClient,
+                            python_client=python_client,
                             row=row,
                             index=index,
                             variable_subtype=key,
@@ -665,7 +674,7 @@ The actual columns found are :
                             df_res.loc[index] = False
 
                         # If already existed update the info and save it in already existed
-                        elif object_info[1] == "failed":
+                        elif object_info[1] == "already":
                             already_df = already_df.append(object_info[0], ignore_index=True)
                             df_res.loc[index] = object_info[0]
 
@@ -703,7 +712,7 @@ The actual columns found are :
                 ]
                 
                 if any(datatype_matches):
-                    # If multiple matches, keep first one
+                    # If multiple matches, keep first one : should never happen
                     df_res.loc[index, key] = datatype_matches[0]
                 else:
                     # If no matches, set to False
@@ -721,6 +730,7 @@ The actual columns found are :
             variables_df[key] = variables_csv[variables_schema[key]]
     
     # Now that all necessary objects were created the Variables can be created
+    # TODO Should probably be a separate func
     for index, row in variables_df.iterrows():
         
         # If at least one object couldn't be created
@@ -741,7 +751,7 @@ The actual columns found are :
 
                 # Create the variable
                 var_info = create_base_variable(
-                    pythonClient=pythonClient,
+                    python_client=python_client,
                     row=r,
                     index=index,
                     variable_subtype='variable'
@@ -780,7 +790,7 @@ The actual columns found are :
 # Create variables or objects on opensilex
 @validate_arguments(config=dict(arbitrary_types_allowed=True))
 def create_base_variable(
-    pythonClient: opensilexClientToolsPython.ApiClient,
+    python_client: opensilexClientToolsPython.ApiClient,
     row: pd.Series,
     index: int,
     variable_subtype: str
@@ -789,7 +799,7 @@ def create_base_variable(
 
     Parameters
     ----------
-    pythonClient: opensilexClientToolsPython.ApiClient
+    python_client: opensilexClientToolsPython.ApiClient
         The authenticated client to connect to Opensilex
     row: pd.Series
         The series containing the data to create the object on opensilex
@@ -814,11 +824,11 @@ def create_base_variable(
 
     # Dictionnary of apis to use for each object subtype
     apis = {
-        "entity": opensilexClientToolsPython.VariablesApi(pythonClient),
-        "characteristic": opensilexClientToolsPython.VariablesApi(pythonClient),
-        "unit": opensilexClientToolsPython.VariablesApi(pythonClient),
-        "method": opensilexClientToolsPython.VariablesApi(pythonClient),
-        "variable": opensilexClientToolsPython.VariablesApi(pythonClient)
+        "entity": opensilexClientToolsPython.VariablesApi(python_client),
+        "characteristic": opensilexClientToolsPython.VariablesApi(python_client),
+        "unit": opensilexClientToolsPython.VariablesApi(python_client),
+        "method": opensilexClientToolsPython.VariablesApi(python_client),
+        "variable": opensilexClientToolsPython.VariablesApi(python_client)
     }
     
     # Dictionnary of creation functions to use for each object subtype
@@ -851,7 +861,7 @@ def create_base_variable(
     # If no name was given, custom message
     if "name" in row.index and row["name"] == None:
         
-        # If no uri was given custom message
+        # If no uri was given, custom message
         if ("uri" in row.index and row["uri"] == None) or "uri" not in row.index:
             logging.info(
                 """The object {} couldn't be created as no name was given and couldn't be found as no uri was given\n"""\
@@ -859,7 +869,7 @@ def create_base_variable(
             )
             return(dict(row), "failed") 
 
-        #Trying to match uri
+        # Trying to match uri
         try:
             old_object = get_func[variable_subtype](
                 uri = row["uri"]
@@ -888,6 +898,7 @@ The object used instead is {2}\n""".format(dict(row), index, return_dict)
     # Check if the object already exists
     try:
         # Escape regex for exact match
+        # TODO : ignore case
         escaped_name = re.escape(row["name"])
         old_object = search_func[variable_subtype](
             name="^" + escaped_name + "$"
@@ -895,7 +906,7 @@ The object used instead is {2}\n""".format(dict(row), index, return_dict)
 
         if len(old_object["result"]) != 0:
 
-            #Making sure to have a consistent output
+            # Making sure to have a consistent output
             old_object = get_func[variable_subtype](
                 uri = old_object["result"][0].uri
             )
@@ -914,7 +925,7 @@ The object used instead is {2}\n""".format(dict(row), index, return_dict)
             return (return_dict, "already")
 
     except Exception as e:
-        logging.error("""Exception on object{0} :
+        logging.error("""Exception on object {0} :
     {1}
     
     """.format(dict(row), e))
@@ -932,6 +943,7 @@ The object used instead is {2}\n""".format(dict(row), index, return_dict)
                 uri = new_object["result"][0]
             )
             
+            # TODO make this a func to extract and normalize result object's attributes
             v = vars(new_object["result"])
             return_dict = {
                 col.replace("_", "", 1): v[col]
@@ -943,7 +955,7 @@ The object used instead is {2}\n""".format(dict(row), index, return_dict)
             return (return_dict, "created")
 
         except Exception as e:
-            # Catch uri 'already exists' exception separately
+            # Catch 'URI already exists' exception separately
             if("URI already exists" in str(e)):
                 old_object = get_func[variable_subtype](
                     uri = row['uri']
@@ -983,8 +995,8 @@ ValueError: {3}\n""".format(dict(row), index, return_dict, e)
 
 
 # %%
-def create_sensor(pythonClient,sensor):
-    device_api = opensilexClientToolsPython.DevicesApi(pythonClient)
+def create_sensor(python_client,sensor):
+    device_api = opensilexClientToolsPython.DevicesApi(python_client)
     sensorTosend = opensilexClientToolsPython.DeviceCreationDTO(
         uri=sensor["uri"], name=sensor["name"], rdf_type=sensor["type"],
         serial_number=sensor["serial_number"], description=sensor["description"])
@@ -1000,8 +1012,8 @@ def create_sensor(pythonClient,sensor):
 
 
 
-def create_provenances(pythonClient,provenances):
-    data_api = opensilexClientToolsPython.DataApi(pythonClient)
+def create_provenances(python_client,provenances):
+    data_api = opensilexClientToolsPython.DataApi(python_client)
     provenanceUris = []
 
     for provenance in provenances:
@@ -1029,35 +1041,35 @@ def create_provenances(pythonClient,provenances):
 
 
 
-def update_objects_from_googlesheet(pythonClient, spreadsheet_url, gid_number):
+def update_objects_from_googlesheet(python_client, spreadsheet_url, gid_number):
     variables_url = spreadsheet_url + "/gviz/tq?tqx=out:csv&gid=" + str(gid_number)
     r = requests.get(variables_url).content
-    variables_csvString = requests.get(variables_url).content
-    object_csv = pd.read_csv(io.StringIO(variables_csvString.decode('utf-8')))
-    return create_update_objects(pythonClient, object_csv,True)
+    variables_csv_string = requests.get(variables_url).content
+    object_csv = pd.read_csv(io.StringIO(variables_csv_string.decode('utf-8')))
+    return create_update_objects(python_client, object_csv,True)
 
-def update_objects_from_csv(pythonClient, csv_path):
+def update_objects_from_csv(python_client, csv_path):
     object_csv = pd.read_csv(csv_path)
-    return create_update_objects(pythonClient, object_csv,True)
+    return create_update_objects(python_client, object_csv,True)
 
  
-def update_objects(pythonClient, object_csv ):
-    return create_update_objects(pythonClient, object_csv,True)
+def update_objects(python_client, object_csv ):
+    return create_update_objects(python_client, object_csv,True)
 
-def create_objects_from_googlesheet(pythonClient, spreadsheet_url, gid_number):
+def create_objects_from_googlesheet(python_client, spreadsheet_url, gid_number):
     variables_url = spreadsheet_url + "/gviz/tq?tqx=out:csv&gid=" + str(gid_number)
     r = requests.get(variables_url).content
-    variables_csvString = requests.get(variables_url).content
-    object_csv = pd.read_csv(io.StringIO(variables_csvString.decode('utf-8')))
-    return create_update_objects(pythonClient, object_csv,False)
+    variables_csv_string = requests.get(variables_url).content
+    object_csv = pd.read_csv(io.StringIO(variables_csv_string.decode('utf-8')))
+    return create_update_objects(python_client, object_csv,False)
 
-def create_objects_from_csv(pythonClient, csv_path):
+def create_objects_from_csv(python_client, csv_path):
     object_csv = pd.read_csv(csv_path)
-    return create_update_objects(pythonClient, object_csv,False)
+    return create_update_objects(python_client, object_csv,False)
 
  
-def create_update_objects(pythonClient,object_csv,update):
-    os_api = opensilexClientToolsPython.ScientificObjectsApi(pythonClient)
+def create_update_objects(python_client,object_csv,update):
+    os_api = opensilexClientToolsPython.ScientificObjectsApi(python_client)
  
     logging.info(str(len(object_csv)) + " objects")
     for index, row in object_csv.iterrows():
@@ -1090,20 +1102,20 @@ def transformDate(date):
 
 
 
-def add_data_from_googlesheet(pythonClient, spreadsheet_url, gid_number):
+def add_data_from_googlesheet(python_client, spreadsheet_url, gid_number):
     variables_url = spreadsheet_url + "/gviz/tq?tqx=out:csv&gid=" + str(gid_number)
     logging.debug("variables url : " + variables_url)
     r = requests.get(variables_url).content
-    variables_csvString = requests.get(variables_url).content
-    data_csv = pd.read_csv(io.StringIO(variables_csvString.decode('utf-8')))
-    return add_data_from(pythonClient, data_csv)
+    variables_csv_string = requests.get(variables_url).content
+    data_csv = pd.read_csv(io.StringIO(variables_csv_string.decode('utf-8')))
+    return add_data_from(python_client, data_csv)
 
-def add_data_from_csv(pythonClient, csv_path):
+def add_data_from_csv(python_client, csv_path):
     data_csv = pd.read_csv(csv_path)
-    return add_data_from(pythonClient, data_csv)
+    return add_data_from(python_client, data_csv)
 
-def add_data_from(pythonClient,data_csv):
-    data_api = opensilexClientToolsPython.DataApi(pythonClient) 
+def add_data_from(python_client,data_csv):
+    data_api = opensilexClientToolsPython.DataApi(python_client) 
     data_list = []
     for index, row in data_csv.iterrows():
         provenanceData = opensilexClientToolsPython.DataProvenanceModel(
@@ -1131,7 +1143,7 @@ def add_data_from(pythonClient,data_csv):
 # Fetch variables
 @validate_arguments(config=dict(arbitrary_types_allowed=True))
 def get_variables(
-    pythonClient: opensilexClientToolsPython.ApiClient, 
+    python_client: opensilexClientToolsPython.ApiClient, 
     csv_path: str = "variables_export.csv",
     uri_match = None,
     name_match = None,
@@ -1172,7 +1184,7 @@ def get_variables(
 
         Parameters
         ----------
-        pythonClient: opensilexClientToolsPython.ApiClient
+        python_client: opensilexClientToolsPython.ApiClient
             The authenticated client to connect to Opensilex
         variables_csv: pd.DataFrame
             A pandas DataFrame containing the data needed to create the variables
@@ -1221,7 +1233,7 @@ def get_variables(
         """
 
     # Dictionnary of get functions to use for each object subtype
-    var_api = opensilexClientToolsPython.VariablesApi(pythonClient)
+    var_api = opensilexClientToolsPython.VariablesApi(python_client)
     get_func = {
         "entity": var_api.get_entity,
         "characteristic": var_api.get_characteristic,
@@ -1310,7 +1322,7 @@ def get_variables(
 # Post users
 @validate_arguments(config=dict(arbitrary_types_allowed=True))
 def create_users_from_google_sheet(
-    pythonClient: opensilexClientToolsPython.ApiClient, 
+    python_client: opensilexClientToolsPython.ApiClient, 
     sheet_id: str = "1hcWI9BoMlJLMi0RGfl1C2pDdnxEVDaUvbCY14VxUZ4g",
     sheet_name: str = "DiaPhen_users",
     maping: dict = {
@@ -1349,7 +1361,7 @@ def create_users_from_google_sheet(
     users_mod["admin"] = users_mod["admin"].apply(lambda x: False if not x==True else x)
 
     # Api client to create users
-    sec_api = opensilexClientToolsPython.SecurityApi(pythonClient)
+    sec_api = opensilexClientToolsPython.SecurityApi(python_client)
 
     # Creating the users
     for index,row in users_mod.iterrows():
