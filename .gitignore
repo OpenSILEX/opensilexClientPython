@@ -1,5 +1,16 @@
+# ignore log file
+debug.log
+
+# ignore credentials file
+credentials.json
+
+# ignore variable exports csv
+variables_export.csv
+
+# ignore output csv
+already_existed_created.csv
+failed_created.csv
+variables_created.csv
 __pycache__/*
 examples/data_import/small_test.ipynb
-
-# Ignore opensilex config
 opensilex_configs/default_config.yaml
