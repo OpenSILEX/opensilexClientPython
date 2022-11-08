@@ -1,3 +1,4 @@
+README.md
 pyproject.toml
 setup.cfg
 src/opensilex_client/__init__.py
