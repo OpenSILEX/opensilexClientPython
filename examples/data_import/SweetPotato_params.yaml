@@ -1,0 +1,49 @@
+general:
+  columns:
+    _date: "Date"
+    target: "TargetUri"
+  other:
+    experiments: 
+      - "http://www.phenome-fppn.fr/id/experiment/script_gabriel"
+
+data:
+  - columns:
+      file_name: "Nomfichier1"
+      # metadata: "Metadata1"
+    other:
+      type: "datafile"
+      rdf_type: "vocabulary:RGBImage"
+      provenance: "test:id/provenance/script_gabriel"
+  - columns:
+      file_name: "Nomfichier2"
+      # metadata: "Metadata2"
+    other:
+      type: "datafile"
+      rdf_type: "vocabulary:RGBImage"
+      provenance: "test:id/provenance/script_gabriel_2"
+      prov_used: 
+        - file_name: "Nomfichier1"
+  - columns:
+      value: "AREA_MM"
+      # metadata: "Metadata3"
+    other:
+      type: "data"
+      variable: "test:id/variable/script_gabriel"
+      provenance: "test:id/provenance/script_gabriel" 
+      prov_used: 
+        - file_name: "Nomfichier2"
+      prov_was_associated_with: 
+        - uri: ""
+          rdf_type: ""
+  - columns:
+      value: "PERIMETER_MM"
+      # metadata: "Metadata4"
+    other:
+      type: "data"
+      variable: "test:id/variable/script_gabriel"
+      provenance: "test:id/provenance/script_gabriel_2" 
+      prov_used: 
+        - file_name: "Nomfichier2"
+      prov_was_associated_with: 
+        - uri: ""
+          rdf_type: ""

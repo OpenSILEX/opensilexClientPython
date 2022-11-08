@@ -1,6 +1,0 @@
-trait,trait_name,entity,characteristic,method,unit,uri,name,description,datatype,alternative_name,time_interval,sampling_interval,exact_match,close_match,broad_match,narrow_match,species
-,,"{'name': 'Entity test Google NEWSheet',
- 'uri': 'test:set/variables#variable.entity.entity-test-google-newsheet'}","{'name': 'Characteristic test Google NEWSheet',
- 'uri': 'test:set/variables#characteristic.characteristic-test-google-newsheet'}","{'name': 'Method test Google NEWSheet 2',
- 'uri': 'test:set/variables#variable.method.method-test-google-newsheet-2'}","{'name': 'Unit test Google NEWSheet 2',
- 'uri': 'test:set/variables#variable.unit.unit-test-google-newsheet-2'}",test:set/variables#variable.variable-test-google-newsheet-2,Variable test Google NEWSheet 2 ,test insertion variable Google NEWsheet script Gabriel avec entity et carac existantes,http://www.w3.org/2001/XMLSchema#decimal,,,,[],[],[],[],

@@ -1,0 +1,6 @@
+pyproject.toml
+setup.cfg
+opensilex_client/opensilex_py_client.egg-info/PKG-INFO
+opensilex_client/opensilex_py_client.egg-info/SOURCES.txt
+opensilex_client/opensilex_py_client.egg-info/dependency_links.txt
+opensilex_client/opensilex_py_client.egg-info/top_level.txt

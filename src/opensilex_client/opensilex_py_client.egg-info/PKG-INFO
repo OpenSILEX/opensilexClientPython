@@ -1,0 +1,11 @@
+Metadata-Version: 2.1
+Name: opensilex-py-client
+Version: 0.0.1
+Summary: Package used to interact with an opensilex instance\x27s API
+Home-page: https://forgemia.inra.fr/OpenSILEX/opensilex-py-benchmark
+Author: Gabriel Besombes
+Author-email: gabriel.besombes@inrae.fr
+Classifier: Programming Language :: Python :: 3
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
