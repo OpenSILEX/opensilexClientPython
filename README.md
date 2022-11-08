@@ -16,7 +16,7 @@ For this package to work you will need the following :
 Once your environnement fulfills the prerequisites, simply run the following command :
 
 ```sh
-pip install git+https://github.com/OpenSILEX/opensilexClientToolsPython
+pip install git+https://github.com/OpenSILEX/opensilexClientPython@new_client_package
 ```
 
 ## Usage
