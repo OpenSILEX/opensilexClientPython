@@ -72,7 +72,8 @@ class _Data:
         return res
 
     def import_datafile(self, df, **kwargs):
-        
+        print("DATAFILE DICT :", kwargs)
+        print("DATAFILE COLUMNS :", df.columns)
         # TODO : prov_was_associated_with support
         # refactor -> if inside a single for loop
         res = []
@@ -86,6 +87,7 @@ class _Data:
                 new_dict["rdf_type"] = kwargs["rdf_type"]
                 new_dict["provenance"] = {
                     "uri" : kwargs["provenance"],
+                    "experiments" : kwargs["experiments"], # TODO: this is just a quick fix it will crash if no experiment is given
                     "prov_used" : [
                         {"uri":row[x]}
                         for x in kwargs["prov_used"]
@@ -104,7 +106,8 @@ class _Data:
                 ]])
                 new_dict["rdf_type"] = kwargs["rdf_type"]
                 new_dict["provenance"] = {
-                    "uri" : kwargs["provenance"]
+                    "uri" : kwargs["provenance"],
+                    "experiments" : kwargs["experiments"] # TODO: this is just a quick fix it will crash if no experiment is given
                 }
                 res.append(self.client._send_datafile(
                     description=new_dict,

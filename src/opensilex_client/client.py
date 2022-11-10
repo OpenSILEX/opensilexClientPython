@@ -49,6 +49,7 @@ and the one defined in the opensilexClientToolsPython package"""
         return self.data_api.add_list_data(body = data_dto_list)
 
     def _send_datafile(self, description : dict, file_path : str):
+        print("DESCRIPTION: ", description)
         self._connect_if_necessary()
         return self.data_api.post_data_file(
             description=json.dumps(description), 
