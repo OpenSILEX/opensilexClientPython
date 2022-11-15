@@ -14,7 +14,7 @@ class _Data:
             new_dict = dict(row[[
                 col
                 for col in df.columns
-                if col not in kwargs["prov_used"]
+                if col not in [x["uri"] for x in kwargs["prov_used"]]
             ]])
 
             new_dict["variable"] = kwargs["variable"]
@@ -130,4 +130,6 @@ class _Data:
             return self.import_datafile(df, **kwargs)
         else:
             del kwargs["type"]
+            # df2 = df.loc[:,[not "uri" in x for x in df.columns]]
+            # print("DATA_DF :", df2)
             return self.import_data(df, **kwargs)
