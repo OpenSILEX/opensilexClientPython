@@ -76,17 +76,20 @@ class OpensilexClient(_Data):
 
                     else:
                         prov_used_uris_cols = []
-                        for col in [list(x.values())[0] for x in d["other"]["prov_used"]]:
+                        for prov_used in [x for x in d["other"]["prov_used"]]:
                             for j in range(len(import_args["data"])):
-                                if col in list(import_args["data"][j]["columns"].values()):
-                                    prov_used_uris_cols.append("uri"+str(j))
+                                if prov_used["file_name"] in list(import_args["data"][j]["columns"].values()):
+                                    prov_used_uris_cols.append({"uri":"uri"+str(j),"rdf_type":prov_used["rdf_type"]})
                         # If all necessary prov_used haven't been created the data/datafile can't be created
                         if len(prov_used_uris_cols) == len(d["other"]["prov_used"]):
                             d["other"]["prov_used"] = prov_used_uris_cols
                             col_to_keep = {**d["columns"], **import_args["general"]["columns"]}
-                            cropped_df = df[[*col_to_keep.values(), *prov_used_uris_cols]]
+                            cropped_df = df[[
+                                *col_to_keep.values(), 
+                                *[x["uri"] for x in prov_used_uris_cols]
+                            ]]
                             cropped_df = cropped_df.rename(columns={v:k for k,v in col_to_keep.items()})
-                            res = self.import_data_or_files(cropped_df, **d["other"], **import_args["general"]["other"])
+                            res = self.import_data_or_files(cropped_df, **import_args["general"]["other"], **d["other"])
                             df["uri"+str(i)] = res
                             done.append(import_args["data"][i])
             if previous_done == len(done):

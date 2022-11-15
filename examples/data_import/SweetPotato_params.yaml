@@ -23,6 +23,7 @@ data:
       provenance: "test:id/provenance/prov_script_gabriel_4" # "test:id/provenance/script_gabriel_2"
       prov_used: 
         - file_name: "Nomfichier1"
+          rdf_type: "vocabulary:Image"
   - columns:
       value: "AREA_MM"
       # metadata: "Metadata3"

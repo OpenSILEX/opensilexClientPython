@@ -24,13 +24,15 @@ class _Data:
                     new_dict["provenance"] = osCP.DataProvenanceModel(
                         uri = kwargs["provenance"],
                         prov_used = [
-                            osCP.ProvEntityModel(uri=row[x["file_name"]], rdf_type=x["rdf_type"])
+                            osCP.ProvEntityModel(
+                                uri=row[x["uri"]],
+                                rdf_type=x["rdf_type"]
+                            )
                             for x in kwargs["prov_used"]
                         ],
                         prov_was_associated_with=[
                             osCP.ProvEntityModel(
-                                uri=x["uri"],
-                                rdf_type=x["rdf_type"]
+                                **x
                             )
                             for x in kwargs["prov_was_associated_with"]
                         ],
@@ -40,7 +42,10 @@ class _Data:
                     new_dict["provenance"] = osCP.DataProvenanceModel(
                         uri = kwargs["provenance"],
                         prov_used = [
-                            osCP.ProvEntityModel(uri=row[x["file_name"]], rdf_type=x["rdf_type"])
+                            osCP.ProvEntityModel(
+                                uri=row[x["uri"]],
+                                rdf_type=x["rdf_type"]
+                            )
                             for x in kwargs["prov_used"]
                         ],
                         experiments=kwargs["experiments"] if "experiments" in kwargs.keys() else None
@@ -50,8 +55,7 @@ class _Data:
                     uri = kwargs["provenance"],
                     prov_was_associated_with=[
                         osCP.ProvEntityModel(
-                            uri=x["uri"],
-                            rdf_type=x["rdf_type"]
+                            **x
                         )
                         for x in kwargs["prov_was_associated_with"]
                     ],
@@ -89,7 +93,7 @@ class _Data:
                     "uri" : kwargs["provenance"],
                     "experiments" : kwargs["experiments"], # TODO: this is just a quick fix it will crash if no experiment is given
                     "prov_used" : [
-                        {"uri":row[x["file_name"]], "rdf_type": x["rdf_type"]}
+                        {"uri": row[x["uri"]], "rdf_type": x["rdf_type"]}
                         for x in kwargs["prov_used"]
                     ]
                 }
