@@ -71,6 +71,7 @@ class _Variable(_CustomApi):
         self._client._connect_if_necessary()
         res_series = df.apply(func = self.create_if_not_exists, axis=1, dict_to_parse=import_args)
         res_df = pd.DataFrame(res_series.to_list())
+        res_df = res_df.where(pd.notnull(res_df), None)
         if group:
             general_group_import_args = return_if_exists(list_of_keys=["other", "group"], object_to_explore=import_args)
             column_group_import_args = return_if_exists(list_of_keys=["columns", "group"], object_to_explore=import_args)
@@ -79,7 +80,7 @@ class _Variable(_CustomApi):
                     "columns":{},
                     "other":general_group_import_args
                 }
-                group_import_args["other"]["variables"] = res_df.uri.unique().tolist()
+                group_import_args["other"]["variables"] = [x for x in res_df.uri.unique().tolist() if x]
                 created_groups_df = self._group.df_create_if_not_exists(df=res_df, import_args=group_import_args)
 
                 if column_group_import_args:
@@ -87,6 +88,7 @@ class _Variable(_CustomApi):
                         "columns":column_group_import_args,
                         "other":{}
                     }
+                    # TODO : handle case with uri=None (when a variable wasn't created)
                     created_groups_df2 = self._group.df_create_if_not_exists(df=res_df, import_args=group_import_args)
                     created_groups_df = pd.concat([created_groups_df, created_groups_df2], axis=1)
             elif column_group_import_args:
@@ -94,6 +96,7 @@ class _Variable(_CustomApi):
                     "columns":column_group_import_args,
                     "other":{}
                 }
+                # TODO : handle case with uri=None (when a variable wasn't created)
                 created_groups_df = self._group.df_create_if_not_exists(df=res_df, import_args=group_import_args)
             else:
                 raise ValueError("The group option was set to True but no group info was given")

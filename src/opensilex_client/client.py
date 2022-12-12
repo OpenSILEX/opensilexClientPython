@@ -10,12 +10,12 @@ class _Client():
     """Hidden class that intarfaces between the client defined in this package
 and the one defined in the opensilexClientToolsPython package"""
 
-    def __init__(self, host : str, identifier : str, password : str):
+    def __init__(self, host : str, identifier : str, password : str, verbose):
         self.host = host
         self.identifier = identifier
         self.password = password
 
-        self._generated_client = osCP.ApiClient()
+        self._generated_client = osCP.ApiClient(verbose=verbose)
         self._generated_client.connect_to_opensilex_ws(
             host=self.host, 
             identifier=self.identifier, 

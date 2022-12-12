@@ -5,6 +5,8 @@ import opensilexClientToolsPython as osCP
 class _Data:
 
     def import_data(self, df, **kwargs):
+        print("DATA DICT :", kwargs)
+        print("DATA COLUMNS :", df.columns)
         BATCH_SIZE = 100
 
         df.value = df.value.fillna(value="NaN")

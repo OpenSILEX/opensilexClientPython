@@ -12,11 +12,11 @@ class OpensilexClient(_Data):
     # TODO : Add a list delete in case of an error?
     # using GET /ontology/uris_labels to get
 
-    def __init__(self, config_file : str = "default_config.yaml", host : str = False, identifier : str = False, password : str = False):
+    def __init__(self, config_file : str = "default_config.yaml", host : str = False, identifier : str = False, password : str = False, verbose : bool = False):
         # TODO : Create method to update/create config
         if host or identifier or password:
             if host and identifier and password:
-                self.client = _Client(host=host, identifier=identifier, password=password)
+                self.client = _Client(host=host, identifier=identifier, password=password, verbose=verbose)
             else:
                 raise ValueError("If any of the `host`, `identifier` or `password` arguments are used, all of them must be used")
         else:
@@ -29,7 +29,7 @@ class OpensilexClient(_Data):
                         config = yaml.safe_load(file)
                 except FileNotFoundError:
                     raise FileNotFoundError("The file couldn't be found at the specified path and the opensilex_configs directory")
-            self.client = _Client(**config)
+            self.client = _Client(**config, verbose=verbose)
         self.entity = _Entity(authenticated_client=self.client)
         self.method = _Method(authenticated_client=self.client)
         self.characteristic = _Characteristic(authenticated_client=self.client)
