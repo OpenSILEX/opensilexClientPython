@@ -33,6 +33,10 @@ class _CustomApi(ABC):
             dict_to_parse_copy["other"]["name"] = format_regex(str_to_match=dict_to_parse_copy["other"]["name"])
         else:
             return {"result": "No name given"}
+        print(method_arg_parser(
+                row=row_copy, dict_to_parse=dict_to_parse_copy, 
+                method_to_parse_arg_for=self._search_to_wrap
+            ))
         return self._search_to_wrap(
             **method_arg_parser(
                 row=row_copy, dict_to_parse=dict_to_parse_copy, 

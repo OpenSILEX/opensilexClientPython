@@ -125,7 +125,11 @@ def method_arg_parser(row : pd.Series, dict_to_parse : dict, method_to_parse_arg
             
             elif origin_type == list:
                 list_with_nones = arg_to_list(arg_type=arg_type, arg_value=arg_value, row=row)
-                new_dict[arg] = list(filter(lambda x: x != None, list_with_nones))
+                no_none_list = list(filter(lambda x: x != None, list_with_nones))
+                if no_none_list:
+                    new_dict[arg] = no_none_list
+                else:
+                    new_dict[arg] = None
 
             elif origin_type == dict:
                 new_dict[arg] = arg_to_dict(arg_type=arg_type, arg_value=arg_value, row=row)
@@ -142,7 +146,7 @@ def arg_to_list(arg_type, arg_value, row:pd.Series):
         if type(arg_value) == list:
             return [
                 type_to_cast(
-                    **method_arg_parser(row=row, dict_to_parse=dict(x), method_to_parse_arg_for=type_to_cast.__init__)
+                    **method_arg_parser(row=row, dict_to_parse=dict(val), method_to_parse_arg_for=type_to_cast.__init__)
                 )
                 for val in arg_value
                 if val != None
