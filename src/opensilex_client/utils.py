@@ -124,7 +124,8 @@ def method_arg_parser(row : pd.Series, dict_to_parse : dict, method_to_parse_arg
                 new_dict[arg] = arg_to_basetype(arg_type=arg_type, arg_value=arg_value, row=row)
             
             elif origin_type == list:
-                new_dict[arg] = arg_to_list(arg_type=arg_type, arg_value=arg_value, row=row)
+                list_with_nones = arg_to_list(arg_type=arg_type, arg_value=arg_value, row=row)
+                new_dict[arg] = list(filter(lambda x: x != None, list_with_nones))
 
             elif origin_type == dict:
                 new_dict[arg] = arg_to_dict(arg_type=arg_type, arg_value=arg_value, row=row)
