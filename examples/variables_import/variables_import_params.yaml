@@ -1,0 +1,65 @@
+columns:
+  uri: "Variable_uri"
+  name: "Variable_name"
+  alternative_name: "Variable_alternative_name"
+  datatype: "Datatype_uri"
+  description: "Variable_description"
+  species: "Species_uris"
+  time_interval: "Time_interval"
+  sampling_interval: "Sampling_interval"
+  close_match: "Variable_close_match"
+  exact_match: "Variable_exact_match"
+  narrow_match: "Variable_narrow_match"
+  broad_match: "Variable_broad_match"
+  group:
+    - "Group1"
+    - "Group2"
+  entity: 
+    uri: "Entity_uri"
+    name: "Entity_name"
+    description: "Entity_description"
+    close_match: "Entity_close_match" # This can also be a list
+    exact_match: "Entity_exact_match" # This can also be a list
+    narrow_match: "Entity_narrow_match" # This can also be a list
+    broad_match: "Entity_broad_match" # This can also be a list
+  entity_of_interest: 
+    uri: "Entity_of_interest_uri"
+    name: "Entity_of_interest_name"
+    description: "Entity_of_interest_description"
+    close_match: "Entity_of_interest_close_match" # This can also be a list
+    exact_match: "Entity_of_interest_exact_match" # This can also be a list
+    narrow_match: "Entity_of_interest_narrow_match" # This can also be a list
+    broad_match: "Entity_of_interest_broad_match" # This can also be a list
+  characteristic: 
+    uri: "Characteristic_uri"
+    name: "Characteristic_name"
+    description: "Characteristic_description"
+    close_match: "Characteristic_close_match" # This can also be a list
+    exact_match: "Characteristic_exact_match" # This can also be a list
+    narrow_match: "Characteristic_narrow_match" # This can also be a list
+    broad_match: "Characteristic_broad_match" # This can also be a list
+  method: 
+    uri: "Method_uri"
+    name: "Method_name"
+    description: "Method_description"
+    close_match: "Method_close_match" # This can also be a list
+    exact_match: "Method_exact_match" # This can also be a list
+    narrow_match: "Method_narrow_match" # This can also be a list
+    broad_match: "Method_broad_match" # This can also be a list
+  unit: 
+    uri: "Unit_uri"
+    name: "Unit_name"
+    description: "Unit_description"
+    close_match: "Unit_close_match" # This can also be a list
+    exact_match: "Unit_exact_match" # This can also be a list
+    narrow_match: "Unit_narrow_match" # This can also be a list
+    broad_match: "Unit_broad_match" # This can also be a list
+    symbol: "Unit_symbol"
+    alternative_symbol: "Unit_alternative_symbol"
+  trait:
+    uri: "Trait_uri"
+    name: "Trait_name"
+other:
+  group:
+    name: "VitisCropOntology"
+
