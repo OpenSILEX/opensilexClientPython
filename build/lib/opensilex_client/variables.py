@@ -35,51 +35,50 @@ class _Variable(_CustomApi):
     def create_if_not_exists(self, row : pd.Series, dict_to_parse : dict):
         self._client._connect_if_necessary()
 
-        if not all([
-            row[elem["element_name"]] if elem["element_name"] != "entity_of_interest"
-            else True
-            for elem in self._elements
-        ]):
-            return {"status":"Not created because of missing element"}
+        for elem in self._elements:
+            if elem["element_name"] != "entity_of_interest" and not row[elem["element_name"]]:
+                row["status"] = "Not created because the {} is missing".format(elem["element_name"])
+                return row #TODO : check return format uniformity
 
         existing_uri = self.uri_exists(row=row, dict_to_parse=dict_to_parse)
         if existing_uri:
             existing = self.get_details(
                 uri=existing_uri
             )["result"].to_dict()
-            existing["status"] = "already_existed"
-            return existing
+            existing["status"] = "A variable with this uri already exists and will be used"
+            return existing #TODO : check return format uniformity
 
         existing = self.search(row=row, dict_to_parse=dict_to_parse)["result"]
         if existing == "No name given":
-            return {"status":"No name given"}
+            row["status"] = "No name given for variable"
+            return row
         if len(existing) == 1:
             existing = self.get_details(
                 uri=existing[0].uri
             )["result"].to_dict()
-            existing["status"] = "already_existed"
+            existing["status"] = "A variable with this name already exists and will be used"
             return existing
         elif len(existing) > 1:
-            return {"status":"Multiple results found"}
+            row["status"] = "Multiple variables with this name found"
+            return row
         else:
             created = self.create(row=row, dict_to_parse=dict_to_parse)["result"][0]
             created_dict = self.get_details(uri=created)["result"].to_dict()
-            created_dict["status"] = "created"
+            created_dict["status"] = "Variable created"
             return created_dict
 
     def df_create_if_not_exists(self, df : pd.DataFrame, import_args : dict, group : bool = False):
         self._client._connect_if_necessary()
-        res_series = df.apply(func = self.create_if_not_exists, axis=1, dict_to_parse=import_args)
-        res_df = pd.DataFrame(res_series.to_list())
+        res_df = df.apply(func = self.create_if_not_exists, axis=1, dict_to_parse=import_args)
         res_df = res_df.where(pd.notnull(res_df), None)
-        if group:
-            general_group_import_args = return_if_exists(list_of_keys=["other", "group"], object_to_explore=import_args)
-            column_group_import_args = return_if_exists(list_of_keys=["columns", "group"], object_to_explore=import_args)
+        print(f"DF = \n{res_df}")
+
+        general_group_import_args = return_if_exists(list_of_keys=["other", "group"], object_to_explore=import_args)
+        column_group_import_args = return_if_exists(list_of_keys=["columns", "group"], object_to_explore=import_args)
+        group_import_args = {}
+        if "uri" in res_df.columns and not res_df.uri.empty:
             if general_group_import_args:
-                group_import_args = {
-                    "columns":{},
-                    "other":general_group_import_args
-                }
+                group_import_args["other"] = general_group_import_args
                 group_import_args["other"]["variables"] = [x for x in res_df.uri.unique().tolist() if x]
                 created_groups_df = self._group.df_create_if_not_exists(df=res_df, import_args=group_import_args)
 
@@ -102,6 +101,7 @@ class _Variable(_CustomApi):
                 raise ValueError("The group option was set to True but no group info was given")
             # TODO change names of columns (group.column_name)
             res_df = pd.concat([res_df, created_groups_df], axis=1)
+
         res_df.to_csv(f"./{self.__class__.__name__}_results.csv")
         return res_df
 
@@ -191,4 +191,5 @@ class _Group(_CustomApi):
         self._search_to_wrap = self.api.search_variables_groups
         self._get_details_to_wrap = self.api.get_variables_group
         self._create_to_wrap = self.api.create_variables_group
+        self._update_to_wrap = self.api.update_variables_group
         super().__init__(authenticated_client=authenticated_client)

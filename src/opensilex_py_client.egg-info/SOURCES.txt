@@ -8,6 +8,7 @@ src/opensilex_client/custom_api.py
 src/opensilex_client/data.py
 src/opensilex_client/devices.py
 src/opensilex_client/experiments.py
+src/opensilex_client/generator.py
 src/opensilex_client/opensilex_client.py
 src/opensilex_client/provenances.py
 src/opensilex_client/scientific_objects.py
