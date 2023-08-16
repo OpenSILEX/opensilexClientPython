@@ -63,10 +63,14 @@ class _CustomApi(ABC):
         )
 
     def check_uri_exists(self, uri : str):
-        # TODO : I should probably change this to the get_by_uri service
-        # I get a false positive if this uri was declared as a skos match
-        res = self.ontology_api.get_uri_label(uri = uri)["result"]
-        return res != uri
+        try:
+            res = self.ontology_api.get_uri_label(uri = uri)["result"]
+            return res != uri
+        except oCTP.rest.ApiException as e:
+            if "Resource not found" in str(e):
+                return False
+            else: # TODO I should catch this raised exception higher
+                raise ValueError("Looking for URI '{}' caused an error. This URI is probably malformed.".format(uri))
 
     def uri_exists(self, row : pd.Series, dict_to_parse : dict):
         self._client._connect_if_necessary()
@@ -85,40 +89,42 @@ class _CustomApi(ABC):
         else:
             return False
 
-    # TODO : Split in row_create_if_not_exists and create_if_not_exists
-
     def create_if_not_exists(self, row : pd.Series, dict_to_parse : dict):
         self._client._connect_if_necessary()
 
-        existing_uri = self.uri_exists(row=row, dict_to_parse=dict_to_parse)
+        try:
+            existing_uri = self.uri_exists(row=row, dict_to_parse=dict_to_parse)
+        except ValueError as e:
+            return pd.Series({"status": str(e)})
         if existing_uri:
             existing = self.get_details(
                 uri=existing_uri
             )["result"].to_dict()
             existing["status"] = "already_existed"
-            return existing
+            return pd.Series(existing)
 
         existing = self.search(row=row, dict_to_parse=dict_to_parse)["result"]
         if existing == "No name given":
-            return {"status":"No name given"}
+            return pd.Series({"status":"No name given"})
         if len(existing) == 1:
             existing = self.get_details(
                 uri=existing[0].uri
             )["result"].to_dict()
             existing["status"] = "already_existed"
-            return existing
+            return pd.Series(existing)
         elif len(existing) > 1:
-            return {"status":"Multiple results found"}
+            return pd.Series({"status":"Multiple results found"})
         else:
             created = self.create(row=row, dict_to_parse=dict_to_parse)["result"][0]
             created_dict = self.get_details(uri=created)["result"].to_dict()
             created_dict["status"] = "created"
-            return created_dict
+            return pd.Series(created_dict)
 
     def df_create_if_not_exists(self, df : pd.DataFrame, import_args : dict):
         self._client._connect_if_necessary()
-        res_series = df.apply(func = self.create_if_not_exists, axis=1, dict_to_parse=import_args)
-        res_df = pd.DataFrame(res_series.to_list())
+        res_df = df.apply(func = self.create_if_not_exists, axis=1, dict_to_parse=import_args)
+        if type(res_df) == pd.Series:
+            res_df = pd.DataFrame(res_df.to_list())
         res_df.to_csv(f"./{self.__class__.__name__}_results.csv")
         return res_df
 

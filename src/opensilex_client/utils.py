@@ -228,4 +228,5 @@ def df_from_file_or_url(path_or_url_to_sheet: str) -> pd.DataFrame:
     return df
 
 def format_regex(str_to_match : str) -> str:
+    # Rajouter insenssible à la casse ? avec la formule ^(cas1|cas2|cas3)$
     return "^" + escape(str_to_match) + "$"

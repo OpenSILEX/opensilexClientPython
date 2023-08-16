@@ -30,6 +30,14 @@ Once your environnement fulfills the prerequisites, simply run the following com
 pip install git+https://github.com/OpenSILEX/opensilexClientPython@new_client_package
 ```
 
+## Building localy
+
+If you make any changes to this package you can re-build it localy and install it with this command from the root of the directory :
+
+```sh
+python3 -m build && python3 -m pip install .
+```
+
 ## Usage
 
 Examples can be found in the examples subdirectory
