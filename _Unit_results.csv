@@ -1,0 +1,22 @@
+,uri,name,description,symbol,alternative_symbol,exact_match,close_match,broad_match,narrow_match,publisher,publication_date,last_updated_date,from_shared_resource_instance,status
+0,http://www.ontology-of-units-of-measure.org/resource/om-2/percent,percent,The percent is a unit of dimension one defined as 1/100.,%,,[],[],[],[],,,,,already_existed
+1,http://www.ontology-of-units-of-measure.org/resource/om-2/degreeCelsius,degree Celsius,The degree Celsius is a unit of temperature defined as 1 kelvin.,°C,,[],[],[],[],,,,,already_existed
+2,http://www.ontology-of-units-of-measure.org/resource/om-2/degreeCelsius,degree Celsius,The degree Celsius is a unit of temperature defined as 1 kelvin.,°C,,[],[],[],[],,,,,already_existed
+3,http://www.ontology-of-units-of-measure.org/resource/om-2/millimetre,millimetre,The millimetre is a unit of length defined as 1.0e-3 metre.,mm,,[],[],[],[],,,,,already_existed
+4,http://www.ontology-of-units-of-measure.org/resource/om-2/volt,volt,The volt is a unit of electric potential defined as watt divided by ampere = joule divided by coulomb = newton times metre divided by ampere times second = kilogram times square metre divided by ampere times second to the power 3.,V,,[],[],[],[],,,,,already_existed
+5,http://www.ontology-of-units-of-measure.org/resource/om-2/millimetre,millimetre,The millimetre is a unit of length defined as 1.0e-3 metre.,mm,,[],[],[],[],,,,,already_existed
+6,http://www.ontology-of-units-of-measure.org/resource/om-2/millimetre,millimetre,The millimetre is a unit of length defined as 1.0e-3 metre.,mm,,[],[],[],[],,,,,already_existed
+7,http://www.ontology-of-units-of-measure.org/resource/om-2/millimetre,millimetre,The millimetre is a unit of length defined as 1.0e-3 metre.,mm,,[],[],[],[],,,,,already_existed
+8,http://www.ontology-of-units-of-measure.org/resource/om-2/millimetre,millimetre,The millimetre is a unit of length defined as 1.0e-3 metre.,mm,,[],[],[],[],,,,,already_existed
+9,http://www.ontology-of-units-of-measure.org/resource/om-2/millimetre,millimetre,The millimetre is a unit of length defined as 1.0e-3 metre.,mm,,[],[],[],[],,,,,already_existed
+10,http://www.ontology-of-units-of-measure.org/resource/om-2/millimetre,millimetre,The millimetre is a unit of length defined as 1.0e-3 metre.,mm,,[],[],[],[],,,,,already_existed
+11,http://www.ontology-of-units-of-measure.org/resource/om-2/millimetre,millimetre,The millimetre is a unit of length defined as 1.0e-3 metre.,mm,,[],[],[],[],,,,,already_existed
+12,http://www.ontology-of-units-of-measure.org/resource/om-2/millimetre,millimetre,The millimetre is a unit of length defined as 1.0e-3 metre.,mm,,[],[],[],[],,,,,already_existed
+13,http://www.ontology-of-units-of-measure.org/resource/om-2/millimetre,millimetre,The millimetre is a unit of length defined as 1.0e-3 metre.,mm,,[],[],[],[],,,,,already_existed
+14,http://www.ontology-of-units-of-measure.org/resource/om-2/millimetre,millimetre,The millimetre is a unit of length defined as 1.0e-3 metre.,mm,,[],[],[],[],,,,,already_existed
+15,http://phenome.inrae.fr/id/variable/unit.kilopascal,Kilopascal,,kPa,,[],[],[],[],,,,,already_existed
+16,http://phenome.inrae.fr/id/variable/unit.kilopascal,Kilopascal,,kPa,,[],[],[],[],,,,,already_existed
+17,http://phenome.inrae.fr/id/variable/unit.kilopascal,Kilopascal,,kPa,,[],[],[],[],,,,,already_existed
+18,http://phenome.inrae.fr/id/variable/unit.kilopascal,Kilopascal,,kPa,,[],[],[],[],,,,,already_existed
+19,http://phenome.inrae.fr/id/variable/unit.kilopascal,Kilopascal,,kPa,,[],[],[],[],,,,,already_existed
+20,http://www.ontology-of-units-of-measure.org/resource/om-2/volt,volt,The volt is a unit of electric potential defined as watt divided by ampere = joule divided by coulomb = newton times metre divided by ampere times second = kilogram times square metre divided by ampere times second to the power 3.,V,,[],[],[],[],,,,,already_existed

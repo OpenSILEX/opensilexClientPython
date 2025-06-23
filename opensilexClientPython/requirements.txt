@@ -1,0 +1,4 @@
+dateparser
+pandas
+pydantic
+requests
