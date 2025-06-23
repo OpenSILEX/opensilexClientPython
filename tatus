@@ -1,0 +1,1497 @@
+[1mdiff --git a/opensilexClientPython/functions.py b/opensilexClientPython/functions.py[m
+[1mnew file mode 100644[m
+[1mindex 0000000..8ee0869[m
+[1m--- /dev/null[m
+[1m+++ b/opensilexClientPython/functions.py[m
+[36m@@ -0,0 +1,1491 @@[m
+[32m+[m[32m'''[m[41m[m
+[32m+[m[32mFile: functions.py[m[41m[m
+[32m+[m[32mProject: opensilex-ws-python-client[m[41m[m
+[32m+[m[32mCreated Date: 01 May 2021[m[41m[m
+[32m+[m[32mAuthor: Arnaud Charleroy[m[41m[m
+[32m+[m[32m-----[m[41m[m
+[32m+[m[32mLast Modified: Thu Sep 09 2021[m[41m[m
+[32m+[m[32mModified By: Gabriel Besombes[m[41m[m
+[32m+[m[32m-----[m[41m[m
+[32m+[m[32mHISTORY:[m[41m[m
+[32m+[m[32mDate      	By	Comments[m[41m[m
+[32m+[m[32m----------	---	---------------------------------------------------------[m[41m[m
+[32m+[m[32m'''[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32mfrom __future__ import print_function[m[41m[m
+[32m+[m[32mfrom os import truncate # Must be here[m[41m[m
+[32m+[m[32mimport opensilexClientToolsPython[m[41m[m
+[32m+[m[32mimport pandas as pd[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m# TODO : make a class instead[m[41m [m
+[32m+[m[32m# with a connect method that auto reconnects every x minutes unless signaled to stop[m[41m[m
+[32m+[m[32m# recurcive method?[m[41m[m
+[32m+[m[32m# Proper way is probably with an event loop : https://stackoverflow.com/questions/474528/what-is-the-best-way-to-repeatedly-execute-a-function-every-x-seconds[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m"""Custom functions for data imports[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32mTOCHANGE : This script allows the user to print to the console all columns in the[m[41m[m
+[32m+[m[32mspreadsheet. It is assumed that the first row of the spreadsheet is the[m[41m[m
+[32m+[m[32mlocation of the columns.[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32mTOCHANGE : This tool accepts comma separated value files (.csv) as well as excel[m[41m[m
+[32m+[m[32m(.xls, .xlsx) files.[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32mThis script requires that the following packages be installed within[m[41m [m
+[32m+[m[32mthe Python environment you are running this script in :[m[41m[m
+[32m+[m[32m    * `opensilexClientToolsPython`[m[41m[m
+[32m+[m[32m    * `requests`[m[41m[m
+[32m+[m[32m    * `pandas`[m[41m[m
+[32m+[m[32m    * `dateparser`[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32mTOCHANGE : This file can also be imported as a module and contains[m[41m [m
+[32m+[m[32mthe following functions:[m[41m[m
+[32m+[m[32m    * get_spreadsheet_cols - returns the column headers of the file[m[41m[m
+[32m+[m[32m    * main - the main function of the script[m[41m[m
+[32m+[m[32m"""[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m# %%[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32mimport opensilexClientToolsPython[m[41m[m
+[32m+[m[32mfrom pprint import pprint[m[41m[m
+[32m+[m[32mfrom datetime import datetime[m[41m[m
+[32m+[m[32mfrom opensilexClientToolsPython.models.entity_creation_dto import EntityCreationDTO[m[41m[m
+[32m+[m[32mimport requests[m[41m[m
+[32m+[m[32mimport re[m[41m[m
+[32m+[m[32mimport io[m[41m[m
+[32m+[m[32mimport pandas as pd[m[41m[m
+[32m+[m[32mfrom dateparser import parse[m[41m[m
+[32m+[m[32mimport logging[m[41m[m
+[32m+[m[32mfrom typing import Union, List[m[41m[m
+[32m+[m[32mfrom pydantic import validate_arguments[m[41m[m
+[32m+[m[32mfrom functions import *[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m# %%[m[41m[m
+[32m+[m[32m# Setup logging file[m[41m[m
+[32m+[m[32mlogging.basicConfig(level=logging.DEBUG, handlers=[[m[41m[m
+[32m+[m[32m    logging.FileHandler("debug.log"),[m[41m[m
+[32m+[m[32m    logging.StreamHandler()[m[41m[m
+[32m+[m[32m],format='%(asctime)s %(levelname)-8s\[m[41m[m
+[32m+[m[32m     [%(filename)s:%(lineno)d] %(message)s')[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m# %%[m[41m[m
+[32m+[m[32m# Define full schema[m[41m[m
+[32m+[m[32mfull_schema = {[m[41m[m
+[32m+[m[32m    'trait':'trait.uri',[m[41m[m
+[32m+[m[32m    'trait_name':'trait.label',[m[41m[m
+[32m+[m[32m    'entity':{[m[41m[m
+[32m+[m[32m        'name':'entity.label',[m[41m[m
+[32m+[m[32m        'uri':'entity.uri',[m[41m[m
+[32m+[m[32m        'description':'entity.comment',[m[41m[m
+[32m+[m[32m        'exact_match':'exact_match',[m[41m[m
+[32m+[m[32m        'close_match':'close_match',[m[41m[m
+[32m+[m[32m        'broad_match':'broad_match',[m[41m[m
+[32m+[m[32m        'narrow_match':'narrow_match'[m[41m[m
+[32m+[m[32m    },[m[41m[m
+[32m+[m[32m    'characteristic':{[m[41m[m
+[32m+[m[32m        'name':'characteristic.label',[m[41m[m
+[32m+[m[32m        'uri':'characteristic.uri',[m[41m[m
+[32m+[m[32m        'description':'characteristic.comment',[m[41m[m
+[32m+[m[32m        'exact_match':'exact_match',[m[41m[m
+[32m+[m[32m        'close_match':'close_match',[m[41m[m
+[32m+[m[32m        'broad_match':'broad_match',[m[41m[m
+[32m+[m[32m        'narrow_match':'narrow_match'[m[41m[m
+[32m+[m[32m    },[m[41m[m
+[32m+[m[32m    'method':{[m[41m[m
+[32m+[m[32m        'name':'method.label',[m[41m[m
+[32m+[m[32m        'uri':'method.uri',[m[41m[m
+[32m+[m[32m        'description':'method.comment',[m[41m[m
+[32m+[m[32m        'exact_match':'exact_match',[m[41m[m
+[32m+[m[32m        'close_match':'close_match',[m[41m[m
+[32m+[m[32m        'broad_match':'broad_match',[m[41m[m
+[32m+[m[32m        'narrow_match':'narrow_match'[m[41m[m
+[32m+[m[32m    },[m[41m[m
+[32m+[m[32m    'unit':{[m[41m[m
+[32m+[m[32m        'name':'unit.label',[m[41m[m
+[32m+[m[32m        'uri':'unit.uri',[m[41m[m
+[32m+[m[32m        'description':'unit.comment',[m[41m[m
+[32m+[m[32m        'symbol':'symbol',[m[41m[m
+[32m+[m[32m        'alternative_symbol':'alternative_symbol',[m[41m[m
+[32m+[m[32m        'exact_match':'exact_match',[m[41m[m
+[32m+[m[32m        'close_match':'close_match',[m[41m[m
+[32m+[m[32m        'broad_match':'broad_match',[m[41m[m
+[32m+[m[32m        'narrow_match':'narrow_match'[m[41m[m
+[32m+[m[32m    },[m[41m[m
+[32m+[m[32m    'uri':'variable.uri',[m[41m[m
+[32m+[m[32m    'name':'variable.label',[m[41m[m
+[32m+[m[32m    'description':'variable.description',[m[41m[m
+[32m+[m[32m    'datatype':'variable.datatype',[m[41m[m
+[32m+[m[32m    'alternative_name':'variable.alternative_name',[m[41m[m
+[32m+[m[32m    'time_interval':'variable.timeinterval',[m[41m[m
+[32m+[m[32m    'sampling_interval':'variable.sampleinterval',[m[41m[m
+[32m+[m[32m    'exact_match':'exact_match',[m[41m[m
+[32m+[m[32m    'close_match':'close_match',[m[41m[m
+[32m+[m[32m    'broad_match':'broad_match',[m[41m[m
+[32m+[m[32m    'narrow_match':'narrow_match'[m[41m[m
+[32m+[m[32m}[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m# %%[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m@validate_arguments(config=dict(arbitrary_types_allowed=True))[m[41m[m
+[32m+[m[32mdef create_experiment([m[41m[m
+[32m+[m[32m    python_client: opensilexClientToolsPython.ApiClient,[m[41m [m
+[32m+[m[32m    name: str,[m[41m [m
+[32m+[m[32m    objective: str,[m[41m [m
+[32m+[m[32m    start_date: datetime,[m[41m [m
+[32m+[m[32m    end_date: datetime = None,[m[41m [m
+[32m+[m[32m    uri: str = None,[m[41m [m
+[32m+[m[32m    description: str = None,[m[41m [m
+[32m+[m[32m    species: List[str] = None,[m[41m [m
+[32m+[m[32m    variables: List[str] = None,[m[41m [m
+[32m+[m[32m    organisations: List[str] = None,[m[41m [m
+[32m+[m[32m    projects: List[str] = None,[m[41m [m
+[32m+[m[32m    scientific_supervisorslist: str = None,[m[41m [m
+[32m+[m[32m    technical_supervisors: List[str] = None,[m[41m [m
+[32m+[m[32m    groups: List[str] = None,[m[41m [m
+[32m+[m[32m    factors: List[str] = None,[m[41m [m
+[32m+[m[32m    is_public: bool = None[m[41m[m
+[32m+[m[32m) -> dict:[m[41m[m
+[32m+[m[32m    """Creates an experiment[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    Parameters[m[41m[m
+[32m+[m[32m    ----------[m[41m[m
+[32m+[m[32m    python_client : opensilexClientToolsPython.ApiClient[m[41m[m
+[32m+[m[32m        The authenticated client to connect to Opensilex[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    All the following arguments can be unpacked from a dict for easier use.[m[41m[m
+[32m+[m[32m    To do so you just have to call the function as follows :[m[41m[m
+[32m+[m[32m        create_experiment(python_client, **my_dict)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    name: str[m[41m [m
+[32m+[m[32m        The name of the experiment (required)[m[41m[m
+[32m+[m[32m    objective: str[m[41m [m
+[32m+[m[32m        The objective of the experiment (required)[m[41m[m
+[32m+[m[32m    start_date: datetime[m[41m [m
+[32m+[m[32m        The starting date of the experiment (required)[m[41m[m
+[32m+[m[32m    end_date: datetime = None[m[41m [m
+[32m+[m[32m        The end date of the experiment[m[41m[m
+[32m+[m[32m    uri: str = None[m[41m [m
+[32m+[m[32m        The uri of the experiment (optional, will be auto-generated if[m[41m [m
+[32m+[m[32m        none is given)[m[41m[m
+[32m+[m[32m    description: str = None[m[41m [m
+[32m+[m[32m        A short description of the experiment[m[41m[m
+[32m+[m[32m    species: List[str] = None[m[41m [m
+[32m+[m[32m        A list of the species in the experiment[m[41m[m
+[32m+[m[32m    variables: List[str] = None[m[41m [m
+[32m+[m[32m        A list of the variables of the experiment[m[41m[m
+[32m+[m[32m    organisations: List[str] = None[m[41m [m
+[32m+[m[32m        A list of the organisations that take part in the experiment (NOT SURE)[m[41m[m
+[32m+[m[32m    projects: List[str] = None[m[41m [m
+[32m+[m[32m        A list of the projects in the experiment (NOT SURE)[m[41m[m
+[32m+[m[32m    scientific_supervisorslist: str = None[m[41m [m
+[32m+[m[32m        The name (or uri) of the supervisor of the experiment (NOT SURE)[m[41m[m
+[32m+[m[32m    technical_supervisors: List[str] = None[m[41m [m
+[32m+[m[32m        The names (or uris) of the supervisors of the experiment (NOT SURE)[m[41m[m
+[32m+[m[32m    groups: List[str] = None[m[41m [m
+[32m+[m[32m        The groups (uris) that have acces to this experiment[m[41m[m
+[32m+[m[32m    factors: List[str] = None[m[41m [m
+[32m+[m[32m        The factors (uris) studied in the experiment (NOT SURE)[m[41m[m
+[32m+[m[32m    is_public: bool = None[m[41m [m
+[32m+[m[32m        Wether or not the experiment is public[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    Returns[m[41m[m
+[32m+[m[32m    -------[m[41m[m
+[32m+[m[32m    dict[m[41m[m
+[32m+[m[32m        A dictionary representing the experiment (with the[m[41m [m
+[32m+[m[32m        auto-generated uri if none was specified)[m[41m[m
+[32m+[m[32m    """[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    # Extract all non-None arguments for experiment as a dictionary[m[41m[m
+[32m+[m[32m    loc = locals()[m[41m[m
+[32m+[m[32m    experiment = {[m[41m[m
+[32m+[m[32m        k: loc[k][m[41m [m
+[32m+[m[32m        for k in loc.keys()[m[41m [m
+[32m+[m[32m        if(k!="python_client" and loc[k]!=None)[m[41m[m
+[32m+[m[32m    }[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    # Create an instance of the Experiment Api[m[41m[m
+[32m+[m[32m    experiment_os_api = opensilexClientToolsPython\[m[41m[m
+[32m+[m[32m        .ExperimentsApi(python_client)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    # Creating an object of ExperimentCreationDTO class to use for[m[41m [m
+[32m+[m[32m    # experiment creation[m[41m[m
+[32m+[m[32m    new_expriment = opensilexClientToolsPython\[m[41m[m
+[32m+[m[32m        .ExperimentCreationDTO(**experiment)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    try:[m[41m[m
+[32m+[m[32m        # Creating an experiment on Opensilex and catching the result[m[41m[m
+[32m+[m[32m        experiment_result = experiment_os_api\[m[41m[m
+[32m+[m[32m            .create_experiment(body=new_expriment)[m[41m[m
+[32m+[m[32m        # Updating the uri in case none was specified[m[41m[m
+[32m+[m[32m        experiment["uri"] = experiment_result.get("result")[0][m[41m[m
+[32m+[m[32m        logging.info("new experiment " + experiment["name"] + " created")[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m        # Return the updated dict[m[41m[m
+[32m+[m[32m        return experiment[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    # Catch exceptions to use custom error message if the experiment[m[41m [m
+[32m+[m[32m    # already exists[m[41m[m
+[32m+[m[32m    except Exception as e:[m[41m[m
+[32m+[m[32m        if "exists" not in str(e):[m[41m[m
+[32m+[m[32m            logging.error("Exception : %s\n" % e)[m[41m[m
+[32m+[m[32m        else:[m[41m[m
+[32m+[m[32m            logging.info("experiment " + experiment["name"] + " already exists")[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m# %%[m[41m[m
+[32m+[m[32m@validate_arguments(config=dict(arbitrary_types_allowed=True))[m[41m[m
+[32m+[m[32mdef is_empty(value: str) -> bool:[m[41m[m
+[32m+[m[32m    """Check for emptyness[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    Parameters[m[41m[m
+[32m+[m[32m    ----------[m[41m[m
+[32m+[m[32m    value : either None or str[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    Returns[m[41m[m
+[32m+[m[32m    -------[m[41m[m
+[32m+[m[32m    bool[m[41m[m
+[32m+[m[32m        True if empty, False if not[m[41m[m
+[32m+[m[32m    """[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    # Check for None, or equivalents : "NA", "nan"[m[41m[m
+[32m+[m[32m    if value is None:[m[41m[m
+[32m+[m[32m        return True[m[41m[m
+[32m+[m[32m    if(value == "NA" or value == None or value == "nan"):[m[41m[m
+[32m+[m[32m        return True[m[41m[m
+[32m+[m[32m    return False[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m@validate_arguments(config=dict(arbitrary_types_allowed=True))[m[41m[m
+[32m+[m[32mdef format_comment(comment: str) -> str:[m[41m[m
+[32m+[m[32m    """Format comment[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    Parameters[m[41m[m
+[32m+[m[32m    ----------[m[41m[m
+[32m+[m[32m    raw_comment : str[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    Returns[m[41m[m
+[32m+[m[32m    -------[m[41m[m
+[32m+[m[32m    str[m[41m[m
+[32m+[m[32m        The comment in str type or "No description" if found empty[m[41m[m
+[32m+[m[32m    """[m[41m[m
+[32m+[m[41m    [m
+[32m+[m[32m    if(is_empty(comment)):[m[41m[m
+[32m+[m[32m        return "No description"[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    return comment[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m# %%[m[41m[m
+[32m+[m[32m@validate_arguments(config=dict(arbitrary_types_allowed=True))[m[41m[m
+[32m+[m[32mdef migrate_variables_from_googlesheet([m[41m[m
+[32m+[m[32m    python_client: opensilexClientToolsPython.ApiClient,[m[41m [m
+[32m+[m[32m    spreadsheet_url: str,[m[41m [m
+[32m+[m[32m    gid_number: str,[m[41m [m
+[32m+[m[32m    variables_schema: dict = {[m[41m[m
+[32m+[m[32m        'trait':'trait.uri',[m[41m[m
+[32m+[m[32m        'trait_name':'trait.label',[m[41m[m
+[32m+[m[32m        'entity':{[m[41m[m
+[32m+[m[32m            'name':'entity.label',[m[41m[m
+[32m+[m[32m            'uri':'entity.uri',[m[41m[m
+[32m+[m[32m            'description':'entity.comment'[m[41m[m
+[32m+[m[32m        },[m[41m[m
+[32m+[m[32m        'characteristic':{[m[41m[m
+[32m+[m[32m            'name':'characteristic.label',[m[41m[m
+[32m+[m[32m            'uri':'characteristic.uri',[m[41m[m
+[32m+[m[32m            'description':'characteristic.comment'[m[41m[m
+[32m+[m[32m        },[m[41m[m
+[32m+[m[32m        'method':{[m[41m[m
+[32m+[m[32m            'name':'method.label',[m[41m[m
+[32m+[m[32m            'uri':'method.uri',[m[41m[m
+[32m+[m[32m            'description':'method.comment'[m[41m[m
+[32m+[m[32m        },[m[41m[m
+[32m+[m[32m        'unit':{[m[41m[m
+[32m+[m[32m            'name':'unit.label',[m[41m[m
+[32m+[m[32m            'uri':'unit.uri',[m[41m[m
+[32m+[m[32m            'description':'unit.comment'[m[41m[m
+[32m+[m[32m        },[m[41m[m
+[32m+[m[32m        'uri':'variable.uri',[m[41m[m
+[32m+[m[32m        'name':'variable.label',[m[41m[m
+[32m+[m[32m        'description':'variable.description',[m[41m[m
+[32m+[m[32m        'datatype':'variable.datatype',[m[41m[m
+[32m+[m[32m        'alternative_name':'variable.alternative_name',[m[41m[m
+[32m+[m[32m        'time_interval':'variable.timeinterval',[m[41m[m
+[32m+[m[32m        'sampling_interval':'variable.sampleinterval'[m[41m[m
+[32m+[m[32m    },[m[41m [m
+[32m+[m[32m    update: bool = False[m[41m[m
+[32m+[m[32m) -> None:[m[41m[m
+[32m+[m[32m    """Get variables data from googlesheet[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    Parameters[m[41m[m
+[32m+[m[32m    ----------[m[41m[m
+[32m+[m[32m    python_client: opensilexClientToolsPython.ApiClient[m[41m[m
+[32m+[m[32m        The authenticated client to connect to Opensilex[m[41m[m
+[32m+[m[32m    spreadsheet_url: str[m[41m[m
+[32m+[m[32m        The url of the googlesheet to get the variables from[m[41m[m
+[32m+[m[32m    gid_number: str[m[41m[m
+[32m+[m[32m        TODO[m[41m[m
+[32m+[m[32m    variables_schema: dict[m[41m[m
+[32m+[m[32m        Dictionnary that describes the header of the in correspondance[m[41m[m
+[32m+[m[32m        with the names in opensilex.[m[41m[m
+[32m+[m[32m        Format is 'opensilexname':'columnname'[m[41m[m
+[32m+[m[32m        or 'opensilexsubtype':{'opensilexname':'columnname'}[m[41m[m
+[32m+[m[32m        Example : {[m[41m[m
+[32m+[m[32m            'trait':'trait.uri',[m[41m[m
+[32m+[m[32m            'trait_name':'trait.label',[m[41m[m
+[32m+[m[32m            'entity':{[m[41m[m
+[32m+[m[32m                'name':'entity.label',[m[41m[m
+[32m+[m[32m                'uri':'entity.uri',[m[41m[m
+[32m+[m[32m                'description':'entity.comment'[m[41m[m
+[32m+[m[32m            },[m[41m[m
+[32m+[m[32m            'characteristic':{[m[41m[m
+[32m+[m[32m                'name':'characteristic.label',[m[41m[m
+[32m+[m[32m                'uri':'characteristic.uri',[m[41m[m
+[32m+[m[32m                'description':'characteristic.comment'[m[41m[m
+[32m+[m[32m            },[m[41m[m
+[32m+[m[32m            'method':{[m[41m[m
+[32m+[m[32m                'name':'method.label',[m[41m[m
+[32m+[m[32m                'uri':'method.uri',[m[41m[m
+[32m+[m[32m                'description':'method.comment'[m[41m[m
+[32m+[m[32m            },[m[41m[m
+[32m+[m[32m            'unit':{[m[41m[m
+[32m+[m[32m                'name':'unit.label',[m[41m[m
+[32m+[m[32m                'uri':'unit.uri',[m[41m[m
+[32m+[m[32m                'description':'unit.comment'[m[41m[m
+[32m+[m[32m            },[m[41m[m
+[32m+[m[32m            'uri':'variable.uri',[m[41m[m
+[32m+[m[32m            'name':'variable.label',[m[41m[m
+[32m+[m[32m            'description':'variable.description',[m[41m[m
+[32m+[m[32m            'datatype':'variable.datatype',[m[41m[m
+[32m+[m[32m            'alternative_name':'variable.alternative_name',[m[41m[m
+[32m+[m[32m            'time_interval':'variable.timeinterval',[m[41m[m
+[32m+[m[32m            'sampling_interval':'variable.sampleinterval'[m[41m[m
+[32m+[m[32m        }[m[41m[m
+[32m+[m[32m    update: bool = False[m[41m[m
+[32m+[m[32m        TODO (wether or not to update?)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    Returns[m[41m[m
+[32m+[m[32m    -------[m[41m[m
+[32m+[m[32m    None[m[41m[m
+[32m+[m[32m    """[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    variables_url = spreadsheet_url + "/gviz/tq?tqx=out:csv&gid=" + gid_number[m[41m[m
+[32m+[m[32m    logging.info(variables_url)[m[41m[m
+[32m+[m[32m    variables_csv_string = requests.get(variables_url).content[m[41m[m
+[32m+[m[41m [m
+[32m+[m[32m    variables_csv = pd.read_csv(io.StringIO(variables_csv_string.decode('utf-8')))[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    # Replace nan with None[m[41m[m
+[32m+[m[32m    variables_csv = variables_csv.where([m[41m[m
+[32m+[m[32m        pd.notnull(variables_csv), None[m[41m[m
+[32m+[m[32m    )[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    return migrate_variables([m[41m[m
+[32m+[m[32m        python_client=python_client,[m[41m [m
+[32m+[m[32m        variables_csv=variables_csv,[m[41m [m
+[32m+[m[32m        variables_schema=variables_schema,[m[41m[m
+[32m+[m[32m        update=update[m[41m[m
+[32m+[m[32m    )[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m@validate_arguments(config=dict(arbitrary_types_allowed=True))[m[41m[m
+[32m+[m[32mdef migrate_variables_from_csv([m[41m[m
+[32m+[m[32m    python_client: opensilexClientToolsPython.ApiClient,[m[41m [m
+[32m+[m[32m    csv_path: str,[m[41m [m
+[32m+[m[32m    variables_schema: dict = {[m[41m[m
+[32m+[m[32m        'trait':'trait.uri',[m[41m[m
+[32m+[m[32m        'trait_name':'trait.label',[m[41m[m
+[32m+[m[32m        'entity':{[m[41m[m
+[32m+[m[32m            'name':'entity.label',[m[41m[m
+[32m+[m[32m            'uri':'entity.uri',[m[41m[m
+[32m+[m[32m            'description':'entity.comment'[m[41m[m
+[32m+[m[32m        },[m[41m[m
+[32m+[m[32m        'characteristic':{[m[41m[m
+[32m+[m[32m            'name':'characteristic.label',[m[41m[m
+[32m+[m[32m            'uri':'characteristic.uri',[m[41m[m
+[32m+[m[32m            'description':'characteristic.comment'[m[41m[m
+[32m+[m[32m        },[m[41m[m
+[32m+[m[32m        'method':{[m[41m[m
+[32m+[m[32m            'name':'method.label',[m[41m[m
+[32m+[m[32m            'uri':'method.uri',[m[41m[m
+[32m+[m[32m            'description':'method.comment'[m[41m[m
+[32m+[m[32m        },[m[41m[m
+[32m+[m[32m        'unit':{[m[41m[m
+[32m+[m[32m            'name':'unit.label',[m[41m[m
+[32m+[m[32m            'uri':'unit.uri',[m[41m[m
+[32m+[m[32m            'description':'unit.comment'[m[41m[m
+[32m+[m[32m        },[m[41m[m
+[32m+[m[32m        'uri':'variable.uri',[m[41m[m
+[32m+[m[32m        'name':'variable.label',[m[41m[m
+[32m+[m[32m        'description':'variable.description',[m[41m[m
+[32m+[m[32m        'datatype':'variable.datatype',[m[41m[m
+[32m+[m[32m        'alternative_name':'variable.alternative_name',[m[41m[m
+[32m+[m[32m        'time_interval':'variable.timeinterval',[m[41m[m
+[32m+[m[32m        'sampling_interval':'variable.sampleinterval'[m[41m[m
+[32m+[m[32m    },[m[41m [m
+[32m+[m[32m    update: bool = False[m[41m[m
+[32m+[m[32m) -> None:[m[41m[m
+[32m+[m[32m    """Get variables data from a csv[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    Parameters[m[41m[m
+[32m+[m[32m    ----------[m[41m[m
+[32m+[m[32m    python_client: opensilexClientToolsPython.ApiClient[m[41m[m
+[32m+[m[32m        The authenticated client to connect to Opensilex[m[41m[m
+[32m+[m[32m    csv_path: str[m[41m[m
+[32m+[m[32m        The path to the csv file to get the variables from[m[41m[m
+[32m+[m[32m    variables_schema: dict[m[41m[m
+[32m+[m[32m        Dictionnary that describes the header of the in correspondance[m[41m[m
+[32m+[m[32m        with the names in opensilex.[m[41m[m
+[32m+[m[32m        Format is 'opensilexname':'columnname'[m[41m[m
+[32m+[m[32m        or 'opensilexsubtype':{'opensilexname':'columnname'}[m[41m[m
+[32m+[m[32m        Example : {[m[41m[m
+[32m+[m[32m            'trait':'trait.uri',[m[41m[m
+[32m+[m[32m            'trait_name':'trait.label',[m[41m[m
+[32m+[m[32m            'entity':{[m[41m[m
+[32m+[m[32m                'name':'entity.label',[m[41m[m
+[32m+[m[32m                'uri':'entity.uri',[m[41m[m
+[32m+[m[32m                'description':'entity.comment'[m[41m[m
+[32m+[m[32m            },[m[41m[m
+[32m+[m[32m            'characteristic':{[m[41m[m
+[32m+[m[32m                'name':'characteristic.label',[m[41m[m
+[32m+[m[32m                'uri':'characteristic.uri',[m[41m[m
+[32m+[m[32m                'description':'characteristic.comment'[m[41m[m
+[32m+[m[32m            },[m[41m[m
+[32m+[m[32m            'method':{[m[41m[m
+[32m+[m[32m                'name':'method.label',[m[41m[m
+[32m+[m[32m                'uri':'method.uri',[m[41m[m
+[32m+[m[32m                'description':'method.comment'[m[41m[m
+[32m+[m[32m            },[m[41m[m
+[32m+[m[32m            'unit':{[m[41m[m
+[32m+[m[32m                'name':'unit.label',[m[41m[m
+[32m+[m[32m                'uri':'unit.uri',[m[41m[m
+[32m+[m[32m                'description':'unit.comment'[m[41m[m
+[32m+[m[32m            },[m[41m[m
+[32m+[m[32m            'uri':'variable.uri',[m[41m[m
+[32m+[m[32m            'name':'variable.label',[m[41m[m
+[32m+[m[32m            'description':'variable.description',[m[41m[m
+[32m+[m[32m            'datatype':'variable.datatype',[m[41m[m
+[32m+[m[32m            'alternative_name':'variable.alternative_name',[m[41m[m
+[32m+[m[32m            'time_interval':'variable.timeinterval',[m[41m[m
+[32m+[m[32m            'sampling_interval':'variable.sampleinterval'[m[41m[m
+[32m+[m[32m        }[m[41m[m
+[32m+[m[32m    update: bool = False[m[41m[m
+[32m+[m[32m        TODO (wether or not to update?)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    Returns[m[41m[m
+[32m+[m[32m    -------[m[41m[m
+[32m+[m[32m    None[m[41m[m
+[32m+[m[32m    """[m[41m[m
+[32m+[m[32m    variables_csv = pd.read_csv(csv_path)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    if len(variables_csv.columns) <= 2:[m[41m[m
+[32m+[m[32m        variables_csv = pd.read_csv(csv_path, sep=";")[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    # Replace nan with None[m[41m[m
+[32m+[m[32m    variables_csv = variables_csv.where([m[41m[m
+[32m+[m[32m        pd.notnull(variables_csv), None[m[41m[m
+[32m+[m[32m    )[m[41m[m
+[32m+[m[41m    [m
+[32m+[m[32m    return migrate_variables([m[41m[m
+[32m+[m[32m        python_client=python_client,[m[41m [m
+[32m+[m[32m        variables_csv=variables_csv,[m[41m [m
+[32m+[m[32m        variables_schema=variables_schema,[m[41m[m
+[32m+[m[32m        update=update[m[41m[m
+[32m+[m[32m    )[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m# TODO Create a func to exchange heys and values in a dict[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m@validate_arguments(config=dict(arbitrary_types_allowed=True))[m[41m[m
+[32m+[m[32mdef migrate_variables([m[41m[m
+[32m+[m[32m    python_client: opensilexClientToolsPython.ApiClient,[m[41m [m
+[32m+[m[32m    variables_csv: pd.DataFrame,[m[41m [m
+[32m+[m[32m    variables_schema: dict = {[m[41m[m
+[32m+[m[32m        'trait':'trait.uri',[m[41m[m
+[32m+[m[32m        'trait_name':'trait.label',[m[41m[m
+[32m+[m[32m        'entity':{[m[41m[m
+[32m+[m[32m            'name':'entity.label',[m[41m[m
+[32m+[m[32m            'uri':'entity.uri',[m[41m[m
+[32m+[m[32m            'description':'entity.comment'[m[41m[m
+[32m+[m[32m        },[m[41m[m
+[32m+[m[32m        'characteristic':{[m[41m[m
+[32m+[m[32m            'name':'characteristic.label',[m[41m[m
+[32m+[m[32m            'uri':'characteristic.uri',[m[41m[m
+[32m+[m[32m            'description':'characteristic.comment'[m[41m[m
+[32m+[m[32m        },[m[41m[m
+[32m+[m[32m        'method':{[m[41m[m
+[32m+[m[32m            'name':'method.label',[m[41m[m
+[32m+[m[32m            'uri':'method.uri',[m[41m[m
+[32m+[m[32m            'description':'method.comment'[m[41m[m
+[32m+[m[32m        },[m[41m[m
+[32m+[m[32m        'unit':{[m[41m[m
+[32m+[m[32m            'name':'unit.label',[m[41m[m
+[32m+[m[32m            'uri':'unit.uri',[m[41m[m
+[32m+[m[32m            'description':'unit.comment',[m[41m[m
+[32m+[m[32m        },[m[41m[m
+[32m+[m[32m        'uri':'variable.uri',[m[41m[m
+[32m+[m[32m        'name':'variable.label',[m[41m[m
+[32m+[m[32m        'description':'variable.description',[m[41m[m
+[32m+[m[32m        'datatype':'variable.datatype',[m[41m[m
+[32m+[m[32m        'alternative_name':'variable.alternative_name',[m[41m[m
+[32m+[m[32m        'time_interval':'variable.timeinterval',[m[41m[m
+[32m+[m[32m        'sampling_interval':'variable.sampleinterval'[m[41m[m
+[32m+[m[32m    },[m[41m[m
+[32m+[m[32m    update: bool = False[m[41m[m
+[32m+[m[32m) -> None:[m[41m[m
+[32m+[m[32m    """Create variables from a pandas.DataFrame[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m        Parameters[m[41m[m
+[32m+[m[32m        ----------[m[41m[m
+[32m+[m[32m        python_client: opensilexClientToolsPython.ApiClient[m[41m[m
+[32m+[m[32m            The authenticated client to connect to Opensilex[m[41m[m
+[32m+[m[32m        variables_csv: pd.DataFrame[m[41m[m
+[32m+[m[32m            A pandas DataFrame containing the data needed to create the variables[m[41m[m
+[32m+[m[32m        variables_schema: dict[m[41m[m
+[32m+[m[32m            Dictionnary that describes the header of the in correspondance[m[41m[m
+[32m+[m[32m            with the names in opensilex.[m[41m[m
+[32m+[m[32m            Format is 'opensilexname':'columnname'[m[41m[m
+[32m+[m[32m            or 'opensilexsubtype':{'opensilexname':'columnname'}[m[41m[m
+[32m+[m[32m            Example : {[m[41m[m
+[32m+[m[32m                'trait':'trait.uri',[m[41m[m
+[32m+[m[32m                'trait_name':'trait.label',[m[41m[m
+[32m+[m[32m                'entity':{[m[41m[m
+[32m+[m[32m                    'name':'entity.label',[m[41m[m
+[32m+[m[32m                    'uri':'entity.uri',[m[41m[m
+[32m+[m[32m                    'description':'entity.comment'[m[41m[m
+[32m+[m[32m                },[m[41m[m
+[32m+[m[32m                'characteristic':{[m[41m[m
+[32m+[m[32m                    'name':'characteristic.label',[m[41m[m
+[32m+[m[32m                    'uri':'characteristic.uri',[m[41m[m
+[32m+[m[32m                    'description':'characteristic.comment'[m[41m[m
+[32m+[m[32m                },[m[41m[m
+[32m+[m[32m                'method':{[m[41m[m
+[32m+[m[32m                    'name':'method.label',[m[41m[m
+[32m+[m[32m                    'uri':'method.uri',[m[41m[m
+[32m+[m[32m                    'description':'method.comment'[m[41m[m
+[32m+[m[32m                },[m[41m[m
+[32m+[m[32m                'unit':{[m[41m[m
+[32m+[m[32m                    'name':'unit.label',[m[41m[m
+[32m+[m[32m                    'uri':'unit.uri',[m[41m[m
+[32m+[m[32m                    'description':'unit.comment'[m[41m[m
+[32m+[m[32m                },[m[41m[m
+[32m+[m[32m                'uri':'variable.uri',[m[41m[m
+[32m+[m[32m                'name':'variable.label',[m[41m[m
+[32m+[m[32m                'description':'variable.description',[m[41m[m
+[32m+[m[32m                'datatype':'variable.datatype',[m[41m[m
+[32m+[m[32m                'alternative_name':'variable.alternative_name',[m[41m[m
+[32m+[m[32m                'time_interval':'variable.timeinterval',[m[41m[m
+[32m+[m[32m                'sampling_interval':'variable.sampleinterval'[m[41m[m
+[32m+[m[32m            }[m[41m[m
+[32m+[m[32m        update: bool = False[m[41m[m
+[32m+[m[32m            TODO (wether or not to update?)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m        Returns[m[41m[m
+[32m+[m[32m        -------[m[41m[m
+[32m+[m[32m        None[m[41m[m
+[32m+[m[32m        """[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    # The update isn't currently implemented[m[41m[m
+[32m+[m[32m    logging.info("Update mode variable is set to " + str(update) + "\n\n")[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    # Check if the names given in the schema exist in the DataFrame[m[41m[m
+[32m+[m[32m    cols = [][m[41m[m
+[32m+[m[32m    for val in variables_schema.values():[m[41m[m
+[32m+[m[32m        if type(val)==str:[m[41m[m
+[32m+[m[32m            cols.append(val)[m[41m[m
+[32m+[m[32m        else:[m[41m[m
+[32m+[m[32m            cols = cols + list(val.values())[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    col_match = [[m[41m[m
+[32m+[m[32m        col[m[41m[m
+[32m+[m[32m        for col in cols[m[41m[m
+[32m+[m[32m        if col not in variables_csv.columns[m[41m[m
+[32m+[m[32m    ][m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    if col_match:[m[41m[m
+[32m+[m[32m        raise ValueError([m[41m[m
+[32m+[m[32m            """The following names in the schema couldn't be matched to any columns :[m[41m[m
+[32m+[m[32m    {0}[m[41m[m
+[32m+[m[32mThe actual columns found are :[m[41m[m
+[32m+[m[32m    {1}[m[41m[m
+[32m+[m[32m            """.format(col_match, variables_csv.columns)[m[41m[m
+[32m+[m[32m        )[m[41m[m
+[32m+[m[41m    [m
+[32m+[m[32m    # DataFrame for results of objects creations[m[41m[m
+[32m+[m[32m    variables_df = pd.DataFrame([m[41m[m
+[32m+[m[32m        columns=[key for key in full_schema][m[41m[m
+[32m+[m[32m    )[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    # DataFrame for objects already existed[m[41m[m
+[32m+[m[32m    already_df = pd.DataFrame([m[41m[m
+[32m+[m[32m        columns=[key for key in full_schema][m[41m[m
+[32m+[m[32m    )[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    # DataFrame for failed objects[m[41m[m
+[32m+[m[32m    failed_df = pd.DataFrame([m[41m[m
+[32m+[m[32m        columns=[key for key in variables_schema][m[41m[m
+[32m+[m[32m    )[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    # Fetch all datatypes for Variable creation[m[41m[m
+[32m+[m[32m    var_api_instance = opensilexClientToolsPython.VariablesApi(python_client)[m[41m[m
+[32m+[m[32m    datatypes = var_api_instance.get_datatypes()[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    # Create all objects that need to be created on opensilex[m[41m[m
+[32m+[m[32m    for key in variables_schema.keys():[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m        # Create objects on opensilex if needed[m[41m[m
+[32m+[m[32m        if type(variables_schema[key])==dict:[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m            # TODO work from unique values then join the results to get the right format[m[41m[m
+[32m+[m[41m            [m
+[32m+[m[32m            # Subset of the dataframe with the data needed to create the objects[m[41m[m
+[32m+[m[32m            sub_df = variables_csv[variables_schema[key].values()][m[41m[m
+[32m+[m[41m            [m
+[32m+[m[32m            # Change column labels to opensilex labels[m[41m[m
+[32m+[m[32m            col_exchange = {[m[41m[m
+[32m+[m[32m                v:k[m[41m[m
+[32m+[m[32m                for k,v in variables_schema[key].items()[m[41m[m
+[32m+[m[32m            }[m[41m[m
+[32m+[m[32m            sub_df.rename(columns=col_exchange, inplace=True)[m[41m[m
+[32m+[m[41m            [m
+[32m+[m[32m            # DataFrame for results[m[41m[m
+[32m+[m[32m            df_res = pd.DataFrame(columns=full_schema[key].keys(), dtype=object)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m            # Create all the objects line by line[m[41m[m
+[32m+[m[32m            for index, row in sub_df.iterrows():[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m                # Check if row is a duplicate of previous rows[m[41m[m
+[32m+[m[32m                duplicate_of = ([m[41m[m
+[32m+[m[32m                    sub_df.loc[:index-1].values == row.values[m[41m[m
+[32m+[m[32m                ).all(axis=1)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m                # If it is a duplicate use the data already in df_res[m[41m[m
+[32m+[m[32m                if duplicate_of.any():[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m                    # Use the first row of all the duplicates[m[41m[m
+[32m+[m[32m                    df_res.loc[index] = df_res.loc[:index-1]\[m[41m[m
+[32m+[m[32m                        .loc[duplicate_of].iloc[0][m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m                # Otherwise create the object[m[41m[m
+[32m+[m[32m                else:[m[41m[m
+[32m+[m[32m                    try:[m[41m[m
+[32m+[m[32m                        object_info = create_base_variable([m[41m[m
+[32m+[m[32m                            python_client=python_client,[m[41m[m
+[32m+[m[32m                            row=row,[m[41m[m
+[32m+[m[32m                            index=index,[m[41m[m
+[32m+[m[32m                            variable_subtype=key,[m[41m[m
+[32m+[m[32m                        )[m[41m[m
+[32m+[m[41m                        [m
+[32m+[m[32m                        # If failed set the row to False and save it in failed[m[41m[m
+[32m+[m[32m                        if object_info[1] == "failed":[m[41m[m
+[32m+[m[32m                            failed_df = failed_df.append(row, ignore_index=True)[m[41m[m
+[32m+[m[32m                            df_res.loc[index] = False[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m                        # If already existed update the info and save it in already existed[m[41m[m
+[32m+[m[32m                        elif object_info[1] == "already":[m[41m[m
+[32m+[m[32m                            already_df = already_df.append(object_info[0], ignore_index=True)[m[41m[m
+[32m+[m[32m                            df_res.loc[index] = object_info[0][m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m                        else:[m[41m[m
+[32m+[m[32m                            df_res.loc[index] = object_info[0][m[41m[m
+[32m+[m[41m                        [m
+[32m+[m[32m                    except Exception as e:[m[41m[m
+[32m+[m[32m                        logging.info(object_info)[m[41m[m
+[32m+[m[32m                        logging.error("Exception : %s\n" % e)[m[41m[m
+[32m+[m[32m                        failed_df = failed_df.append(row, ignore_index=True)[m[41m[m
+[32m+[m[32m                        df_res.loc[index] = False[m[41m[m
+[32m+[m[41m            [m
+[32m+[m[32m            # The column for the variable subtype is set to contain the uris[m[41m[m
+[32m+[m[32m            variables_df[key] = df_res.uri[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m        # Special case : 'datatype'[m[41m[m
+[32m+[m[32m        elif key == "datatype":[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m            # Subset of the dataframe with the datatypes[m[41m[m
+[32m+[m[32m            sub_df = pd.DataFrame(variables_csv[variables_schema[key]])[m[41m[m
+[32m+[m[41m            [m
+[32m+[m[32m            # Change column labels to opensilex labels[m[41m[m
+[32m+[m[32m            sub_df.rename(columns={variables_schema[key]:key}, inplace=True)[m[41m[m
+[32m+[m[41m            [m
+[32m+[m[32m            # DataFrame for results[m[41m[m
+[32m+[m[32m            df_res = pd.DataFrame(columns=full_schema.keys(), dtype=object)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m            # Set the datatypes line by line[m[41m[m
+[32m+[m[32m            for index, row in sub_df.iterrows():[m[41m[m
+[32m+[m[41m                [m
+[32m+[m[32m                datatype_matches = [[m[41m[m
+[32m+[m[32m                    dt.uri[m[41m[m
+[32m+[m[32m                    for dt in datatypes["result"][m[41m[m
+[32m+[m[32m                    if row[key].lower() in dt.name.lower()[m[41m[m
+[32m+[m[32m                ][m[41m[m
+[32m+[m[41m                [m
+[32m+[m[32m                if any(datatype_matches):[m[41m[m
+[32m+[m[32m                    # If multiple matches, keep first one : should never happen[m[41m[m
+[32m+[m[32m                    df_res.loc[index, key] = datatype_matches[0][m[41m[m
+[32m+[m[32m                else:[m[41m[m
+[32m+[m[32m                    # If no matches, set to False[m[41m[m
+[32m+[m[32m                    df_res.loc[index, key] = False[m[41m[m
+[32m+[m[32m                    logging.info([m[41m[m
+[32m+[m[32m                        """Couldn't find a datatype for : {}\n""".format([m[41m[m
+[32m+[m[32m                            row.loc[key][m[41m[m
+[32m+[m[32m                        )[m[41m[m
+[32m+[m[32m                    )[m[41m[m
+[32m+[m[32m                    failed_df = failed_df.append(row, ignore_index=True)[m[41m[m
+[32m+[m[32m                    df_res.loc[index, key] = False[m[41m[m
+[32m+[m[32m            variables_df[key] = df_res[key][m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m        else:[m[41m[m
+[32m+[m[32m            variables_df[key] = variables_csv[variables_schema[key]][m[41m[m
+[32m+[m[41m    [m
+[32m+[m[32m    # Now that all necessary objects were created the Variables can be created[m[41m[m
+[32m+[m[32m    # TODO Should probably be a separate func[m[41m[m
+[32m+[m[32m    for index, row in variables_df.iterrows():[m[41m[m
+[32m+[m[41m        [m
+[32m+[m[32m        # If at least one object couldn't be created[m[41m[m
+[32m+[m[32m        if (row==False).any():[m[41m[m
+[32m+[m[32m            logging.info([m[41m[m
+[32m+[m[32m                """This variable couldn't be created because one or more objects couldn't be created:[m[41m[m
+[32m+[m[32m{}\n""".format(dict(row))[m[41m[m
+[32m+[m[32m            )[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m            # Save it in the failed and remove it from the successes[m[41m[m
+[32m+[m[32m            failed_df = failed_df.append(row, ignore_index=True)[m[41m[m
+[32m+[m[32m            variables_df.drop(index=index, inplace=True)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m        else:[m[41m[m
+[32m+[m[32m            try:[m[41m[m
+[32m+[m[32m                # Replace nan with None[m[41m[m
+[32m+[m[32m                r = row.where(pd.notnull(row), None)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m                # Create the variable[m[41m[m
+[32m+[m[32m                var_info = create_base_variable([m[41m[m
+[32m+[m[32m                    python_client=python_client,[m[41m[m
+[32m+[m[32m                    row=r,[m[41m[m
+[32m+[m[32m                    index=index,[m[41m[m
+[32m+[m[32m                    variable_subtype='variable'[m[41m[m
+[32m+[m[32m                )[m[41m[m
+[32m+[m[41m                [m
+[32m+[m[32m                if var_info[1] == "failed":[m[41m[m
+[32m+[m[32m                    # Save it in the failed and remove it from the successes[m[41m[m
+[32m+[m[32m                    failed_df = failed_df.append(row, ignore_index=True)[m[41m[m
+[32m+[m[32m                    variables_df.drop(index=index, inplace=True)[m[41m[m
+[32m+[m[41m                [m
+[32m+[m[32m                elif var_info[1] == "already":[m[41m[m
+[32m+[m[32m                    # Save it in the failed and remove it from the successes[m[41m[m
+[32m+[m[32m                    already_df = already_df.append(var_info[0], ignore_index=True)[m[41m[m
+[32m+[m[32m                    variables_df.drop(index=index, inplace=True)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m                else:[m[41m[m
+[32m+[m[32m                    # Update the values after variable creation[m[41m[m
+[32m+[m[32m                    variables_df.loc[index, var_info[0].keys()] = var_info[0][m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m            except Exception as e:[m[41m[m
+[32m+[m[32m                logging.info(dict(r))[m[41m[m
+[32m+[m[32m                logging.error("Exception : %s\n" % e)[m[41m[m
+[32m+[m[41m    [m
+[32m+[m[32m    # Export variables DataFrame to csv[m[41m[m
+[32m+[m[32m    variables_df.to_csv("variables_created.csv", index=False)[m[41m[m
+[32m+[m[41m    [m
+[32m+[m[32m    # Export already existed DataFrame to csv[m[41m[m
+[32m+[m[32m    already_df.to_csv("already_existed.csv", index=False)[m[41m[m
+[32m+[m[41m    [m
+[32m+[m[32m    # Export failed objects DataFrame to csv[m[41m[m
+[32m+[m[32m    failed_df.to_csv("failed.csv", index=False)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    return variables_df[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m# %%[m[41m[m
+[32m+[m[32m# Create variables or objects on opensilex[m[41m[m
+[32m+[m[32m@validate_arguments(config=dict(arbitrary_types_allowed=True))[m[41m[m
+[32m+[m[32mdef create_base_variable([m[41m[m
+[32m+[m[32m    python_client: opensilexClientToolsPython.ApiClient,[m[41m[m
+[32m+[m[32m    row: pd.Series,[m[41m[m
+[32m+[m[32m    index: int,[m[41m[m
+[32m+[m[32m    variable_subtype: str[m[41m[m
+[32m+[m[32m)-> Union[dict, str]:[m[41m[m
+[32m+[m[32m    """Create objects in opensilex[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    Parameters[m[41m[m
+[32m+[m[32m    ----------[m[41m[m
+[32m+[m[32m    python_client: opensilexClientToolsPython.ApiClient[m[41m[m
+[32m+[m[32m        The authenticated client to connect to Opensilex[m[41m[m
+[32m+[m[32m    row: pd.Series[m[41m[m
+[32m+[m[32m        The series containing the data to create the object on opensilex[m[41m[m
+[32m+[m[32m    variable_subtype: str[m[41m[m
+[32m+[m[32m        The subtype of the object to be created (entity, unit, etc...)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    Returns[m[41m[m
+[32m+[m[32m    -------[m[41m[m
+[32m+[m[32m    created_object: Union[dict, bool][m[41m[m
+[32m+[m[32m        Returns a dict corresponding to the object created or found that[m[41m [m
+[32m+[m[32m        already existed on opensilex or False if it failed[m[41m[m
+[32m+[m[32m    """[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    # Dictionnary of DTO functions to use for each object subtype[m[41m[m
+[32m+[m[32m    dtos = {[m[41m[m
+[32m+[m[32m        "entity": opensilexClientToolsPython.EntityCreationDTO,[m[41m[m
+[32m+[m[32m        "characteristic": opensilexClientToolsPython.CharacteristicCreationDTO,[m[41m[m
+[32m+[m[32m        "unit": opensilexClientToolsPython.UnitCreationDTO,[m[41m[m
+[32m+[m[32m        "method": opensilexClientToolsPython.MethodCreationDTO,[m[41m[m
+[32m+[m[32m        "variable": opensilexClientToolsPython.VariableCreationDTO[m[41m[m
+[32m+[m[32m    }[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    # Dictionnary of apis to use for each object subtype[m[41m[m
+[32m+[m[32m    apis = {[m[41m[m
+[32m+[m[32m        "entity": opensilexClientToolsPython.VariablesApi(python_client),[m[41m[m
+[32m+[m[32m        "characteristic": opensilexClientToolsPython.VariablesApi(python_client),[m[41m[m
+[32m+[m[32m        "unit": opensilexClientToolsPython.VariablesApi(python_client),[m[41m[m
+[32m+[m[32m        "method": opensilexClientToolsPython.VariablesApi(python_client),[m[41m[m
+[32m+[m[32m        "variable": opensilexClientToolsPython.VariablesApi(python_client)[m[41m[m
+[32m+[m[32m    }[m[41m[m
+[32m+[m[41m    [m
+[32m+[m[32m    # Dictionnary of creation functions to use for each object subtype[m[41m[m
+[32m+[m[32m    creation_func = {[m[41m[m
+[32m+[m[32m        "entity": apis["entity"].create_entity,[m[41m[m
+[32m+[m[32m        "characteristic": apis["characteristic"].create_characteristic,[m[41m[m
+[32m+[m[32m        "unit": apis["unit"].create_unit,[m[41m[m
+[32m+[m[32m        "method": apis["method"].create_method,[m[41m[m
+[32m+[m[32m        "variable": apis["variable"].create_variable,[m[41m[m
+[32m+[m[32m    }[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    # Dictionnary of search functions to use for each object subtype[m[41m[m
+[32m+[m[32m    search_func = {[m[41m[m
+[32m+[m[32m        "entity": apis["entity"].search_entities,[m[41m[m
+[32m+[m[32m        "characteristic": apis["characteristic"].search_characteristics,[m[41m[m
+[32m+[m[32m        "unit": apis["unit"].search_units,[m[41m[m
+[32m+[m[32m        "method": apis["method"].search_methods,[m[41m[m
+[32m+[m[32m        "variable": apis["variable"].search_variables[m[41m[m
+[32m+[m[32m    }[m[41m[m
+[32m+[m[41m    [m
+[32m+[m[32m    # Dictionnary of get functions to use for each object subtype[m[41m[m
+[32m+[m[32m    get_func = {[m[41m[m
+[32m+[m[32m        "entity": apis["entity"].get_entity,[m[41m[m
+[32m+[m[32m        "characteristic": apis["characteristic"].get_characteristic,[m[41m[m
+[32m+[m[32m        "unit": apis["unit"].get_unit,[m[41m[m
+[32m+[m[32m        "method": apis["method"].get_method,[m[41m[m
+[32m+[m[32m        "variable": apis["variable"].get_variable[m[41m[m
+[32m+[m[32m    }[m[41m[m
+[32m+[m[41m          [m
+[32m+[m[32m    # If no name was given, custom message[m[41m[m
+[32m+[m[32m    if "name" in row.index and row["name"] == None:[m[41m[m
+[32m+[m[41m        [m
+[32m+[m[32m        # If no uri was given, custom message[m[41m[m
+[32m+[m[32m        if ("uri" in row.index and row["uri"] == None) or "uri" not in row.index:[m[41m[m
+[32m+[m[32m            logging.info([m[41m[m
+[32m+[m[32m                """The object {} couldn't be created as no name was given and couldn't be found as no uri was given\n"""\[m[41m[m
+[32m+[m[32m                    .format(dict(row))[m[41m[m
+[32m+[m[32m            )[m[41m[m
+[32m+[m[32m            return(dict(row), "failed")[m[41m [m
+[32m+[m[41m[m
+[32m+[m[32m        # Trying to match uri[m[41m[m
+[32m+[m[32m        try:[m[41m[m
+[32m+[m[32m            old_object = get_func[variable_subtype]([m[41m[m
+[32m+[m[32m                uri = row["uri"][m[41m[m
+[32m+[m[32m            )[m[41m[m
+[32m+[m[32m        except:[m[41m[m
+[32m+[m[32m            # If no name was given and the uri doesn't match any object, custom message[m[41m[m
+[32m+[m[32m            logging.info([m[41m[m
+[32m+[m[32m                """The object {} couldn't be created as no name was given and couldn't be found as no object with that uri exist\n"""\[m[41m[m
+[32m+[m[32m                    .format(dict(row))[m[41m[m
+[32m+[m[32m            )[m[41m[m
+[32m+[m[32m            return(dict(row), "failed")[m[41m[m
+[32m+[m[32m        v = vars(old_object["result"])[m[41m[m
+[32m+[m[32m        return_dict = {[m[41m[m
+[32m+[m[32m            col.replace("_", "", 1): v[col][m[41m[m
+[32m+[m[32m            for col in v[m[41m[m
+[32m+[m[32m            if "_" in col[m[41m[m
+[32m+[m[32m        }[m[41m[m
+[32m+[m[32m        logging.info([m[41m[m
+[32m+[m[32m            """Object {0} at row {1} wasn't created as no name was given and an object with that uri already exists.[m[41m[m
+[32m+[m[32mThat object was skipped and will appear in the "already_existed.csv" file.[m[41m[m
+[32m+[m[32mThe object used instead is {2}\n""".format(dict(row), index, return_dict)[m[41m[m
+[32m+[m[32m        )[m[41m[m
+[32m+[m[32m        # TODO add row to already_existed.csv[m[41m[m
+[32m+[m[32m        return (return_dict, "already")[m[41m[m
+[32m+[m[41m    [m
+[32m+[m[32m    # Check if the object already exists[m[41m[m
+[32m+[m[32m    try:[m[41m[m
+[32m+[m[32m        # Escape regex for exact match[m[41m[m
+[32m+[m[32m        # TODO : ignore case[m[41m[m
+[32m+[m[32m        escaped_name = re.escape(row["name"])[m[41m[m
+[32m+[m[32m        old_object = search_func[variable_subtype]([m[41m[m
+[32m+[m[32m            name="^" + escaped_name + "$"[m[41m[m
+[32m+[m[32m        )[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m        if len(old_object["result"]) != 0:[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m            # Making sure to have a consistent output[m[41m[m
+[32m+[m[32m            old_object = get_func[variable_subtype]([m[41m[m
+[32m+[m[32m                uri = old_object["result"][0].uri[m[41m[m
+[32m+[m[32m            )[m[41m[m
+[32m+[m[32m            v = vars(old_object["result"])[m[41m[m
+[32m+[m[32m            return_dict = {[m[41m[m
+[32m+[m[32m                col.replace("_", "", 1): v[col][m[41m[m
+[32m+[m[32m                for col in v[m[41m[m
+[32m+[m[32m                if "_" in col[m[41m[m
+[32m+[m[32m            }[m[41m[m
+[32m+[m[32m            logging.info([m[41m[m
+[32m+[m[32m                """Object {0} at row {1} wasn't created as an object with that name already exists.[m[41m[m
+[32m+[m[32mThat object was skipped and will appear in the "already_existed.csv" file.[m[41m[m
+[32m+[m[32mThe object used instead is {2}\n""".format(dict(row), index, return_dict)[m[41m[m
+[32m+[m[32m            )[m[41m[m
+[32m+[m[32m            # TODO add row to already_existed.csv[m[41m[m
+[32m+[m[32m            return (return_dict, "already")[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    except Exception as e:[m[41m[m
+[32m+[m[32m        logging.error("""Exception on object {0} :[m[41m[m
+[32m+[m[32m    {1}[m[41m[m
+[32m+[m[41m    [m
+[32m+[m[32m    """.format(dict(row), e))[m[41m[m
+[32m+[m[32m        # TODO add row to failed.csv[m[41m[m
+[32m+[m[32m        return (dict(row), "failed")[m[41m[m
+[32m+[m[41m    [m
+[32m+[m[32m    # Try to use DTO function[m[41m[m
+[32m+[m[32m    try:[m[41m[m
+[32m+[m[32m        new_dto = dtos[variable_subtype](**row)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m        # Try to use creation function[m[41m[m
+[32m+[m[32m        try:[m[41m[m
+[32m+[m[32m            new_object = creation_func[variable_subtype](body=new_dto)[m[41m[m
+[32m+[m[32m            new_object = get_func[variable_subtype]([m[41m[m
+[32m+[m[32m                uri = new_object["result"][0][m[41m[m
+[32m+[m[32m            )[m[41m[m
+[32m+[m[41m            [m
+[32m+[m[32m            # TODO make this a func to extract and normalize result object's attributes[m[41m[m
+[32m+[m[32m            v = vars(new_object["result"])[m[41m[m
+[32m+[m[32m            return_dict = {[m[41m[m
+[32m+[m[32m                col.replace("_", "", 1): v[col][m[41m[m
+[32m+[m[32m                for col in v[m[41m[m
+[32m+[m[32m                if "_" in col[m[41m[m
+[32m+[m[32m            }[m[41m[m
+[32m+[m[32m            logging.info("Object created: {}\n".format(return_dict))[m[41m[m
+[32m+[m[32m            # TODO add row to created.csv[m[41m[m
+[32m+[m[32m            return (return_dict, "created")[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m        except Exception as e:[m[41m[m
+[32m+[m[32m            # Catch 'URI already exists' exception separately[m[41m[m
+[32m+[m[32m            if("URI already exists" in str(e)):[m[41m[m
+[32m+[m[32m                old_object = get_func[variable_subtype]([m[41m[m
+[32m+[m[32m                    uri = row['uri'][m[41m[m
+[32m+[m[32m                )[m[41m[m
+[32m+[m[41m                [m
+[32m+[m[32m                v = vars(old_object["result"])[m[41m[m
+[32m+[m[32m                return_dict = {[m[41m[m
+[32m+[m[32m                    col.replace("_", "", 1): v[col][m[41m[m
+[32m+[m[32m                    for col in v[m[41m[m
+[32m+[m[32m                    if "_" in col[m[41m[m
+[32m+[m[32m                }[m[41m[m
+[32m+[m[32m                logging.info([m[41m[m
+[32m+[m[32m                    """Object {0} at row {1} couldn't be created as this URI already exists.[m[41m[m
+[32m+[m[32mThat object was skipped and will appear in the "skipped.csv" file.[m[41m[m
+[32m+[m[32mThe object with that URI will be used instead : {2}[m[41m[m
+[32m+[m[32mFor the exact error see the following:[m[41m[m
+[32m+[m[32mValueError: {3}\n""".format(dict(row), index, return_dict, e)[m[41m[m
+[32m+[m[32m                )[m[41m[m
+[32m+[m[32m                # TODO add row to already_existed.csv[m[41m[m
+[32m+[m[32m                return (return_dict, "already")[m[41m[m
+[32m+[m[32m            else:[m[41m[m
+[32m+[m[32m                logging.error("""Exception on object{0} :[m[41m[m
+[32m+[m[32m    {1}[m[41m[m
+[32m+[m[41m    [m
+[32m+[m[32m    """.format(dict(row), e))[m[41m[m
+[32m+[m[32m                # TODO add row to failed.csv[m[41m[m
+[32m+[m[32m                return (dict(row), "failed")[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    except Exception as e:[m[41m[m
+[32m+[m[32m        logging.error("""Exception on object{0} :[m[41m[m
+[32m+[m[32m    {1}[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m""".format(dict(row), e))[m[41m[m
+[32m+[m[32m        # TODO add row to failed.csv[m[41m[m
+[32m+[m[32m        return (dict(row), "failed")[m[41m[m
+[32m+[m[41m[m
+[32m+[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m# %%[m[41m[m
+[32m+[m[32mdef create_sensor(python_client,sensor):[m[41m[m
+[32m+[m[32m    device_api = opensilexClientToolsPython.DevicesApi(python_client)[m[41m[m
+[32m+[m[32m    sensorTosend = opensilexClientToolsPython.DeviceCreationDTO([m[41m[m
+[32m+[m[32m        uri=sensor["uri"], name=sensor["name"], rdf_type=sensor["type"],[m[41m[m
+[32m+[m[32m        serial_number=sensor["serial_number"], description=sensor["description"])[m[41m[m
+[32m+[m[32m    try:[m[41m[m
+[32m+[m[32m        result = device_api.create_device(body=sensorTosend)[m[41m[m
+[32m+[m[32m        return result.get("result")[0][m[41m[m
+[32m+[m[32m    except Exception as e:[m[41m[m
+[32m+[m[32m        if "exists" not in str(e):[m[41m[m
+[32m+[m[32m            logging.error("Exception : %s\n" % e)[m[41m[m
+[32m+[m[32m            exit()[m[41m[m
+[32m+[m[32m        else:[m[41m[m
+[32m+[m[32m            logging.info("sensor " + sensor["name"] + " exists")[m[41m[m
+[32m+[m[41m[m
+[32m+[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32mdef create_provenances(python_client,provenances):[m[41m[m
+[32m+[m[32m    data_api = opensilexClientToolsPython.DataApi(python_client)[m[41m[m
+[32m+[m[32m    provenanceUris = [][m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    for provenance in provenances:[m[41m[m
+[32m+[m[32m        prov_agent = [][m[41m[m
+[32m+[m[32m        if "prov_agent" in provenance and provenance["prov_agent"] != None and len(provenance["prov_agent"]) > 0:[m[41m[m
+[32m+[m[32m            for agent in provenance["prov_agent"]:[m[41m[m
+[32m+[m[32m                prov_agent_to_send = opensilexClientToolsPython.AgentModel([m[41m[m
+[32m+[m[32m                    uri=agent["uri"], rdf_type=agent["rdf_type"])[m[41m[m
+[32m+[m[32m                prov_agent.append(prov_agent_to_send)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m        provenanceTOSend = opensilexClientToolsPython.ProvenanceCreationDTO([m[41m[m
+[32m+[m[32m            uri=provenance["uri"], name=provenance["name"], description=provenance["description"], prov_agent=prov_agent[m[41m[m
+[32m+[m[32m        )[m[41m[m
+[32m+[m[32m        try:[m[41m[m
+[32m+[m[32m            result = data_api.create_provenance(body=provenanceTOSend)[m[41m[m
+[32m+[m[32m            provenance["uri"] = result.get("result")[0][m[41m[m
+[32m+[m[32m            provenanceUris.append(provenance)[m[41m[m
+[32m+[m[32m        except Exception as e:[m[41m[m
+[32m+[m[32m            if "exists" not in str(e) and "duplicate"  not in str(e) :[m[41m[m
+[32m+[m[32m                logging.error("Exception : %s\n" % e)[m[41m[m
+[32m+[m[32m                exit()[m[41m[m
+[32m+[m[32m            else:[m[41m[m
+[32m+[m[32m                logging.info("provenance " + provenance["name"] + " exists")[m[41m[m
+[32m+[m[32m    return provenanceUris[m[41m[m
+[32m+[m[41m[m
+[32m+[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32mdef update_objects_from_googlesheet(python_client, spreadsheet_url, gid_number):[m[41m[m
+[32m+[m[32m    variables_url = spreadsheet_url + "/gviz/tq?tqx=out:csv&gid=" + str(gid_number)[m[41m[m
+[32m+[m[32m    r = requests.get(variables_url).content[m[41m[m
+[32m+[m[32m    variables_csv_string = requests.get(variables_url).content[m[41m[m
+[32m+[m[32m    object_csv = pd.read_csv(io.StringIO(variables_csv_string.decode('utf-8')))[m[41m[m
+[32m+[m[32m    return create_update_objects(python_client, object_csv,True)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32mdef update_objects_from_csv(python_client, csv_path):[m[41m[m
+[32m+[m[32m    object_csv = pd.read_csv(csv_path)[m[41m[m
+[32m+[m[32m    return create_update_objects(python_client, object_csv,True)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[41m [m
+[32m+[m[32mdef update_objects(python_client, object_csv ):[m[41m[m
+[32m+[m[32m    return create_update_objects(python_client, object_csv,True)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32mdef create_objects_from_googlesheet(python_client, spreadsheet_url, gid_number):[m[41m[m
+[32m+[m[32m    variables_url = spreadsheet_url + "/gviz/tq?tqx=out:csv&gid=" + str(gid_number)[m[41m[m
+[32m+[m[32m    r = requests.get(variables_url).content[m[41m[m
+[32m+[m[32m    variables_csv_string = requests.get(variables_url).content[m[41m[m
+[32m+[m[32m    object_csv = pd.read_csv(io.StringIO(variables_csv_string.decode('utf-8')))[m[41m[m
+[32m+[m[32m    return create_update_objects(python_client, object_csv,False)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32mdef create_objects_from_csv(python_client, csv_path):[m[41m[m
+[32m+[m[32m    object_csv = pd.read_csv(csv_path)[m[41m[m
+[32m+[m[32m    return create_update_objects(python_client, object_csv,False)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[41m [m
+[32m+[m[32mdef create_update_objects(python_client,object_csv,update):[m[41m[m
+[32m+[m[32m    os_api = opensilexClientToolsPython.ScientificObjectsApi(python_client)[m[41m[m
+[32m+[m[41m [m
+[32m+[m[32m    logging.info(str(len(object_csv)) + " objects")[m[41m[m
+[32m+[m[32m    for index, row in object_csv.iterrows():[m[41m[m
+[32m+[m[32m        new_os = opensilexClientToolsPython.ScientificObjectCreationDTO([m[41m[m
+[32m+[m[32m            uri=row.uri,[m[41m[m
+[32m+[m[32m            rdf_type=row.type,[m[41m[m
+[32m+[m[32m            name=row["name"],[m[41m[m
+[32m+[m[32m            experiment=row.experimentUri[m[41m[m
+[32m+[m[32m        )[m[41m[m
+[32m+[m[32m        try:[m[41m[m
+[32m+[m[32m            logging.info(str(index + 1) + "/" + str(len(object_csv)))[m[41m[m
+[32m+[m[32m            if update is None or update is False:[m[41m[m
+[32m+[m[32m                os_api.create_scientific_object(body=new_os)[m[41m[m
+[32m+[m[32m            else:[m[41m[m
+[32m+[m[32m                os_api.update_scientific_object(body=new_os)[m[41m[m
+[32m+[m[32m        except Exception as e:[m[41m[m
+[32m+[m[32m            if "exists" not in str(e) and "duplicate"  not in str(e) :[m[41m[m
+[32m+[m[32m                logging.error("Exception : %s\n" % e)[m[41m[m
+[32m+[m[32m                exit()[m[41m[m
+[32m+[m[32m            else:[m[41m [m
+[32m+[m[32m                logging.info("scientific object " + str(row["name"]) + " exists")[m[41m [m
+[32m+[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32mdef transformDate(date):[m[41m[m
+[32m+[m[32m    try:[m[41m[m
+[32m+[m[32m        date = parse(date)[m[41m[m
+[32m+[m[32m    except Exception as e:[m[41m[m
+[32m+[m[32m        logging.error("Exception : %s\n" % e)[m[41m[m
+[32m+[m[32m    return date.astimezone().isoformat()[m[41m[m
+[32m+[m[41m[m
+[32m+[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32mdef add_data_from_googlesheet(python_client, spreadsheet_url, gid_number):[m[41m[m
+[32m+[m[32m    variables_url = spreadsheet_url + "/gviz/tq?tqx=out:csv&gid=" + str(gid_number)[m[41m[m
+[32m+[m[32m    logging.debug("variables url : " + variables_url)[m[41m[m
+[32m+[m[32m    r = requests.get(variables_url).content[m[41m[m
+[32m+[m[32m    variables_csv_string = requests.get(variables_url).content[m[41m[m
+[32m+[m[32m    data_csv = pd.read_csv(io.StringIO(variables_csv_string.decode('utf-8')))[m[41m[m
+[32m+[m[32m    return add_data_from(python_client, data_csv)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32mdef add_data_from_csv(python_client, csv_path):[m[41m[m
+[32m+[m[32m    data_csv = pd.read_csv(csv_path)[m[41m[m
+[32m+[m[32m    return add_data_from(python_client, data_csv)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32mdef add_data_from(python_client,data_csv):[m[41m[m
+[32m+[m[32m    data_api = opensilexClientToolsPython.DataApi(python_client)[m[41m [m
+[32m+[m[32m    data_list = [][m[41m[m
+[32m+[m[32m    for index, row in data_csv.iterrows():[m[41m[m
+[32m+[m[32m        provenanceData = opensilexClientToolsPython.DataProvenanceModel([m[41m[m
+[32m+[m[32m            uri=row["provenanceURI"], experiments=[row["experimentURI"]],)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m        new_data = opensilexClientToolsPython.DataCreationDTO([m[41m[m
+[32m+[m[32m            _date=transformDate(row["date"]),[m[41m[m
+[32m+[m[32m            scientific_objects=[[m[41m[m
+[32m+[m[32m                row["objectURI"]],[m[41m[m
+[32m+[m[32m            variable=row["variable_uri"],[m[41m[m
+[32m+[m[32m            value=row["value"],[m[41m[m
+[32m+[m[32m            provenance=provenanceData[m[41m[m
+[32m+[m[32m        )[m[41m[m
+[32m+[m[32m        data_list.append(new_data)[m[41m[m
+[32m+[m[32m    logging.info("sending " + str(len(data_list)) + "observations")[m[41m[m
+[32m+[m[32m    try:[m[41m[m
+[32m+[m[32m        data_api.add_list_data(body=data_list)[m[41m[m
+[32m+[m[32m    except Exception as e:[m[41m[m
+[32m+[m[32m        logging.error("Exception : %s\n" % e)[m[41m[m
+[32m+[m[32m        if "DUPLICATE" in str(e):[m[41m[m
+[32m+[m[32m            logging.error("Duplicate data")[m[41m[m
+[32m+[m[32m        exit()[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m# %%[m[41m[m
+[32m+[m[32m# Fetch variables[m[41m[m
+[32m+[m[32m@validate_arguments(config=dict(arbitrary_types_allowed=True))[m[41m[m
+[32m+[m[32mdef get_variables([m[41m[m
+[32m+[m[32m    python_client: opensilexClientToolsPython.ApiClient,[m[41m [m
+[32m+[m[32m    csv_path: str = "variables_export.csv",[m[41m[m
+[32m+[m[32m    uri_match = None,[m[41m[m
+[32m+[m[32m    name_match = None,[m[41m[m
+[32m+[m[32m    variables_schema: dict = {[m[41m[m
+[32m+[m[32m        'trait':'trait.uri',[m[41m[m
+[32m+[m[32m        'trait_name':'trait.label',[m[41m[m
+[32m+[m[32m        'entity':{[m[41m[m
+[32m+[m[32m            'name':'entity.label',[m[41m[m
+[32m+[m[32m            'uri':'entity.uri',[m[41m[m
+[32m+[m[32m            'description':'entity.comment'[m[41m[m
+[32m+[m[32m        },[m[41m[m
+[32m+[m[32m        'characteristic':{[m[41m[m
+[32m+[m[32m            'name':'characteristic.label',[m[41m[m
+[32m+[m[32m            'uri':'characteristic.uri',[m[41m[m
+[32m+[m[32m            'description':'characteristic.comment'[m[41m[m
+[32m+[m[32m        },[m[41m[m
+[32m+[m[32m        'method':{[m[41m[m
+[32m+[m[32m            'name':'method.label',[m[41m[m
+[32m+[m[32m            'uri':'method.uri',[m[41m[m
+[32m+[m[32m            'description':'method.comment'[m[41m[m
+[32m+[m[32m        },[m[41m[m
+[32m+[m[32m        'unit':{[m[41m[m
+[32m+[m[32m            'name':'unit.label',[m[41m[m
+[32m+[m[32m            'uri':'unit.uri',[m[41m[m
+[32m+[m[32m            'description':'unit.comment',[m[41m[m
+[32m+[m[32m        },[m[41m[m
+[32m+[m[32m        'uri':'variable.uri',[m[41m[m
+[32m+[m[32m        'name':'variable.label',[m[41m[m
+[32m+[m[32m        'description':'variable.description',[m[41m[m
+[32m+[m[32m        'datatype':'variable.datatype',[m[41m[m
+[32m+[m[32m        'alternative_name':'variable.alternative_name',[m[41m[m
+[32m+[m[32m        'time_interval':'variable.timeinterval',[m[41m[m
+[32m+[m[32m        'sampling_interval':'variable.sampleinterval'[m[41m[m
+[32m+[m[32m    }[m[41m [m
+[32m+[m[32m) -> None:[m[41m[m
+[32m+[m[32m    """TODO UPDDATE DOCSTRING[m[41m[m
+[32m+[m[32m    Create variables from a pandas.DataFrame[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m        Parameters[m[41m[m
+[32m+[m[32m        ----------[m[41m[m
+[32m+[m[32m        python_client: opensilexClientToolsPython.ApiClient[m[41m[m
+[32m+[m[32m            The authenticated client to connect to Opensilex[m[41m[m
+[32m+[m[32m        variables_csv: pd.DataFrame[m[41m[m
+[32m+[m[32m            A pandas DataFrame containing the data needed to create the variables[m[41m[m
+[32m+[m[32m        variables_schema: dict[m[41m[m
+[32m+[m[32m            Dictionnary that describes the header of the in correspondance[m[41m[m
+[32m+[m[32m            with the names in opensilex.[m[41m[m
+[32m+[m[32m            Format is 'opensilexname':'columnname'[m[41m[m
+[32m+[m[32m            or 'opensilexsubtype':{'opensilexname':'columnname'}[m[41m[m
+[32m+[m[32m            Example : {[m[41m[m
+[32m+[m[32m                'trait':'trait.uri',[m[41m[m
+[32m+[m[32m                'trait_name':'trait.label',[m[41m[m
+[32m+[m[32m                'entity':{[m[41m[m
+[32m+[m[32m                    'name':'entity.label',[m[41m[m
+[32m+[m[32m                    'uri':'entity.uri',[m[41m[m
+[32m+[m[32m                    'description':'entity.comment'[m[41m[m
+[32m+[m[32m                },[m[41m[m
+[32m+[m[32m                'characteristic':{[m[41m[m
+[32m+[m[32m                    'name':'characteristic.label',[m[41m[m
+[32m+[m[32m                    'uri':'characteristic.uri',[m[41m[m
+[32m+[m[32m                    'description':'characteristic.comment'[m[41m[m
+[32m+[m[32m                },[m[41m[m
+[32m+[m[32m                'method':{[m[41m[m
+[32m+[m[32m                    'name':'method.label',[m[41m[m
+[32m+[m[32m                    'uri':'method.uri',[m[41m[m
+[32m+[m[32m                    'description':'method.comment'[m[41m[m
+[32m+[m[32m                },[m[41m[m
+[32m+[m[32m                'unit':{[m[41m[m
+[32m+[m[32m                    'name':'unit.label',[m[41m[m
+[32m+[m[32m                    'uri':'unit.uri',[m[41m[m
+[32m+[m[32m                    'description':'unit.comment'[m[41m[m
+[32m+[m[32m                },[m[41m[m
+[32m+[m[32m                'uri':'variable.uri',[m[41m[m
+[32m+[m[32m                'name':'variable.label',[m[41m[m
+[32m+[m[32m                'description':'variable.description',[m[41m[m
+[32m+[m[32m                'datatype':'variable.datatype',[m[41m[m
+[32m+[m[32m                'alternative_name':'variable.alternative_name',[m[41m[m
+[32m+[m[32m                'time_interval':'variable.timeinterval',[m[41m[m
+[32m+[m[32m                'sampling_interval':'variable.sampleinterval'[m[41m[m
+[32m+[m[32m            }[m[41m[m
+[32m+[m[32m        update: bool = False[m[41m[m
+[32m+[m[32m            TODO (wether or not to update?)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m        Returns[m[41m[m
+[32m+[m[32m        -------[m[41m[m
+[32m+[m[32m        None[m[41m[m
+[32m+[m[32m        """[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    # Dictionnary of get functions to use for each object subtype[m[41m[m
+[32m+[m[32m    var_api = opensilexClientToolsPython.VariablesApi(python_client)[m[41m[m
+[32m+[m[32m    get_func = {[m[41m[m
+[32m+[m[32m        "entity": var_api.get_entity,[m[41m[m
+[32m+[m[32m        "characteristic": var_api.get_characteristic,[m[41m[m
+[32m+[m[32m        "unit": var_api.get_unit,[m[41m[m
+[32m+[m[32m        "method": var_api.get_method,[m[41m[m
+[32m+[m[32m    }[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    # Flattened full schema[m[41m[m
+[32m+[m[32m    cols = [][m[41m[m
+[32m+[m[32m    for val in variables_schema.values():[m[41m[m
+[32m+[m[32m        if type(val)==str:[m[41m[m
+[32m+[m[32m            cols.append(val)[m[41m[m
+[32m+[m[32m        else:[m[41m[m
+[32m+[m[32m            cols = cols + list(val.values())[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    # Pandas DataFrame for the results[m[41m[m
+[32m+[m[32m    df_res = pd.DataFrame(columns=cols)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    # TODO Better way to do this?[m[41m[m
+[32m+[m[32m    # Get number of results[m[41m[m
+[32m+[m[32m    res_vars = var_api.search_variables_details()[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    # Get all results[m[41m[m
+[32m+[m[32m    res_vars = var_api.search_variables_details([m[41m[m
+[32m+[m[32m        page_size=res_vars["metadata"]["pagination"]["totalCount"][m[41m[m
+[32m+[m[32m    )[m[41m[m
+[32m+[m[41m    [m
+[32m+[m[32m    # Populate DataFrame with results[m[41m[m
+[32m+[m[32m    for res in res_vars["result"]:[m[41m[m
+[32m+[m[41m        [m
+[32m+[m[32m        if([m[41m[m
+[32m+[m[32m            (uri_match and uri_match in res.uri)[m[41m[m
+[32m+[m[32m            or (name_match and name_match in res.name)[m[41m[m
+[32m+[m[32m            or (not uri_match and not name_match)[m[41m[m
+[32m+[m[32m        ):[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m            # Extract the attributes of the resultDTO object[m[41m[m
+[32m+[m[32m            v = vars(res)[m[41m[m
+[32m+[m[32m            var_dict = {[m[41m[m
+[32m+[m[32m                col.replace("_", "", 1): v[col][m[41m[m
+[32m+[m[32m                for col in v[m[41m[m
+[32m+[m[32m                if "_" in col[m[41m[m
+[32m+[m[32m            }[m[41m[m
+[32m+[m[41m            [m
+[32m+[m[32m            # Dictionary to extract the data from one result[m[41m[m
+[32m+[m[32m            res_dict = {}[m[41m[m
+[32m+[m[41m            [m
+[32m+[m[32m            for key in variables_schema.keys():[m[41m[m
+[32m+[m[32m                if type(variables_schema[key]) == str:[m[41m[m
+[32m+[m[32m                    res_dict[variables_schema[key]] = var_dict[key][m[41m[m
+[32m+[m[41m                [m
+[32m+[m[32m                else:[m[41m[m
+[32m+[m[41m                    [m
+[32m+[m[32m                    # Isolate sub values[m[41m[m
+[32m+[m[32m                    sub_schema = variables_schema[key][m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m                    # In case Method/Unit/Characteristic/Entity is None[m[41m[m
+[32m+[m[32m                    # (Shouldn't be possible but still happens)[m[41m[m
+[32m+[m[32m                    if var_dict[key] != None:[m[41m[m
+[32m+[m[32m                        sub_res = get_func[key](uri=var_dict[key].uri)[m[41m[m
+[32m+[m[41m                        [m
+[32m+[m[32m                        # Extract the attributes of the resultDTO object[m[41m[m
+[32m+[m[32m                        sub_v = vars(sub_res["result"])[m[41m[m
+[32m+[m[32m                        sub_dict = {[m[41m[m
+[32m+[m[32m                            col.replace("_", "", 1): sub_v[col][m[41m[m
+[32m+[m[32m                            for col in sub_v[m[41m[m
+[32m+[m[32m                            if "_" in col[m[41m[m
+[32m+[m[32m                        }[m[41m[m
+[32m+[m[32m                        for key_2 in sub_schema.keys():[m[41m[m
+[32m+[m[32m                            res_dict[sub_schema[key_2]] = sub_dict[key_2][m[41m[m
+[32m+[m[41m                    [m
+[32m+[m[32m                    else:[m[41m[m
+[32m+[m[32m                        for key_2 in sub_schema.keys():[m[41m[m
+[32m+[m[32m                            res_dict[sub_schema[key_2]] = None[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m            df_res = df_res.append(res_dict, ignore_index=True)[m[41m[m
+[32m+[m[41m    [m
+[32m+[m[32m    # Saving the result as a csv[m[41m[m
+[32m+[m[32m    df_res.to_csv(csv_path, index=False)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    return df_res[m[41m[m
+[32m+[m[41m[m
+[32m+[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m# %%[m[41m[m
+[32m+[m[32m# Post users[m[41m[m
+[32m+[m[32m@validate_arguments(config=dict(arbitrary_types_allowed=True))[m[41m[m
+[32m+[m[32mdef create_users_from_google_sheet([m[41m[m
+[32m+[m[32m    python_client: opensilexClientToolsPython.ApiClient,[m[41m [m
+[32m+[m[32m    sheet_id: str = "1hcWI9BoMlJLMi0RGfl1C2pDdnxEVDaUvbCY14VxUZ4g",[m[41m[m
+[32m+[m[32m    sheet_name: str = "DiaPhen_users",[m[41m[m
+[32m+[m[32m    maping: dict = {[m[41m[m
+[32m+[m[32m        "uri": "orcid",[m[41m[m
+[32m+[m[32m        "first_name": "first_name",[m[41m[m
+[32m+[m[32m        "last_name": "family_name",[m[41m[m
+[32m+[m[32m        "email": "email",[m[41m[m
+[32m+[m[32m        "admin": "isadmin"[m[41m[m
+[32m+[m[32m    }) -> None:[m[41m[m
+[32m+[m[32m    """[m[41m[m
+[32m+[m[32m    """[m[41m[m
+[32m+[m[41m    [m
+[32m+[m[32m    # Fetching data from google sheet[m[41m[m
+[32m+[m[32m    url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"[m[41m[m
+[32m+[m[32m    users_df = pd.read_csv(url)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    # Maping columns[m[41m[m
+[32m+[m[32m    users_mod = pd.DataFrame(columns=[[m[41m[m
+[32m+[m[32m        "uri", "first_name", "last_name", "email", "language", "password", "admin"[m[41m[m
+[32m+[m[32m    ])[m[41m[m
+[32m+[m[32m    for col in maping.keys():[m[41m[m
+[32m+[m[32m        users_mod[col] = users_df[maping[col]][m[41m[m
+[32m+[m[41m    [m
+[32m+[m[32m    # List of attributes that have no default[m[41m[m
+[32m+[m[32m    no_default = ["first_name", "last_name", "email"][m[41m[m
+[32m+[m[41m[m
+[32m+[m[41m    [m
+[32m+[m[32m    # Setting missing values to none or default[m[41m[m
+[32m+[m[32m    users_mod["uri"] = users_mod["uri"].apply(lambda x: x if pd.notnull(x)  else None)[m[41m[m
+[32m+[m[32m    users_mod["language"] = users_mod["language"].apply(lambda x: x if pd.notnull(x)  else "fr")[m[41m[m
+[32m+[m[32m    users_mod["password"] = users_mod.apply([m[41m[m
+[32m+[m[32m        (lambda row: row["password"] if pd.notnull(row["password"])[m[41m[m
+[32m+[m[32m         else users_mod.loc[row.name,"first_name"].lower()),[m[41m[m
+[32m+[m[32m        axis=1[m[41m[m
+[32m+[m[32m    )[m[41m[m
+[32m+[m[32m    users_mod["admin"] = users_mod["admin"].apply(lambda x: False if not x==True else x)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    # Api client to create users[m[41m[m
+[32m+[m[32m    sec_api = opensilexClientToolsPython.SecurityApi(python_client)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    # Creating the users[m[41m[m
+[32m+[m[32m    for index,row in users_mod.iterrows():[m[41m[m
+[32m+[m[32m        no_missing = True[m[41m[m
+[32m+[m[32m        for col in no_default:[m[41m[m
+[32m+[m[32m            if (not col in users_mod.columns or not pd.notnull(row[col])):[m[41m[m
+[32m+[m[32m                logging.error([m[41m[m
+[32m+[m[32m                    "Exception : On row {} value for '{}' is missing"\[m[41m[m
+[32m+[m[32m                        .format(index, col)[m[41m[m
+[32m+[m[32m                )[m[41m[m
+[32m+[m[32m                no_missing = False[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m        if no_missing:[m[41m[m
+[32m+[m[32m            new_user = opensilexClientToolsPython.UserCreationDTO(**row)[m[41m[m
+[32m+[m[41m            [m
+[32m+[m[32m            try :[m[41m[m
+[32m+[m[32m                sec_api.create_user(body=new_user)[m[41m[m
+[32m+[m[32m            except Exception as e:[m[41m[m
+[32m+[m[32m                logging.error([m[41m[m
+[32m+[m[32m                    "Exception : {}"\[m[41m[m
+[32m+[m[32m                        .format(e)[m[41m[m
+[32m+[m[32m                )[m[41m[m
+[32m+[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m# %%[m[41m[m
+[32m+[m[32mdef recup_infos_os(uri_experience, identifiant, password, host):[m[41m [m
+[32m+[m[32m    """[m[41m[m
+[32m+[m[32m    Fonction pour récupérer les infos sur les objets scientifiques existants dans l'xp.[m[41m[m
+[32m+[m[32m    """[m[41m[m
+[32m+[m[32m    # authentification[m[41m[m
+[32m+[m[32m    pythonClient = opensilexClientToolsPython.ApiClient()[m[41m[m
+[32m+[m[32m    pythonClient.connect_to_opensilex_ws(identifier=identifiant,password=password,host=host)[m[41m[m
+[32m+[m[41m    [m
+[32m+[m[32m    api_instance = opensilexClientToolsPython.ScientificObjectsApi(pythonClient)[m[41m[m
+[32m+[m[32m    try:[m[41m[m
+[32m+[m[32m        api_response = api_instance.search_scientific_objects(uri_experience, page_size=0,)[m[41m[m
+[32m+[m[32m    except opensilexClientToolsPython.rest.ApiException as e:[m[41m[m
+[32m+[m[32m        print("Exception when calling ScientificObjectsApi->get_scientific_object_detail_by_experiments: %s\n" % e)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    objetsscient = api_response["result"][m[41m[m
+[32m+[m[32m    os_par_type = {}[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    for obj in objetsscient:[m[41m[m
+[32m+[m[32m        type_os = obj.rdf_type_name[m[41m[m
+[32m+[m[32m        if type_os not in os_par_type:[m[41m[m
+[32m+[m[32m            os_par_type[type_os] = {[m[41m[m
+[32m+[m[32m                "noms" : [],[m[41m[m
+[32m+[m[32m                "uris"  : [][m[41m[m
+[32m+[m[32m            }[m[41m[m
+[32m+[m[32m        os_par_type[type_os]["noms"].append(obj.name)[m[41m[m
+[32m+[m[32m        os_par_type[type_os]["uris"].append(obj.uri)[m[41m [m
+[32m+[m[32m    return os_par_type[m[41m[m
+[32m+[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32mdef os_extraction_data(uri_expe, identifiant, mdp, host):[m[41m[m
+[32m+[m[32m    """[m[41m[m
+[32m+[m[32m    Extracts data from an OpenSilex experiment and returns a DataFrame.[m[41m[m
+[32m+[m[32m    """[m[41m[m
+[32m+[m[32m    # Authentication[m[41m[m
+[32m+[m[32m    pythonClient = opensilexClientToolsPython.ApiClient()[m[41m[m
+[32m+[m[32m    pythonClient.connect_to_opensilex_ws(identifier=identifiant, password=mdp, host=host)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    # Retrieve information related to scientific objects[m[41m[m
+[32m+[m[32m    os_par_type = recup_infos_os(uri_expe, identifiant, mdp, host)[m[41m[m
+[32m+[m[32m    os_data_frames = {}[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    for type_os, infos in os_par_type.items():[m[41m[m
+[32m+[m[32m        pythonClient = opensilexClientToolsPython.ApiClient()[m[41m[m
+[32m+[m[32m        pythonClient.connect_to_opensilex_ws(identifier=identifiant, password=mdp, host=host)[m[41m[m
+[32m+[m[32m        var_api_instance = opensilexClientToolsPython.VariablesApi(pythonClient)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m        set_alt_names = {}[m[41m[m
+[32m+[m[32m        set_of_names = {}[m[41m[m
+[32m+[m[32m        noms = infos["noms"][m[41m[m
+[32m+[m[32m        uris = infos["uris"][m[41m[m
+[32m+[m[32m        dico_uri_nom = dict(zip(uris, noms))[m[41m[m
+[32m+[m[32m        os_uri_df = [][m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m        for uri in uris:[m[41m[m
+[32m+[m[32m            try:[m[41m[m
+[32m+[m[32m                api_instance = opensilexClientToolsPython.DataApi(pythonClient)[m[41m[m
+[32m+[m[32m                api_response_count_data = api_instance.count_data(experiments=[uri_expe], count_limit=0, targets=[uri])[m[41m[m
+[32m+[m[32m            except opensilexClientToolsPython.rest.ApiException as e:[m[41m[m
+[32m+[m[32m                print(f"Exception when calling DataApi->count_datafiles: {e}\n")[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m            try:[m[41m[m
+[32m+[m[32m                api_response = api_instance.get_data_list_by_targets([m[41m[m
+[32m+[m[32m                    experiments=[uri_expe],[m[41m[m
+[32m+[m[32m                    targets=[uri],[m[41m[m
+[32m+[m[32m                    page_size=api_response_count_data["result"][m[41m[m
+[32m+[m[32m                )[m[41m[m
+[32m+[m[32m                results = api_response["result"][m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m                for r in results:[m[41m[m
+[32m+[m[32m                    var_uri = r.variable[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m                    if var_uri in set_alt_names:[m[41m[m
+[32m+[m[32m                        alternative_name = set_alt_names[var_uri][m[41m[m
+[32m+[m[32m                        nom_variable = set_of_names[var_uri][m[41m[m
+[32m+[m[32m                    else:[m[41m[m
+[32m+[m[32m                        try:[m[41m[m
+[32m+[m[32m                            var_api_response = var_api_instance.get_variable(var_uri)[m[41m[m
+[32m+[m[32m                            alternative_name = var_api_response["result"].alternative_name or "Non defini"[m[41m[m
+[32m+[m[32m                            nom_variable = var_api_response["result"].name[m[41m[m
+[32m+[m[32m                        except:[m[41m[m
+[32m+[m[32m                            alternative_name = "Non defini"[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m                        set_alt_names[var_uri] = alternative_name[m[41m[m
+[32m+[m[32m                        set_of_names[var_uri] = nom_variable[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m                    ligne = {[m[41m[m
+[32m+[m[32m                        "code_os": dico_uri_nom.get(uri, uri),[m[41m[m
+[32m+[m[32m                        "variable": nom_variable,[m[41m[m
+[32m+[m[32m                        "date": r._date,[m[41m[m
+[32m+[m[32m                        "value": r.value,[m[41m[m
+[32m+[m[32m                        "nom_Alt": alternative_name[m[41m[m
+[32m+[m[32m                    }[m[41m[m
+[32m+[m[32m                    os_uri_df.append(ligne)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m            except opensilexClientToolsPython.rest.ApiException as e:[m[41m[m
+[32m+[m[32m                print(f"Exception when calling DataApi->get_data_list_by_targets: {e}\n")[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m        os_data_frames[type_os] = pd.DataFrame(os_uri_df)[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m    return os_data_frames[m[41m[m
