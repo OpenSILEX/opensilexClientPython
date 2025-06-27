@@ -15,7 +15,7 @@ from pprint import pprint
 host = "https://localhost/rest"
 identifiant = "guest@opensilex.org"
 mdp = "guest"
-uri_expe = "http://example.com/"
+uri_expe = "http://uri.com/"
 
 # Create an instance of the API class
 pythonClient = opensilexClientToolsPython.ApiClient()

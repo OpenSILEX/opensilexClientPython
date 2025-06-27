@@ -1489,3 +1489,4 @@ def os_extraction_data(uri_expe, identifiant, mdp, host):
         os_data_frames[type_os] = pd.DataFrame(os_uri_df)
 
     return os_data_frames
+# %% 

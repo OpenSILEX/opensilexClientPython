@@ -172,8 +172,6 @@ class VariableImporter:
         self.available_groups = {
             "Variables Environnementales M3P": "opensilex-sandbox:id/variablesGroup/variables_environnementales_m3p",
             "Variables Phénotypiques M3P": "opensilex-sandbox:id/variablesGroup/variables_phnotypiques_m3p",
-            "Variables 4P": "opensilex-sandbox:id/variablesGroup/variables_4p",
-            "Variables SweetPotato": "opensilex-sandbox:id/variablesGroup/variables_sweetpotato"
         }
         
         # Groupe par défaut (il faut indiquer le groupe concerné)
