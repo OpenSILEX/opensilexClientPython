@@ -1,5 +1,7 @@
-__pycache__/*
-examples/data_import/small_test.ipynb
-
+__pycache__
+examples/data_import/small_test.ipynb 
 # Ignore default opensilex config
 opensilex_configs/default_config.yaml
+opensilexClientToolsPython.egg-info
+build
+dist
