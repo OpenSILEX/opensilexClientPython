@@ -48,7 +48,7 @@ client = OpenSilexDirectAPI(
 - Group2
  
 
-## Groupes disponibles (ça depend de l'instance)
+## Groupes disponibles (ça depend de l'instance) Exemple :
 - Variables Environnementales M3P
 - Variables Phénotypiques M3P
 - Variables 4P

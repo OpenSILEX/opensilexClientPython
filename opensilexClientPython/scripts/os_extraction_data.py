@@ -1,10 +1,4 @@
-from __future__ import print_function
-import sys
-import os
-
-#chemin vers le package parent
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-
+from __future__ import print_function  
 import opensilexClientToolsPython
 from opensilexClientPython.os_extraction_data import os_extraction_data
 from opensilexClientToolsPython.rest import ApiException

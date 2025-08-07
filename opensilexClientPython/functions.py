@@ -1418,6 +1418,35 @@ def recup_infos_os(uri_experience, identifiant, password, host):
     return os_par_type
 
 
+def recup_infos_os(uri_experience, identifiant, password, host): 
+    """
+    Function to retrieve information about scientific objects existing in the experiment.
+    """
+    # Authentication
+    pythonClient = opensilexClientToolsPython.ApiClient()
+    pythonClient.connect_to_opensilex_ws(identifier=identifiant,password=password,host=host)
+    
+    api_instance = opensilexClientToolsPython.ScientificObjectsApi(pythonClient)
+    try:
+        api_response = api_instance.search_scientific_objects(uri_experience, page_size=0,)
+    except opensilexClientToolsPython.rest.ApiException as e:
+        print("Exception when calling ScientificObjectsApi->get_scientific_object_detail_by_experiments: %s\n" % e)
+
+    objetsscient = api_response["result"]
+    os_par_type = {}
+
+    for obj in objetsscient:
+        type_os = obj.rdf_type_name
+        if type_os not in os_par_type:
+            os_par_type[type_os] = {
+                "noms" : [],
+                "uris"  : []
+            }
+        os_par_type[type_os]["noms"].append(obj.name)
+        os_par_type[type_os]["uris"].append(obj.uri) 
+    return os_par_type
+
+
 def os_extraction_data(uri_expe, identifiant, mdp, host):
     """
     Extracts data from an OpenSilex experiment and returns a DataFrame.
@@ -1425,68 +1454,71 @@ def os_extraction_data(uri_expe, identifiant, mdp, host):
     # Authentication
     pythonClient = opensilexClientToolsPython.ApiClient()
     pythonClient.connect_to_opensilex_ws(identifier=identifiant, password=mdp, host=host)
-
+    
     # Retrieve information related to scientific objects
     os_par_type = recup_infos_os(uri_expe, identifiant, mdp, host)
     os_data_frames = {}
-
+    
     for type_os, infos in os_par_type.items():
         pythonClient = opensilexClientToolsPython.ApiClient()
         pythonClient.connect_to_opensilex_ws(identifier=identifiant, password=mdp, host=host)
         var_api_instance = opensilexClientToolsPython.VariablesApi(pythonClient)
-
+        
         set_alt_names = {}
         set_of_names = {}
         noms = infos["noms"]
         uris = infos["uris"]
         dico_uri_nom = dict(zip(uris, noms))
         os_uri_df = []
-
+        
         for uri in uris:
             try:
                 api_instance = opensilexClientToolsPython.DataApi(pythonClient)
                 api_response_count_data = api_instance.count_data(experiments=[uri_expe], count_limit=0, targets=[uri])
             except opensilexClientToolsPython.rest.ApiException as e:
                 print(f"Exception when calling DataApi->count_datafiles: {e}\n")
-
+                continue 
+            
             try:
                 api_response = api_instance.get_data_list_by_targets(
                     experiments=[uri_expe],
                     targets=[uri],
                     page_size=api_response_count_data["result"]
                 )
-                results = api_response["result"]
-
-                for r in results:
-                    var_uri = r.variable
-
+                data = api_response["result"]  
+                
+                for datum in data:  
+                    var_uri = datum.variable 
+                    
                     if var_uri in set_alt_names:
                         alternative_name = set_alt_names[var_uri]
                         nom_variable = set_of_names[var_uri]
                     else:
                         try:
                             var_api_response = var_api_instance.get_variable(var_uri)
-                            alternative_name = var_api_response["result"].alternative_name or "Non defini"
+                            alternative_name = var_api_response["result"].alternative_name or "Not defined"
                             nom_variable = var_api_response["result"].name
                         except:
-                            alternative_name = "Non defini"
-
+                            alternative_name = "Not defined"
+                            nom_variable = "Not defined" 
+                        
                         set_alt_names[var_uri] = alternative_name
                         set_of_names[var_uri] = nom_variable
-
+                    
                     ligne = {
                         "code_os": dico_uri_nom.get(uri, uri),
                         "variable": nom_variable,
-                        "date": r._date,
-                        "value": r.value,
+                        "date": datum._date,      
+                        "value": datum.value,    
                         "nom_Alt": alternative_name
                     }
                     os_uri_df.append(ligne)
-
+            
             except opensilexClientToolsPython.rest.ApiException as e:
                 print(f"Exception when calling DataApi->get_data_list_by_targets: {e}\n")
-
+                continue  
+        
         os_data_frames[type_os] = pd.DataFrame(os_uri_df)
-
+    
     return os_data_frames
-# %% 
+# %%
