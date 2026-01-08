@@ -1,0 +1,93 @@
+[project]
+name = "opensilexClientPython"
+version = "0.1.0"
+description = ""
+authors = [
+    { name = "JEMAA Nouha", email = "nouha.jemaa@inrae.fr" },
+]
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["opensilexclienttoolspython @ git+https://github.com/OpenSILEX/opensilexClientToolsPython.git@1.4.9", "pandas (>=2.3.3,<3.0.0)", "pyyaml (>=6.0.3,<7.0.0)", "opensilex-py-client @ git+ssh://git@forge.inrae.fr/OpenSILEX/data-analysis-visualisation/opensilex-clients/opensilex-ws-python-client.git@new_client_package", "rich (>=14.2.0,<15.0.0)"]
+
+[build-system]
+requires = [
+    "poetry-core>=2.0.0,<3.0.0",
+]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+packages = [
+    { include = "opensilexClientPython", from = "src" },
+]
+
+[tool.poetry.group.dev.dependencies]
+pdoc = "*"
+tomli = "*"
+jupyter = "*"
+notebook = "*"
+nbconvert = "*"
+ipykernel = "*"
+matplotlib = "*"
+pandas = "*" 
+jupytext = "*"
+pytest = "*"
+pytest-cov = "*"
+
+[tool.poetry.scripts]
+gen-doc = "pyscaf.documentation.scripts.parse_doc:gen_doc"
+serve-doc = "pyscaf.documentation.scripts.parse_doc:serve_doc"
+py-to-nb = "pyscaf.jupyter-tools.scripts.py_to_notebook:main"
+exec-nb = "pyscaf.jupyter-tools.scripts.execute_notebook:main"
+nb-to-html = "pyscaf.jupyter-tools.scripts.notebook_to_html:main"
+py-to-nb-all = "pyscaf.jupyter-tools.scripts.main:py_to_nb_all"
+exec-nb-all = "pyscaf.jupyter-tools.scripts.main:exec_nb_all"
+nb-to-html-all = "pyscaf.jupyter-tools.scripts.main:nb_to_html_all"
+
+[tool.pyscaf.documentation]
+output_path = "docs"
+
+[tool.pyscaf.jupyter-tools]
+# Default output directories
+python_notebook_dir = "notebooks/python"
+jupyter_notebook_dir = "notebooks/ipynb"
+pdf_dir = "generated/pdfs"
+html_dir = "generated/html"
+
+# notebook_to_html.py options
+hide_input = false
+hide_output = false
+template_name = "classic"
+template_path = ""
+template_file = ""
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--tb=short",
+    "--strict-markers",
+    "--strict-config",
+    "--color=yes"
+]
+markers = [
+    "slow: marks tests as slow",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests"
+]
+
+[tool.ruff]
+src = ["src"]
+select = [
+    "B",  # flake8-bugbear - https://docs.astral.sh/ruff/rules/#flake8-bugbear-b
+    "C4", # flake8-comprehensions - https://docs.astral.sh/ruff/rules/#flake8-comprehensions-c4
+    "E",  # pycodestyle errors - https://docs.astral.sh/ruff/rules/#error-e
+    "F",  # pyflakes rules - https://docs.astral.sh/ruff/rules/#pyflakes-f
+    "N",  # pep8-naming - https://docs.astral.sh/ruff/rules/#pep8-naming-n
+    "W",  # pycodestyle warnings - https://docs.astral.sh/ruff/rules/#warning-w
+    "I",  # isort - https://docs.astral.sh/ruff/rules/#isort-i
+    "UP", # pyupgrade - https://docs.astral.sh/ruff/rules/#pyupgrade-up
+]
+line-length = 120

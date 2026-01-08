@@ -1,14 +1,41 @@
-# ignore log file
-debug.log
+# Python
+**/__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.env
+.venv
+venv/
+ENV/
+build/
+dist/
+.eggs/
+*.log
 
-# ignore credentials file
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+
+# Test outputs
+htmlcov/
+.coverage
+.tox/
+.nox/
+.pytest_cache/
+
+# Credentials - NEVER COMMIT
 credentials.json
+config/credentials.json
+**/credentials*.json
 
-# ignore variable exports csv
-variables_export.csv
+# Generated files
+*_with_uris.csv
 
-# ignore output csv
-already_existed_created.csv
-failed_created.csv
-variables_created.csv
-__pycache__/*
+# Tools
+pyscaf/
+opensilexClientToolsPython/
+
+# Old code
+src/opensilex_variable_import/

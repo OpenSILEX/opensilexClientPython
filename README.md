@@ -1,33 +1,21 @@
-# Scripts
-## Requirements.
+# opensilexClientPython
 
-Python 2.7 or 3.4+
+Python package for importing and managing variables in OpenSILEX.
 
-## Prerequisites & Usage
+---
 
-```sh
+## 📦 Installation
+```bash
+# Clone the repository
 git clone https://github.com/OpenSILEX/opensilexPythonClient.git
 cd opensilexPythonClient
-pip install -r requirements.txt
+
+# Checkout the branch
+git checkout feature/variable-import-scripts
+
+# Install with Poetry
+poetry install
+
+# Activate the environment
+poetry shell
 ```
-### pip install without conda
-
-You can install directly from Github
-
-```shy
-pip install git+https://github.com/OpenSILEX/opensilexClientToolsPython.git@1.0.0-beta
-```
-(you may need to run `pip` with root permission: `sudo pip install git+https://github.com/OpenSILEX/opensilexClientToolsPython.git@1.0.0-beta`)
-
-#### with conda, you must install pip and git first
-
-```
-conda install git pip
-pip install git+https://github.com/OpenSILEX/opensilexClientToolsPython.git
-```
-
-# Usage
- 
-* Examples can be found in Examples.ipynb file:
-
-Note : This script will produce a debug.log file
