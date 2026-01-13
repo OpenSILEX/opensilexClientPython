@@ -1,7 +1,38 @@
+# Configuration pour l'import de variables OpenSILEX
+# Les URIs sont auto-générées à partir des noms uniquement
+
+csv:
+  # Colonnes OBLIGATOIRES dans votre CSV
+  required_columns:
+    - "Entity_name"           # Nom de l'entité (ex: Plant, Soil)
+    - "Characteristic_name"   # Nom de la caractéristique (ex: Height, Temperature)
+    - "Method_name"           # Nom de la méthode (ex: Manual, Sensor)
+    - "Unit_name"            # Nom de l'unité (ex: Centimeter, Celsius)
+    - "Variable_name"        # Nom de la variable (ex: Plant_Height_cm)
+    - "Datatype_uri"         # URI du type de données
+  
+  # Colonnes OPTIONNELLES dans votre CSV
+  optional_columns:
+    - "Variable_description"       # Description de la variable
+    - "Variable_alternative_name"  # Nom alternatif
+    - "Entity_Definition"          # Définition de l'entité
+    - "characteristic_definition"  # Définition de la caractéristique
+    - "Method_Definition"          # Définition de la méthode
+    - "Time_interval"             # Intervalle de temps
+    - "Group1"                    # Premier groupe d'appartenance
+    - "Group2"                    # Deuxième groupe d'appartenance
+
 groups:
+  # Colonnes CSV qui contiennent les noms de groupes
   group_columns:
     - "Group1"
     - "Group2"
   
+  # Mapping : Nom du groupe (dans CSV) → URI du groupe (dans OpenSILEX)
   available_groups:
-    "TestGroup": "http://localhost/opensilex/id/variablesGroup/test_group"
+    "Phenotyping": "http://opensilex.test/id/variablesGroup/phenotyping"
+    "Environment": "http://opensilex.test/id/variablesGroup/environment"
+    "ExampleGroup": "http://opensilex.test/id/variablesGroup/example"
+  
+  # Groupe par défaut pour les variables sans Group1 ni Group2 (optionnel)
+  default_group: "http://opensilex.test/id/variablesGroup/default"
