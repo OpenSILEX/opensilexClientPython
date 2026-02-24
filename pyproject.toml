@@ -2,7 +2,7 @@
 name = "opensilexClientPython"
 version = "0.1.0"
 description = "Python package for importing and managing variables in OpenSILEX"
-authors = ["JEMAA Nouha <nouha.jemaa@inrae.fr>"]
+authors = ["JEMAA Nouha <nouha.jemaa@inrae.fr>", "Arnaud CHARLEROY <arnaud.charleroy@inrae.fr"]
 readme = "README.md"
 packages = [
     { include = "opensilexClientPython", from = "src" }
@@ -14,8 +14,7 @@ pandas = "^2.3.3"
 pyyaml = "^6.0.3"
 rich = "^14.2.0"
 opensilexClientToolsPython = { git = "https://github.com/OpenSILEX/opensilexClientToolsPython.git", tag = "1.4.9" }
-opensilex-py-client = { git = "ssh://git@forge.inrae.fr/OpenSILEX/data-analysis-visualisation/opensilex-clients/opensilex-ws-python-client.git", branch = "new_client_package" }
-
+ 
 [tool.poetry.group.dev.dependencies]
 pdoc = "*"
 tomli = "*"

@@ -33,8 +33,7 @@ config/credentials.json
 # Generated files
 *_with_uris.csv
 
-# Tools
-pyscaf/
+# Tools 
 opensilexClientToolsPython/
 
 # Old code
