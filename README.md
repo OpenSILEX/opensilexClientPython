@@ -1,24 +1,118 @@
 # opensilexClientPython
 
-Python package for importing and managing variables in OpenSILEX.
 
----
+A Python project created with [pyscaf](https://pypi.org/project/open-pyscaf/) for importing and managing variables in OpenSILEX.
 
-## Installation
+
+## 1. Créer l'environnement virtuel (opensilex_scripts)
+
+> [!WARNING]  
+> This package require at least python3.11 to work. 
+> Make sure to create an env with python3.11 or more following commands assumes that you are using python3.11 or more. 
+
+> [!TIP] 
+> To manage python version, you can install [pyenv](https://github.com/pyenv/pyenv?tab=readme-ov-file#installation).
+> See [pyenv usage](https://github.com/pyenv/pyenv?tab=readme-ov-file#usage)
+
+Ce projet utilise un environnement virtuel Python pour gérer les dépendances. Voici comment le configurer avec le nom `opensilex_scripts`.
+
+Ouvrez un terminal dans le dossier du projet et exécutez la commande suivante :
+
+## Requirements
+
+- Python 3.10+ 
+- OpenSILEX instance access
+
+
 ```bash
-# Clone the repository
-git clone https://github.com/OpenSILEX/opensilexPythonClient.git
-cd opensilexPythonClient
+python3 -m venv opensilex_scripts
+``` 
 
-# Checkout the branch
-git checkout feature/variable-import-scripts
+> This command creates an `opensilex_scripts/` directory that contains the isolated environment. [python.readthedocs](https://python.readthedocs.io/fr/stable/library/venv.html)
+>  
+> ## 2. Activate the environment  
+>  
+> Before installing any packages or running the application, you must activate the environment. [realpython](https://realpython.com/python-virtual-environments-a-primer/)
+>  
+> **On Linux / macOS:**  
+> ```bash
+> source opensilex_scripts/bin/activate
+> ```  
+>  
+> **On Fish:**  
+> ```bash
+> source opensilex_scripts/bin/activate.fish
+> ```  
+>  
+> **On Windows (PowerShell):**  
+> ```powershell
+> .\opensilex_scripts\Scripts\Activate.ps1
+> ```  
+>  
+> **On Windows (CMD):**  
+> ```cmd
+> .\opensilex_scripts\Scripts\activate.bat
+> ```  
+>  
+> Once activated, the prompt is prefixed with `(opensilex_scripts)` to indicate that the environment is currently in use. [w3schools](https://www.w3schools.com/python/python_virtualenv.asp)
 
-# Install with Poetry
-poetry install
 
-# Activate the environment
-poetry shell
+## Install package 
+
+### With pip
+
+*Need to create an ssh key linked with gitlab*
+```bash 
+pip install git+ssh://git@forge.inrae.fr/opensilex/opensilex-generator
+# pip3 install git+ssh://git@forge.inrae.fr/opensilex/opensilex-generator
+
+``` 
+
+More documentation [Install from a gitlab project](https://docs.gitlab.com/18.4/user/packages/pypi_repository/?tab=With+a+CI%2FCD+job+token#install-from-a-project)
+
+### With archive
+
+
+> [!WARNING]  
+> If it don't work with pip method.
+
+Go to [opensilex internal clients package regristry](https://forge.inrae.fr/opensilex-scripts/opensilex-internal-scripts/-/packages) download the latest version
+
+```bash
+# Go to downloads folder
+pip install {path_to_the_package_gz}
+
+```  
+
+## Run script form notebooks
+
+Notebooks are in [``opensilex-generator/notebooks/ipynb``](https://forge.inrae.fr/opensilex-scripts/opensilex-internal-scripts/-/tree/main/notebooks/ipynb).
+You will find sereval functions : 
+ - Remove objects by type from an experimentation (rdf4j and mongo)
+ - split csv by lines
+ - find similarities between columns
+ - rename a list of uri
+ - and more ....
+
+run in shell 
+
+
+```bash
+# install jupyter
+# https://docs.jupyter.org/en/latest/install/notebook-classic.html
+# run 
+jupyter notebook
+# go to notebooks and ipynb
 ```
+![alt text](docs/images/image.png)
+
+## Opensilex generator documentation
+ 
+- For more details and explanation, look at [opensilex-generator](https://forge.inrae.fr/OpenSILEX/opensilex-generator)
+
+## Python documentation is available here 
+
+[Gitlab documentation](https://opensilex-internal-scripts-d468d0.pages-forge.inrae.fr/opensilex_internal_scripts.html)
 
 ---
 
@@ -187,17 +281,4 @@ poetry run pytest --cov=src --cov-report=term-missing
 # Set minimum coverage threshold
 poetry run pytest --cov=src --cov-fail-under=80
 ```
-
----
-
-## Requirements
-
-- Python 3.10+
-- Poetry for dependency management
-- OpenSILEX instance access
-
----
-
-## Repository
-
-- **Branch**: feature/variable-import-scripts
+ 
