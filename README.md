@@ -1,38 +1,36 @@
-# opensilexClientPython
 
+# opensilexClientPython
 
 A Python project created with [pyscaf](https://pypi.org/project/open-pyscaf/) for importing and managing variables in OpenSILEX.
 
-
-## 1. Créer l'environnement virtuel (opensilex_scripts)
+## 1. Create the virtual environment (`opensilex_scripts`)
 
 > [!WARNING]  
-> This package require at least python3.11 to work. 
-> Make sure to create an env with python3.11 or more following commands assumes that you are using python3.11 or more. 
+> This package requires at least Python 3.11 to work.  
+> Make sure to create an environment with Python 3.11 or higher; the following commands assume that you are using Python 3.11 or later. [docs.python](https://docs.python.org/3/library/venv.html)
 
-> [!TIP] 
-> To manage python version, you can install [pyenv](https://github.com/pyenv/pyenv?tab=readme-ov-file#installation).
-> See [pyenv usage](https://github.com/pyenv/pyenv?tab=readme-ov-file#usage)
+> [!TIP]  
+> To manage Python versions, you can install [pyenv](https://github.com/pyenv/pyenv?tab=readme-ov-file#installation).  
+> See the [pyenv usage](https://github.com/pyenv/pyenv?tab=readme-ov-file#usage) section. [github](https://github.com/pyenv/pyenv)
 
-Ce projet utilise un environnement virtuel Python pour gérer les dépendances. Voici comment le configurer avec le nom `opensilex_scripts`.
+This project uses a Python virtual environment to manage dependencies. Here is how to configure it with the name `opensilex_scripts`. [docs.python](https://docs.python.org/3/tutorial/venv.html)
 
-Ouvrez un terminal dans le dossier du projet et exécutez la commande suivante :
+Open a terminal in the project folder and run the following command:
 
 ## Requirements
 
-- Python 3.10+ 
-- OpenSILEX instance access
-
+- Python 3.10+  
+- Access to an OpenSILEX instance
 
 ```bash
 python3 -m venv opensilex_scripts
-``` 
+```
 
 > This command creates an `opensilex_scripts/` directory that contains the isolated environment. [python.readthedocs](https://python.readthedocs.io/fr/stable/library/venv.html)
 >  
 > ## 2. Activate the environment  
 >  
-> Before installing any packages or running the application, you must activate the environment. [realpython](https://realpython.com/python-virtual-environments-a-primer/)
+> Before installing any packages or running the application, you must activate the environment. [w3schools](https://www.w3schools.com/python/python_virtualenv.asp)
 >  
 > **On Linux / macOS:**  
 > ```bash
@@ -56,106 +54,104 @@ python3 -m venv opensilex_scripts
 >  
 > Once activated, the prompt is prefixed with `(opensilex_scripts)` to indicate that the environment is currently in use. [w3schools](https://www.w3schools.com/python/python_virtualenv.asp)
 
-
-## Install package 
+## Install package
 
 ### With pip
 
-*Need to create an ssh key linked with gitlab*
-```bash 
+*You need to create an SSH key linked with GitLab.*
+
+```bash
 pip install git+ssh://git@forge.inrae.fr/opensilex/opensilex-generator
 # pip3 install git+ssh://git@forge.inrae.fr/opensilex/opensilex-generator
+```
 
-``` 
-
-More documentation [Install from a gitlab project](https://docs.gitlab.com/18.4/user/packages/pypi_repository/?tab=With+a+CI%2FCD+job+token#install-from-a-project)
+More documentation: [Install from a GitLab project](https://docs.gitlab.com/18.4/user/packages/pypi_repository/?tab=With+a+CI%2FCD+job+token#install-from-a-project). [docs.gitlab](https://docs.gitlab.com/user/packages/pypi_repository/)
 
 ### With archive
 
-
 > [!WARNING]  
-> If it don't work with pip method.
+> Use this method if the pip installation does not work.
 
-Go to [opensilex internal clients package regristry](https://forge.inrae.fr/opensilex-scripts/opensilex-internal-scripts/-/packages) download the latest version
+Go to the [OpenSILEX internal clients package registry](https://forge.inrae.fr/opensilex-scripts/opensilex-internal-scripts/-/packages) and download the latest version.
 
 ```bash
-# Go to downloads folder
+# Go to the downloads folder
 pip install {path_to_the_package_gz}
+```
 
-```  
+## Run scripts from notebooks
 
-## Run script form notebooks
+The notebooks are in [`opensilex-generator/notebooks/ipynb`](https://forge.inrae.fr/opensilex-scripts/opensilex-internal-scripts/-/tree/main/notebooks/ipynb).  
+You will find several functions, for example:  
+- Remove objects by type from an experiment (rdf4j and MongoDB)  
+- Split CSV files by lines  
+- Find similarities between columns  
+- Rename a list of URIs  
+- And more...
 
-Notebooks are in [``opensilex-generator/notebooks/ipynb``](https://forge.inrae.fr/opensilex-scripts/opensilex-internal-scripts/-/tree/main/notebooks/ipynb).
-You will find sereval functions : 
- - Remove objects by type from an experimentation (rdf4j and mongo)
- - split csv by lines
- - find similarities between columns
- - rename a list of uri
- - and more ....
-
-run in shell 
-
+Run in a shell:
 
 ```bash
-# install jupyter
-# https://docs.jupyter.org/en/latest/install/notebook-classic.html
-# run 
+# Install Jupyter
+# https://docs.jupyter.org/en/latest/install/notebook-classic.html
+# Then run:
 jupyter notebook
-# go to notebooks and ipynb
+# Go to the notebooks and .ipynb files
 ```
-![alt text](docs/images/image.png)
 
-## Opensilex generator documentation
- 
-- For more details and explanation, look at [opensilex-generator](https://forge.inrae.fr/OpenSILEX/opensilex-generator)
 
-## Python documentation is available here 
 
-[Gitlab documentation](https://opensilex-internal-scripts-d468d0.pages-forge.inrae.fr/opensilex_internal_scripts.html)
+## OpenSILEX generator documentation
 
----
+- For more details and explanations, see [opensilex-generator](https://forge.inrae.fr/OpenSILEX/opensilex-generator).
+
+## Python documentation is available here
+
+[GitLab documentation](https://opensilex-internal-scripts-d468d0.pages-forge.inrae.fr/opensilex_internal_scripts.html). [docs.gitlab](https://docs.gitlab.com/user/packages/pypi_repository/)
+
+***
 
 ## Features
 
-- **Auto-generation of URIs** from component names (no manual calculation needed)
-- **Automatic component creation** (Entity, Characteristic, Method, Unit)
-- **Group management** with support for up to 2 groups per variable
-- **Modular architecture** with reusable components
-- **Jupyter notebook** examples included
+- **Auto-generation of URIs** from component names (no manual calculation needed)  
+- **Automatic component creation** (Entity, Characteristic, Method, Unit)  
+- **Group management** with support for up to 2 groups per variable  
+- **Modular architecture** with reusable components  
+- **Jupyter notebook** examples included [realpython](https://realpython.com/python-virtual-environments-a-primer/)
 
----
+***
 
 ## Documentation
 
-- **Migration Guide**: [MIGRATION.md](MIGRATION.md) - Detailed migration from v1
-- **API Documentation**: Generate with `poetry run pdoc src/opensilexClientPython -o docs/`
+- **Migration Guide**: [MIGRATION.md](MIGRATION.md) – Detailed migration from v1  
+- **API Documentation**: Generate with `poetry run pdoc src/opensilexClientPython -o docs/`  
 - **Examples**: [examples/](examples/) directory with scripts and notebooks
 
----
+***
 
 ## Testing Framework
 
-This project uses pytest, a powerful and flexible testing framework for Python that makes it easy to write simple and scalable tests.
+This project uses **pytest**, a powerful and flexible testing framework for Python that makes it easy to write simple and scalable tests. [realpython](https://realpython.com/python-virtual-environments-a-primer/)
 
 ### Features
 
-- **Simple test discovery**: Automatically finds and runs test files and functions
-- **Fixtures**: Reusable test data and setup/teardown logic
-- **Parametrized tests**: Run the same test with different inputs
-- **Assertions**: Clear and informative assertion failures
-- **Plugins ecosystem**: Extensive plugin system for additional functionality
-- **Coverage reporting**: Integration with pytest-cov for code coverage
+- **Simple test discovery**: Automatically finds and runs test files and functions  
+- **Fixtures**: Reusable test data and setup/teardown logic  
+- **Parametrized tests**: Run the same test with different inputs  
+- **Assertions**: Clear and informative assertion failures  
+- **Plugin ecosystem**: Extensive plugin system for additional functionality  
+- **Coverage reporting**: Integration with `pytest-cov` for code coverage
 
-### Test Organization
+### Test organization
 
-Tests are organized in the `tests/` directory with the following structure:
-- `tests/`: Main test directory
-- `tests/test_*.py`: Test modules (must start with `test_`)
-- Test functions must start with `test_`
+Tests are organized in the `tests/` directory with the following structure:  
+- `tests/`: Main test directory  
+- `tests/test_*.py`: Test modules (must start with `test_`)  
+- Test functions must start with `test_`  
 - Test classes must start with `Test`
 
-### Common Commands
+### Common commands
+
 ```bash
 # Run all tests
 poetry run pytest
@@ -179,13 +175,14 @@ poetry run pytest -x
 poetry run pytest -k "test_pattern"
 
 # Run tests with specific markers
-poetry run pytest -m "unit"  # Run only unit tests
+poetry run pytest -m "unit"      # Run only unit tests
 poetry run pytest -m "not slow"  # Skip slow tests
 ```
 
-### Writing Tests
+### Writing tests
 
-#### Basic Test Function
+#### Basic test function
+
 ```python
 def test_addition():
     """Test basic addition operation."""
@@ -193,7 +190,8 @@ def test_addition():
     assert 2 + 3 == 5
 ```
 
-#### Test Class
+#### Test class
+
 ```python
 class TestCalculator:
     """Test class for calculator operations."""
@@ -207,14 +205,17 @@ class TestCalculator:
         assert Calculator().subtract(5, 3) == 2
 ```
 
-#### Using Fixtures
+#### Using fixtures
+
 ```python
 import pytest
+
 
 @pytest.fixture
 def sample_data():
     """Provide sample data for tests."""
     return {"name": "test", "value": 42}
+
 
 def test_with_fixture(sample_data):
     """Test using a fixture."""
@@ -222,9 +223,11 @@ def test_with_fixture(sample_data):
     assert sample_data["value"] == 42
 ```
 
-#### Parametrized Tests
+#### Parametrized tests
+
 ```python
 import pytest
+
 
 @pytest.mark.parametrize("input,expected", [
     (1, 2),
@@ -236,21 +239,25 @@ def test_double(input, expected):
     assert double(input) == expected
 ```
 
-### Test Markers
+### Test markers
 
 Use markers to categorize and control test execution:
+
 ```python
 import pytest
+
 
 @pytest.mark.unit
 def test_unit_functionality():
     """Unit test marker."""
     pass
 
+
 @pytest.mark.integration  
 def test_integration_functionality():
     """Integration test marker."""
     pass
+
 
 @pytest.mark.slow
 def test_slow_operation():
@@ -258,19 +265,20 @@ def test_slow_operation():
     pass
 ```
 
-### Best Practices
+### Best practices
 
-1. **Test naming**: Use descriptive names that explain what is being tested
-2. **One assertion per test**: Keep tests focused and simple
-3. **Arrange-Act-Assert**: Structure tests with clear setup, execution, and verification
-4. **Use fixtures**: Share common setup logic across tests
-5. **Test edge cases**: Include boundary conditions and error cases
-6. **Keep tests fast**: Use markers to separate slow integration tests
-7. **Mock dependencies**: Use `unittest.mock` or `pytest-mock` for external dependencies
+1. **Test naming**: Use descriptive names that explain what is being tested.  
+2. **One assertion per test**: Keep tests focused and simple.  
+3. **Arrange–Act–Assert**: Structure tests with clear setup, execution, and verification.  
+4. **Use fixtures**: Share common setup logic across tests.  
+5. **Test edge cases**: Include boundary conditions and error cases.  
+6. **Keep tests fast**: Use markers to separate slow integration tests.  
+7. **Mock dependencies**: Use `unittest.mock` or `pytest-mock` for external dependencies.
 
-### Coverage Reports
+### Coverage reports
 
 Generate coverage reports to ensure your tests cover your code adequately:
+
 ```bash
 # Generate HTML coverage report
 poetry run pytest --cov=src --cov-report=html
@@ -281,4 +289,5 @@ poetry run pytest --cov=src --cov-report=term-missing
 # Set minimum coverage threshold
 poetry run pytest --cov=src --cov-fail-under=80
 ```
- 
+
+If you want, I can also review the English phrasing for style (e.g. making it more consistent with typical GitHub/ReadTheDocs tone) or keep it strictly as-is.
