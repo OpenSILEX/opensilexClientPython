@@ -25,17 +25,29 @@ htmlcov/
 .nox/
 .pytest_cache/
 
-# Credentials - NEVER COMMIT
-credentials.json
-config/credentials.json
-**/credentials*.json
+# Python
+**/__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.env
+.venv
+venv/
+ENV/
+build/
+dist/
+.eggs/
+*.log
 
-# Generated files
-*_with_uris.csv
+# Jupyter Notebooks
+.ipynb_checkpoints/
 
-# Tools 
-opensilexClientToolsPython/
 
-# Old code
-src/opensilex_variable_import/
-opensilex_scripts/
+# Test outputs
+htmlcov/
+.coverage
+.tox/
+.nox/
+.pytest_cache/

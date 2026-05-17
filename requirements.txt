@@ -1,4 +1,0 @@
-dateparser
-pandas
-pydantic
-requests
