@@ -25,10 +25,11 @@ A Python project created with [pyscaf](https://pypi.org/project/open-pyscaf/) fo
 > curl -LsSf https://astral.sh/uv/0.10.9/install.sh | sh
 > ```
 
-## 2. Create the environment
+## 2. Create the environment or your virtual environment
 
 ```bash
 uv venv
+# or python -m venv .venv
 ```
 
 ## 3. Install the package
@@ -44,7 +45,6 @@ uv pip install git+ssh://git@forge.inrae.fr/opensilex/data-analysis-visualisatio
 
 ```
 
-
 ## Features
 
 - **Auto-generation of URIs** from component names (no manual calculation needed)  
@@ -53,14 +53,75 @@ uv pip install git+ssh://git@forge.inrae.fr/opensilex/data-analysis-visualisatio
 - **Modular architecture** with reusable components  
 - **Jupyter notebook** examples included [realpython](https://realpython.com/python-virtual-environments-a-primer/)
 
-## Import Variables Example
+## Run the scripts
+
+
+### Import Variables Example
+
+| Argument | Meaning | Default value | Comment |
+|----------|---------|---------------|---------|
+| `--host` | Base URL of the OpenSILEX REST API (must include `/rest`). | `http://localhost:8666/rest` | Can also be supplied via the `OPENSILEX_HOST` environment variable. |
+| `--identifier` | Email address of the OpenSILEX account. | `admin@opensilex.org` | Can also be supplied via `OPENSILEX_IDENTIFIER`. |
+| `--password` | Password of the OpenSILEX account. | *None* (required) | Can also be supplied via `OPENSILEX_PASSWORD`. **Avoid** passing the password in clear text on the command line; prefer the environment variable. |
+| `--csv` | Path to the CSV input file. | – | **Required** – the file must exist and be readable. |
+| `--config` | Path to the YAML configuration file. | – | **Required** – the file must exist and be readable. |
+| `--skip-groups` | Do not attach the imported variables to groups defined in the YAML file. | `False` | Useful for quick or test imports. |
+| `--verbose` / `-v` | Print detailed logs. | `False` | Adds emojis and progress messages. |
 
 ```bash
+# guest credentials example
+uv run run-variable-import  --host http://localhost:8666/rest --identifier guest@opensilex.org --password guest --csv  test_variables.csv --config  test_config.yaml
 
-run-variable-import  --host http://localhost:8666/rest --identifier guest@opensilex.org --password guest --csv  test_variables.csv --config  test_config.yaml
+
+## full configuration 
+uv run python run-variable-import.py \
+    --host http://localhost:8666/rest \
+    --identifier admin@opensilex.org \
+    --password secret \
+    --csv variables.csv \
+    --config config.yaml \
+    --verbose
 ```
 
+- Detailed execution flow
 
+┌─────────────────────┐
+│  Parse arguments    │
+└───────┬─────────────┘
+        │
+        ▼
+┌─────────────────────┐
+│  Verify CSV & YAML  │
+│  files existence    │
+└───────┬─────────────┘
+        │
+        ▼
+┌─────────────────────┐
+│  Authentication     │
+│  connect_to_opensilex│
+│  (host, identifier, │
+│   password)          │
+└───────┬─────────────┘
+        │
+        │  (failure) → error message → exit 1
+        ▼
+┌─────────────────────┐
+│  Import variables   │
+│  from CSV (import_from_csv.run) │
+└───────┬─────────────┘
+        │
+        ▼
+┌─────────────────────┐
+│  Attach to groups   │
+│  (update.attach_to_groups) │
+│  – unless --skip-groups │
+└───────┬─────────────┘
+        │
+        ▼
+┌─────────────────────┐
+│  End of script –    │
+│  exit code 0        │
+└─────────────────────┘
 
 ## uv Integration
 

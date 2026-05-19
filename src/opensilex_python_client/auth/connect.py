@@ -36,7 +36,7 @@ def connect_to_opensilex(connection_info: dict, verbose: bool = False) -> opensi
                 password=connection_info["password"],
                 host=connection_info["host"],
             )
-            if "Authorization"  not in client.default_headers:
+            if "Authorization" not in client.default_headers:
                 return None
         _console.print("[bold green]✓ Successful connection[/bold green]")
         return client

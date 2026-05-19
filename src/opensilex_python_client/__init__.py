@@ -1,4 +1,3 @@
-
 """
 opensilex_python_client package.
 """

@@ -201,7 +201,7 @@ markers = [
 src = [
     "src",
 ]
-select = [
+lint.select = [
     "B",
     "C4",
     "E",
