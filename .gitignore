@@ -1,14 +1,53 @@
-# ignore log file
-debug.log
+# Python
+**/__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.env
+.venv
+venv/
+ENV/
+build/
+dist/
+.eggs/
+*.log
 
-# ignore credentials file
-credentials.json
+# Jupyter Notebooks
+.ipynb_checkpoints/
 
-# ignore variable exports csv
-variables_export.csv
 
-# ignore output csv
-already_existed_created.csv
-failed_created.csv
-variables_created.csv
-__pycache__/*
+# Test outputs
+htmlcov/
+.coverage
+.tox/
+.nox/
+.pytest_cache/
+
+# Python
+**/__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.env
+.venv
+venv/
+ENV/
+build/
+dist/
+.eggs/
+*.log
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+
+# Test outputs
+htmlcov/
+.coverage
+.tox/
+.nox/
+.pytest_cache/
