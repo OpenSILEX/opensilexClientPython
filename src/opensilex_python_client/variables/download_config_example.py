@@ -1,4 +1,3 @@
-import argparse
 import importlib.resources as pkg_resources
 import shutil
 from pathlib import Path
@@ -8,40 +7,6 @@ EXAMPLE_FILES = [
     "test_config.yaml",
     "test_variables_with_uris.csv",
 ]
-
-
-def _parse_args():
-    parser = argparse.ArgumentParser(
-        description=(
-            "Télécharge les fichiers d'exemples de configuration nécessaires à l'import "
-            "de variables dans OpenSILEX.\n\n"
-            "Les fichiers suivants seront copiés dans le répertoire de destination :\n"
-            + "\n".join(f"  - {f}" for f in EXAMPLE_FILES)
-            + "\n\nCes fichiers servent de modèles pour structurer vos données avant import."
-        ),
-        epilog=(
-            "Exemples d'utilisation :\n"
-            "  %(prog)s\n"
-            "  %(prog)s --dest ./config/opensilex\n"
-            "  %(prog)s --dest /home/user/project/variables\n\n"
-            "Le répertoire de destination sera créé automatiquement s'il n'existe pas."
-        ),
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-    )
-
-    parser.add_argument(
-        "--dest",
-        default=".",
-        metavar="RÉPERTOIRE",
-        help=(
-            "Chemin vers le répertoire de destination où les fichiers d'exemples seront copiés.\n"
-            "Peut être un chemin relatif ou absolu. Le répertoire sera créé automatiquement "
-            "s'il n'existe pas déjà.\n"
-            "(défaut : répertoire courant '.')"
-        ),
-    )
-
-    return parser.parse_args()
 
 
 def download_variables_config(dest: str = "."):

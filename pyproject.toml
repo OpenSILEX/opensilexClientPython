@@ -17,6 +17,7 @@ source-exclude = ["csv_example/**"]
 description = "Python package for importing and managing variables in OpenSILEX"
 readme = "README.md"
 authors = [
+    { name = "Gabriel Besombes", email = "gabriel.besombes@inrae.fr" },
     { name = "Arnaud Charleroy", email = "arnaud.charleroy@inrae.fr" },
     { name = "JEMAA Nouha", email = "nouha.jemaa@inrae.fr" },
 ] 

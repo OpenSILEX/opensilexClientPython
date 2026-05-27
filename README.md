@@ -55,6 +55,19 @@ uv pip install git+ssh://git@forge.inrae.fr/opensilex/data-analysis-visualisatio
 
 ## Run the scripts
 
+### Download Variable Config Example
+
+| Argument | Meaning | Default value | Comment |
+|----------|---------|---------------|---------|
+| `--dest` | Destination directory where example files will be copied. | `.` (current directory) | Directory is created automatically if it does not exist; can be relative or absolute path. |
+
+```bash
+# default – copies files into the current directory
+uv run download-variable-config-example
+
+# specify a custom destination
+uv run download-variable-config-example --dest ./config
+```
 
 ### Import Variables Example
 
@@ -72,6 +85,7 @@ uv pip install git+ssh://git@forge.inrae.fr/opensilex/data-analysis-visualisatio
 # guest credentials example
 uv run run-variable-import  --host http://localhost:8666/rest --identifier guest@opensilex.org --password guest --csv  test_variables.csv --config  test_config.yaml
 
+```
 
 ## full configuration 
 uv run python run-variable-import.py \
