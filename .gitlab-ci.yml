@@ -1,0 +1,87 @@
+include:
+  - template: Jobs/Dependency-Scanning.gitlab-ci.yml
+
+image: python:3.12
+
+stages:
+    - test
+    - pages
+    - build
+    - publish
+
+cache:
+    key: "${CI_COMMIT_REF_SLUG}"
+    paths:
+        - uv.lock
+
+build-job:
+    stage: build
+    script:
+        - pip install uv
+        - uv sync
+        - uv build
+    artifacts:
+        paths:
+        - dist/*
+        expire_in: 1 week
+    interruptible: true
+    when : manual
+
+pages:
+    stage: pages
+    script:
+        - pip install uv
+        - uv sync
+        - uv run gen-doc
+        - mkdir public && mv docs/* public
+    artifacts:
+        paths:
+        - public 
+
+unit_tests: 
+    stage: test
+    coverage: /(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/
+    script:
+        - pip install uv
+        - uv sync
+        - uv run coverage run -m pytest  # Exécutez vos tests en collectant la couverture
+        - uv run coverage report 
+
+security:trivy-scan2html:
+  stage: test
+  variables:
+    XDG_DATA_HOME: "${CI_PROJECT_DIR}/plugins"
+    TRIVY_NO_PROGRESS: "true"
+    TRIVY_CACHE_DIR: ".trivycache/"
+  before_script: 
+    - apt update && apt install -y curl tar git
+    - export TRIVY_VERSION=$(curl -s "https://api.github.com/repos/aquasecurity/trivy/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
+    - echo $TRIVY_VERSION
+    - curl -sL "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" | tar -zxvf - trivy
+    - mv trivy /usr/local/bin/trivy  # Move to PATH
+    - chmod +x /usr/local/bin/trivy
+    - trivy --version  # Verify
+    - trivy plugin install github.com/fatihtokus/scan2html
+  script:
+    - pip install uv
+    - uv sync
+    - echo "Generating JSON report..."
+    - trivy scan2html fs --scanners vuln,secret,misconfig . --scan2html-flags --output  trivy-fs-report.html
+
+  artifacts:
+    paths:
+      - trivy-fs-report.html 
+  cache:
+    paths:
+      - .trivycache/
+
+run:
+    stage: publish
+    variables:
+        TWINE_USERNAME: gitlab-ci-token
+        TWINE_PASSWORD: $CI_JOB_TOKEN
+    script:
+        - pip install build twine
+        - python -m build
+        - python -m twine upload --repository-url ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi dist/*
+    when: manual
