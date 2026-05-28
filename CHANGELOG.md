@@ -1,0 +1,18 @@
+## v2.0.0 – 2026-05-28
+
+* Version 2.0.0 (196654c)
+* Merge branch 'feature/variable-import-scripts' into 'master' (012c1bc)
+* feat: add issue (4f2dfca)
+* feat: allow to download config files (59401a)
+* feat: Add example configuration and CSV files for variable import (fce74f4)
+* Refactor code structure for improved readability and maintainability (63ed41d)
+* add information on readme (376d689)
+* Remove older script and fix readme (2d4d9a1)
+* Update readme (8be6c54)
+* docs: Translate YAML comments to English for international users (c6af7bb)
+* fix: Convert pyproject.toml to Poetry 2.0 format (d7a8fcb)
+* config: Clean config and simplify structure (bab4b80)
+* docs: Update notebook and regenerate documentation (5014e9f)
+* docs: Update example notebook (5bdca47)
+* docs: Remove Quick Start section and icons from README (9cc7c06)
+* Complete refactoring: opensilexClientPython v2.0 (a103e15)
