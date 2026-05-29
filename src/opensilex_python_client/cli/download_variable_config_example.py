@@ -37,6 +37,7 @@ def _parse_args():
     return parser.parse_args()
 
 def main():
+    print("Téléchargement des fichiers d'exemples de configuration pour les variables OpenSILEX...")
     args = _parse_args()
     download_variables_config(args.dest)
 
