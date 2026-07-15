@@ -4,9 +4,9 @@ This module provides functionality to execute Jupyter notebooks in-place,
 handling cell execution and error management.
 """
 
-import subprocess
 import argparse
 import os
+import subprocess
 
 
 def execute_notebook(notebook_path: str) -> None:

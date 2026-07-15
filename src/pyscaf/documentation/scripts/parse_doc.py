@@ -160,11 +160,7 @@ def main():
 if __name__ == "__main__":
     main()
 
-import subprocess
-import sys
-from pathlib import Path
 
-import tomli
 
 
 def load_pdoc_config(pyproject_path: Path) -> dict:

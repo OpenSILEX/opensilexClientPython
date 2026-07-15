@@ -82,7 +82,7 @@ def convert_notebook_to_html(
     print(f"Converting notebook {notebook_path} to HTML...")
     print("DEBUG: template_name", template_name)
     # Read the notebook
-    with open(notebook_path, "r", encoding="utf-8") as f:
+    with open(notebook_path, encoding="utf-8") as f:
         nb = nbformat.read(f, as_version=4)
 
     # Process all cells

@@ -220,17 +220,20 @@ def run(client, csv_path: str, config_path: str) -> dict[str, list[str]]:
     for idx, row in df.iterrows():
         entity_name = _get_safe(row, col_map, "entity_name")
         if pd.notna(entity_name):
-            uri = find_or_create_entity(client, str(entity_name), "")
+            entity_desc = _get_safe(row, col_map, "entity_definition", "")
+            uri = find_or_create_entity(client, str(entity_name), str(entity_desc))
             df_enriched.at[idx, "Generated_Entity_uri"] = _clean_uri(uri)
 
         char_name = _get_safe(row, col_map, "characteristic_name")
         if pd.notna(char_name):
-            uri = find_or_create_characteristic(client, str(char_name), "")
+            char_desc = _get_safe(row, col_map, "characteristic_definition", "")
+            uri = find_or_create_characteristic(client, str(char_name), str(char_desc))
             df_enriched.at[idx, "Generated_Characteristic_uri"] = _clean_uri(uri)
 
         method_name = _get_safe(row, col_map, "method_name")
         if pd.notna(method_name):
-            uri = find_or_create_method(client, str(method_name), "")
+            method_desc = _get_safe(row, col_map, "method_definition", "")
+            uri = find_or_create_method(client, str(method_name), str(method_desc))
             df_enriched.at[idx, "Generated_Method_uri"] = _clean_uri(uri)
 
         unit_name = _get_safe(row, col_map, "unit_name")

@@ -10,6 +10,7 @@ import sys
 from opensilex_python_client.auth import connect
 from opensilex_python_client.variables import import_from_csv
 from opensilex_python_client.variables.groups import update
+from opensilex_python_client.variables.groups.manage import find_or_create_group
 
 
 def _existing_file(value: str) -> str:
@@ -119,7 +120,26 @@ def _parse_args():
     # --- Options ---
     options_group = parser.add_argument_group("Options")
     options_group.add_argument(
+        "--create-groups",
+        action="store_true",
+        default=False,
+        help=(
+            "Si activé, crée les groupes définis dans le fichier YAML "
+            "s'ils n'existent pas encore dans OpenSILEX."
+        ),
+    )
+    options_group.add_argument(
+        "--attach-variables-to-group",
+        action="store_true",
+        default=True,
+        help=(
+            "Si activé, rattache les variables importées aux groupes "
+            "définis dans le fichier YAML. (Défaut : True)"
+        ),
+    )
+    options_group.add_argument(
         "--skip-groups",
+
         action="store_true",
         default=False,
         help=(
@@ -182,12 +202,33 @@ def main():
     grouped_vars = import_from_csv.run(client, args.csv_path, args.yaml_config_path)
 
     # 3. Rattachement aux groupes
-    if not args.skip_groups:
+    if args.attach_variables_to_group and not args.skip_groups:
         if args.verbose:
             print("🔗 Rattachement aux groupes...")
         update.attach_to_groups(client, grouped_vars, args.yaml_config_path)
-    else:
+    elif args.skip_groups:
         print("⏭️  Rattachement aux groupes ignoré (--skip-groups)")
+    else:
+        print("ℹ️  Rattachement aux groupes désactivé (--attach-variables-to-group False)")
+
+    # Note: If --create-groups is enabled, we should ensure groups exist.
+    # This logic might be inside attach_to_groups or we might need to call a helper.
+    if args.create_groups:
+        if args.verbose:
+            print("⚙️  Vérification/Création des groupes du fichier config...")
+        # Implementation for create_groups logic based on YAML config
+        # we'll need to extract groups from YAML and call find_or_create_group
+        import pandas as pd
+        from opensilex_python_client.file_management.read_yaml import read_yaml
+        config = read_yaml(args.yaml_config_path)
+        group_config = config.get("groups", {})
+        available_groups = group_config.get("available_groups", {})
+        
+        for group_name, group_uri in available_groups.items():
+            # If we want to ensure they exist, we can use find_or_create_group
+            # However, available_groups usually maps name -> uri.
+            # If create_groups is True, we ensure the name exists.
+            find_or_create_group(client, group_name)
 
     print("✅ Import terminé avec succès !")
 
