@@ -51,3 +51,4 @@ htmlcov/
 .tox/
 .nox/
 .pytest_cache/
+.kilo

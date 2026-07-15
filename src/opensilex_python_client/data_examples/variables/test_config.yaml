@@ -2,6 +2,24 @@
 # URIs are auto-generated from names only
 
 csv:
+  # Optional: map semantic roles to CSV columns.
+  # Each value can be:
+  #   - an integer (1-indexed column number)
+  #   - a string (column header name)
+  # If omitted, default column names are used (Entity_name, Characteristic_name, etc.)
+  column_mappings:
+    entity_name: "Entity_name"
+    characteristic_name: "Characteristic_name"
+    method_name: "Method_name"
+    unit_name: "Unit_name"
+    variable_name: "Variable_name"
+    datatype_uri: "Datatype_uri"
+    variable_description: "Variable_description"
+    variable_alternative_name: "Variable_alternative_name"
+    time_interval: "Time_interval"
+    group1: "Group1"
+    group2: "Group2"
+
   # REQUIRED columns in your CSV
   required_columns:
     - "Entity_name"           # Entity name (ex: Plant, Soil)

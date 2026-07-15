@@ -1,10 +1,10 @@
 """Entity creation (internal use)."""
 
-from typing import Optional
-from opensilexClientToolsPython import VariablesApi, EntityCreationDTO
+
+from opensilexClientToolsPython import EntityCreationDTO, VariablesApi
 
 
-def find_or_create_entity(client, name: str, description: str = "") -> Optional[str]:
+def find_or_create_entity(client, name: str, description: str = "") -> str | None:
     """Find or create an entity."""
     try:
         variables_api = VariablesApi(client)

@@ -1,10 +1,11 @@
 """Generic YAML file reader."""
 
+from typing import Any
+
 import yaml
-from typing import Dict, Any
 
 
-def read_yaml(yaml_path: str) -> Dict[str, Any]:
+def read_yaml(yaml_path: str) -> dict[str, Any]:
     """Load YAML configuration file.
     Generic function to read any YAML file.
     Args:
@@ -15,5 +16,5 @@ def read_yaml(yaml_path: str) -> Dict[str, Any]:
         >>> config = read_yaml("config.yaml")
         >>> print(config.keys())
     """
-    with open(yaml_path, "r", encoding="utf-8") as f:
+    with open(yaml_path, encoding="utf-8") as f:
         return yaml.safe_load(f)

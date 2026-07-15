@@ -1,10 +1,10 @@
 """Characteristic creation (internal use)."""
 
-from typing import Optional
-from opensilexClientToolsPython import VariablesApi, CharacteristicCreationDTO
+
+from opensilexClientToolsPython import CharacteristicCreationDTO, VariablesApi
 
 
-def find_or_create_characteristic(client, name: str, description: str = "") -> Optional[str]:
+def find_or_create_characteristic(client, name: str, description: str = "") -> str | None:
     """Find or create a characteristic."""
     try:
         variables_api = VariablesApi(client)

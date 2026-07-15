@@ -1,10 +1,10 @@
 """Update and attach variables to groups."""
 
-from typing import Dict, List
+
 from opensilexClientToolsPython import VariablesApi, VariablesGroupUpdateDTO
 
 
-def attach_to_groups(client, grouped_variables: Dict[str, List[str]], config_path: str) -> None:
+def attach_to_groups(client, grouped_variables: dict[str, list[str]], config_path: str) -> None:
     """Attach variables to their target groups in OpenSILEX.
 
     Args:
@@ -62,4 +62,4 @@ def attach_to_groups(client, grouped_variables: Dict[str, List[str]], config_pat
         except Exception as e:
             print(f"  ✗ Error updating group {group_uri}: {e}")
 
-    print(f"\n✅ STEP 3 COMPLETE")
+    print("\n✅ STEP 3 COMPLETE")

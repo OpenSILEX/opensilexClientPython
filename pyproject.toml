@@ -1,6 +1,6 @@
 [project]
 name = "opensilex_python_client"
-version = "2.0.0"
+version = "2.1.0"
 requires-python = ">=3.14"
 dependencies = [
     "pandas>=3.0.3",

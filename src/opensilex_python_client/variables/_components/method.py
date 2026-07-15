@@ -1,10 +1,10 @@
 """Method creation (internal use)."""
 
-from typing import Optional
-from opensilexClientToolsPython import VariablesApi, MethodCreationDTO
+
+from opensilexClientToolsPython import MethodCreationDTO, VariablesApi
 
 
-def find_or_create_method(client, name: str, description: str = "") -> Optional[str]:
+def find_or_create_method(client, name: str, description: str = "") -> str | None:
     """Find or create a method."""
     try:
         variables_api = VariablesApi(client)

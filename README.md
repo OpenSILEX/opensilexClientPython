@@ -84,8 +84,34 @@ uv run download-variable-config-example --dest ./config
 ```bash
 # guest credentials example
 uv run run-variable-import  --host http://localhost:8666/rest --identifier guest@opensilex.org --password guest --csv  test_variables.csv --config  test_config.yaml
-
 ```
+
+#### Column Mapping
+
+Since v2.0, CSV column names can be customized via the YAML config.
+Each semantic role (entity, characteristic, method, unit, variable, datatype, groups…)
+can be mapped to either a **column index** (1-based integer) or a **column header name** (string).
+
+**Example config:**
+
+```yaml
+csv:
+  column_mappings:
+    entity_name: 1                  # 1st CSV column
+    characteristic_name: "Caract"    # column header name
+    method_name: 3                  # 3rd CSV column
+    unit_name: 4
+    variable_name: "NomVar"
+    datatype_uri: "TypeDonnee"
+    variable_description: "Description"
+    group1: 9
+    group2: 10
+```
+
+- **Required roles** (`entity_name`, `characteristic_name`, `method_name`, `unit_name`, `variable_name`, `datatype_uri`): if the resolved column is not found, the import **aborts**.
+- **Optional roles** (`variable_description`, `variable_alternative_name`, `time_interval`, `group1`, `group2`, …): if the column is not found, a **warning** is printed and the import continues.
+
+See [docs/variables.md](docs/variables.md) for the full reference and examples.
 
 ## full configuration 
 uv run python run-variable-import.py \

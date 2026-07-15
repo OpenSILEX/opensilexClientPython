@@ -1,11 +1,12 @@
 """Create variables in OpenSILEX."""
 
-from typing import Dict, Any, Optional
+from typing import Any
+
 import pandas as pd
-from opensilexClientToolsPython import VariablesApi, VariableCreationDTO
+from opensilexClientToolsPython import VariableCreationDTO, VariablesApi
 
 
-def create_variable(client, var_data: Dict[str, Any]) -> Optional[str]:
+def create_variable(client, var_data: dict[str, Any]) -> str | None:
     """Create a variable in OpenSILEX.
     Args:
         client: OpenSILEX client instance

@@ -1,10 +1,10 @@
 """Check if variable exists in OpenSILEX."""
 
-from typing import Optional
+
 from opensilexClientToolsPython import VariablesApi
 
 
-def exists(client, name: str = None, uri: str = None) -> Optional[str]:
+def exists(client, name: str = None, uri: str = None) -> str | None:
     """Check if a variable exists by name or URI.
 
     Args:

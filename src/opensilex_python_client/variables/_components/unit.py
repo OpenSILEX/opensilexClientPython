@@ -1,10 +1,10 @@
 """Unit creation (internal use)."""
 
-from typing import Optional
-from opensilexClientToolsPython import VariablesApi, UnitCreationDTO
+
+from opensilexClientToolsPython import UnitCreationDTO, VariablesApi
 
 
-def find_or_create_unit(client, name: str, description: str = "") -> Optional[str]:
+def find_or_create_unit(client, name: str, description: str = "") -> str | None:
     """Find or create a unit."""
     try:
         variables_api = VariablesApi(client)
