@@ -7,8 +7,17 @@ import pandas as pd
 from opensilex_python_client.variables.import_variables_from_csv import run
 
 
+def _component_side_effect(ctx, component, uri, name, description=""):
+    uris = {
+        "entity": "http://test/entity",
+        "characteristic": "http://test/char",
+        "method": "http://test/method",
+        "unit": "http://test/unit",
+    }
+    return uris.get(component, f"http://test/{component}")
+
+
 def test_run_import_success(tmp_path, mock_client, default_config):
-    # Prepare CSV
     csv_file = tmp_path / "test_import.csv"
     df = pd.DataFrame([
         {
@@ -23,39 +32,35 @@ def test_run_import_success(tmp_path, mock_client, default_config):
     ])
     df.to_csv(csv_file, index=False, encoding="utf-8")
 
-    # Prepare YAML
     yaml_file = tmp_path / "test_config.yaml"
     import yaml
     with open(yaml_file, "w") as f:
         yaml.dump(default_config, f)
 
-    # Mock internal components to avoid deep API mocking
-    with patch("opensilex_python_client.variables.import_variables_from_csv.find_or_create_entity") as mock_ent, \
-         patch("opensilex_python_client.variables.import_variables_from_csv.find_or_create_characteristic") as mock_char, \
-         patch("opensilex_python_client.variables.import_variables_from_csv.find_or_create_method") as mock_met, \
-         patch("opensilex_python_client.variables.import_variables_from_csv.find_or_create_unit") as mock_unit, \
-         patch("opensilex_python_client.variables.import_variables_from_csv.exists") as mock_exists, \
-         patch("opensilex_python_client.variables.import_variables_from_csv.create_variable") as mock_create:
+    with patch("opensilex_python_client.variables.import_variables_from_csv.find_or_create_component") as mock_comp, \
+         patch("opensilex_python_client.variables.import_variables_from_csv.exists_variable_ctx") as mock_exists, \
+         patch("opensilex_python_client.variables.import_variables_from_csv.create_variable_ctx") as mock_create, \
+         patch("rich.console.Console.input", return_value="y"):
 
-        mock_ent.return_value = "http://test/entity"
-        mock_char.return_value = "http://test/char"
-        mock_met.return_value = "http://test/method"
-        mock_unit.return_value = "http://test/unit"
-        mock_exists.return_value = None # force creation
+        mock_comp.side_effect = _component_side_effect
+        mock_exists.return_value = None
         mock_create.return_value = "http://test/var/1"
 
         result = run(mock_client, str(csv_file), str(yaml_file))
 
-        # Check if grouped_variables is returned
         assert isinstance(result, dict)
-        # Phenotyping group should have the variable
         pheno_uri = default_config["groups"]["available_groups"]["Phenotyping"]
         assert pheno_uri in result
         assert result[pheno_uri] == ["http://test/var/1"]
 
-        # Check if enriched CSV was created
-        enriched_csv = str(csv_file).replace(".csv", "_with_uris.csv")
-        assert pd.read_csv(enriched_csv).shape[0] == 1
+        # Check 4 component calls (one per type)
+        assert mock_comp.call_count == 4
+
+        enriched_csv = str(csv_file).replace(".csv", "_enriched.csv")
+        df_enriched = pd.read_csv(enriched_csv)
+        assert df_enriched.shape[0] == 1
+        assert "Final_Variable_URI" in df_enriched.columns
+        assert df_enriched.at[0, "Final_Variable_URI"] == "http://test/var/1"
 
 
 def test_run_import_column_error(tmp_path, mock_client):

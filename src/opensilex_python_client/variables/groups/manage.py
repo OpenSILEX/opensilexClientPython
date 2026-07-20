@@ -3,7 +3,12 @@
 from opensilexClientToolsPython import VariablesApi, VariablesGroupCreationDTO
 
 
-def find_or_create_group(client, uri: str | None, name: str, description: str = "") -> str | None:
+def _dbg(debug, msg):
+    if debug:
+        print(f"  [DEBUG] {msg}")
+
+
+def find_or_create_group(client, uri: str | None, name: str, description: str = "", debug: bool = False) -> str | None:
     """Find a group by URI or name, or create it if it doesn't exist.
 
     Args:
@@ -11,6 +16,7 @@ def find_or_create_group(client, uri: str | None, name: str, description: str = 
         uri: Optional URI of the group to look up
         name: Name of the group to find or create
         description: Optional description for the group
+        debug: If True, print API call details
 
     Returns:
         The URI of the group, or None if creation failed.
@@ -19,18 +25,23 @@ def find_or_create_group(client, uri: str | None, name: str, description: str = 
 
     try:
         if uri:
+            _dbg(debug, f"get_variables_group(uri={uri!r})")
             response = variables_api.get_variables_group(uri)
+            _dbg(debug, f"  response: {response}")
             if response:
                 group_data = response if isinstance(response, dict) else response.to_dict()
                 return group_data.get("uri")
 
+        _dbg(debug, "search_variables_groups()")
         groups = variables_api.search_variables_groups()
+        _dbg(debug, f"  response: {groups}")
         if groups:
             for group in groups:
                 group_data = group if isinstance(group, dict) else group.to_dict()
                 if group_data.get("name") == name:
                     return group_data.get("uri")
 
+        _dbg(debug, f"Creating group(name={name!r}, description={description!r})")
         confirm = input(f"Group '{name}' not found. Create it? (y/n): ").strip().lower()
         if confirm != 'y':
             print(f"  ℹ Group creation cancelled for '{name}'.")
@@ -38,6 +49,7 @@ def find_or_create_group(client, uri: str | None, name: str, description: str = 
 
         group_dto = VariablesGroupCreationDTO(name=name, description=description, variables=[])
         response = variables_api.create_variables_group(body=group_dto)
+        _dbg(debug, f"  response: {response}")
 
         if response and hasattr(response, "uri"):
             return response.uri
@@ -46,5 +58,8 @@ def find_or_create_group(client, uri: str | None, name: str, description: str = 
 
     except Exception as e:
         print(f"  ⚠️  Error managing group '{name}': {e}")
+        if debug:
+            import traceback
+            traceback.print_exc()
 
     return None

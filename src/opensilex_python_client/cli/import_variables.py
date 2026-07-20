@@ -199,7 +199,7 @@ def main():
     # 2. Import des variables
     if args.verbose:
         print("\n🔄 Import des variables en cours...")
-    grouped_vars = import_from_csv.run(client, args.csv_path, args.yaml_config_path)
+    grouped_vars = import_from_csv.run(client, args.csv_path, args.yaml_config_path, debug=args.verbose)
 
     # 3. Rattachement aux groupes
     if args.attach_variables_to_group and not args.skip_groups:

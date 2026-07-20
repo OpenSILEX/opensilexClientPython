@@ -1,33 +1,39 @@
 """Check if variable exists in OpenSILEX."""
 
+from typing import Any
 
 from opensilexClientToolsPython import VariablesApi
 
+from .ctx import VariablesContext
 
-def exists(client, name: str = None, uri: str = None) -> str | None:
-    """Check if a variable exists by name or URI.
+
+def exists_variable_ctx(ctx: VariablesContext, name: str | None = None,
+                        uri: str | None = None) -> str | None:
+    """Check if variable exists using context.
 
     Args:
-        client: OpenSILEX client instance
+        ctx: Variables context
         name: Variable name to search for
-        uri: Variable URI to search for
+        uri: Variable URI to lookup
 
     Returns:
         Variable URI if found, None otherwise
     """
     try:
-        variables_api = VariablesApi(client)
+        api = VariablesApi(ctx.client)
 
         if uri:
-            # Search by URI
-            response = variables_api.get_variable(uri)
+            ctx.debug_log(f"get_variable(uri={uri!r})")
+            response = api.get_variable(uri)
+            ctx.debug_log(f"  response: {response}")
             if response:
                 print(f"  ✓ Variable exists: {uri}")
                 return uri
 
         if name:
-            # Search by name
-            response = variables_api.search_variables(name=name)
+            ctx.debug_log(f"search_variables(name={name!r})")
+            response = api.search_variables(name=name)
+            ctx.debug_log(f"  response: {response}")
             if response and isinstance(response, dict) and "result" in response:
                 for var in response["result"]:
                     var_name = var.get("name") if isinstance(var, dict) else getattr(var, "name", None)
@@ -35,8 +41,27 @@ def exists(client, name: str = None, uri: str = None) -> str | None:
                         var_uri = var.get("uri") if isinstance(var, dict) else getattr(var, "uri", None)
                         print(f"  ✓ Variable exists: {name} → {var_uri}")
                         return var_uri
-
     except Exception as e:
         print(f"  ✗ Error searching variable: {e}")
-
+        if ctx.debug:
+            import traceback
+            traceback.print_exc()
     return None
+
+
+def exists(client: Any, name: str | None = None, uri: str | None = None, debug: bool = False) -> str | None:
+    """Check if a variable exists by name or URI.
+
+    Backward-compatible public API.
+
+    Args:
+        client: OpenSILEX client instance
+        name: Variable name to search for
+        uri: Variable URI to lookup
+        debug: If True, print API call details
+
+    Returns:
+        Variable URI if found, None otherwise
+    """
+    ctx = VariablesContext(client=client, debug=debug)
+    return exists_variable_ctx(ctx, name=name, uri=uri)

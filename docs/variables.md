@@ -7,9 +7,47 @@ Import CSV data as OpenSILEX variables with configurable column mapping, auto-ge
 The variable import script processes a CSV file to create OpenSILEX variables. For each row, it:
 
 1. **Resolves column mapping** — matches CSV columns to semantic roles (Entity, Characteristic, Method, Unit, Variable, etc.)
-2. **Creates components** — auto-generates Entity, Characteristic, Method and Unit components from their names
-3. **Creates variables** — creates the variable and links it to the generated components
-4. **Attaches to groups** — attaches variables to configured OpenSILEX groups
+2. **Validates variables** — checks for required fields and duplicate variable names. Displays a summary table of ignored variables and requests user confirmation before proceeding.
+3. **Creates components** — resolves or creates Entity, Characteristic, Method and Unit components (by URI if provided, otherwise by name)
+4. **Creates variables** — creates the variable and links it to the resolved components
+5. **Attaches to groups** — attaches variables to configured OpenSILEX groups
+
+## Usage
+
+The script can be used in two ways:
+
+### CLI (Command Line)
+
+```bash
+uv run run-variable-import \
+    --host http://localhost:8666/rest \
+    --identifier admin@opensilex.org \
+    --password secret \
+    --csv variables.csv \
+    --config config.yaml \
+    --verbose
+```
+
+### Programmatic API (Notebook / Script)
+
+```python
+from opensilex_python_client.auth import connect
+from opensilex_python_client.variables import import_from_csv
+from opensilex_python_client.variables.groups import update
+
+# 1. Authenticate
+with open('credentials.json') as f:
+    credentials_dict = json.load(f)
+
+client = connect.connect_to_opensilex(credentials_dict)
+
+# 2. Import (creates components + variables automatically)
+# Third argument 'True' enables verbose output
+grouped_vars = import_from_csv.run(client, "variables.csv", "config.yaml", True)
+
+# 3. Attach to groups
+update.attach_to_groups(client, grouped_vars, "config.yaml")
+```
 
 ## Execution Flow
 
@@ -42,12 +80,19 @@ The variable import script processes a CSV file to create OpenSILEX variables. F
         │
         ▼
 ┌───────────────────────────────────┐
+│  Validate Variables               │
+│  - check required fields          │
+│  - detect duplicate names         │
+│  - prompt user for confirmation   │
+└───────┬───────────────────────────┘
+        │
+        ▼
+┌───────────────────────────────────┐
 │  Step 1: Create components        │
 │  - find or create Entity          │
 │  - find or create Characteristic   │
 │  - find or create Method          │
 │  - find or create Unit            │
-│  - save enriched CSV with URIs    │
 └───────┬───────────────────────────┘
         │
         ▼
@@ -61,11 +106,9 @@ The variable import script processes a CSV file to create OpenSILEX variables. F
         │
         ▼
 ┌───────────────────────────────────┐
-│  Step 3: Attach to groups         │
-│  (skip with --skip-groups)        │
-│  - get existing group variables   │
-│  - deduplicate and merge          │
-│  - update group via API           │
+│  Step 3: Finalize and Save        │
+│  - save enriched CSV with ALL URIs │
+│  - attach to groups                │
 └───────┬───────────────────────────┘
         │
         ▼
@@ -73,6 +116,52 @@ The variable import script processes a CSV file to create OpenSILEX variables. F
 │  Summary + exit code 0  │
 └─────────────────────────┘
 ```
+
+## Component Resolution (find_or_create)
+
+Each of the four component types (Entity, Characteristic, Method, Unit) is resolved through the same `find_or_create` pattern:
+
+```
+┌─────────────────────────────┐
+│  URI provided in CSV?       │
+│                             │
+│  Yes → get_by_uri() API     │
+│         Found → return URI  │
+│         Not found → fall through
+│  No  → fall through         │
+└──────────┬──────────────────┘
+           │
+           ▼
+┌─────────────────────────────┐
+│  search_by_name() API       │
+│  Found → return URI         │
+│  Not found → fall through   │
+└──────────┬──────────────────┘
+           │
+           ▼
+┌─────────────────────────────┐
+│  create() API               │
+│  (using name + description) │
+│  Return new URI             │
+└─────────────────────────────┘
+```
+
+### Resolution Details
+
+| Step | API Call | When |
+|------|----------|------|
+| **Look up by URI** | `get_entity(uri)`, `get_characteristic(uri)`, etc. | When the CSV provides a `{component}_uri` column with a value |
+| **Search by name** | `search_entities(name=...)`, `search_characteristics(name=...)`, etc. | Fallback when URI lookup fails or no URI is provided |
+| **Create** | `create_entity(body=...)`, `create_characteristic(body=...)`, etc. | Last resort when the component doesn't exist in the system |
+
+This means you can:
+- **Reference existing components by URI** — if the CSV contains `Entity_uri=http://purl.example/id/123`, the script looks it up directly
+- **Reference by name only** — if only `Entity_name=Plant` is provided, the script searches for an existing component with that name and reuses it
+- **Auto-create** — if neither URI nor name matches an existing component, a new one is created from the name (and description if provided)
+
+### Duplicate Handling
+
+Components are deduplicated automatically. If the same entity name (or URI) appears in multiple CSV rows, the component is created only once and the same URI is reused for all rows.
 
 ## Column Mapping
 
@@ -97,8 +186,10 @@ Each CSV column is mapped to a semantic role. A role represents a part of the va
 | `entity_definition` | No | Entity definition | `Entity_Definition` |
 | `characteristic_definition` | No | Characteristic definition | `characteristic_definition` |
 | `method_definition` | No | Method definition | `Method_Definition` |
-| `group1` | No | First group membership | `Group1` |
-| `group2` | No | Second group membership | `Group2` |
+| `entity_uri` | No | Existing Entity URI to link (bypasses search-and-create) | `Entity_uri` |
+| `characteristic_uri` | No | Existing Characteristic URI to link | `Characteristic_uri` |
+| `method_uri` | No | Existing Method URI to link | `Method_uri` |
+| `unit_uri` | No | Existing Unit URI to link | `Unit_uri` |
 
 ### Mapping Behavior
 
@@ -119,6 +210,24 @@ Column indices are 1-based:
 
 An index that is 0, negative, or exceeds the number of columns triggers an error (required) or warning (optional).
 
+## Enriched CSV Output
+
+After the import process, the script writes an enriched CSV file alongside the original:
+
+- `variables.csv` → `variables_enriched.csv`
+
+The enriched CSV contains all original columns plus five generated columns:
+
+| Generated Column | Source |
+|---|---|
+| `Final_Entity_URI` | URI resolved/created for the entity |
+| `Final_Characteristic_URI` | URI resolved/created for the characteristic |
+| `Final_Method_URI` | URI resolved/created for the method |
+| `Final_Unit_URI` | URI resolved/created for the unit |
+| `Final_Variable_URI` | URI resolved/created for the variable |
+
+This enriched file can be reused in subsequent imports to reference components and variables by their resolved URIs, avoiding redundant lookups or creations.
+
 ## YAML Configuration
 
 ### `csv` Section
@@ -137,8 +246,9 @@ csv:
     variable_description: "Description"
     variable_alternative_name: 7
     time_interval: 8
-    group1: 9
-    group2: 10
+    entity_uri: 9                     # optional: reference existing Entity by URI
+    group1: 10
+    group2: 11
 ```
 
 #### Validation
@@ -171,6 +281,20 @@ groups:
 
 The `find_target_groups` function scans the resolved `group1` and `group2` columns (from the col_map). Each cell may contain multiple group names separated by `;`, `,`, or `|`. Unrecognized group names are silently ignored. If no groups are found and a `default_group` is configured, the default group is used.
 
+### `--create-groups` Flag
+
+When `--create-groups` is passed on the CLI, groups listed in `available_groups` are automatically created if they don't exist:
+
+```bash
+uv run run-variable-import \
+    --host http://localhost:8666/rest \
+    --identifier admin@opensilex.org \
+    --password secret \
+    --csv variables.csv \
+    --config config.yaml \
+    --create-groups
+```
+
 ## CSV Examples
 
 ### Standard CSV (default column names)
@@ -180,6 +304,18 @@ Entity_name,Characteristic_name,Method_name,Unit_name,Variable_name,Datatype_uri
 Plant,Height,Manual,Centimeter,Plant_Height_cm,http://www.w3.org/2001/XMLSchema#decimal,Plant height in centimeters,Phenotyping,Environment
 Soil,Temperature,Sensor,Celsius,Soil_Temp_C,http://www.w3.org/2001/XMLSchema#decimal,Soil temperature in Celsius,Environment,
 ```
+
+### CSV with URI references (reuse existing components)
+
+```csv
+Entity_uri,Entity_name,Characteristic_uri,Characteristic_name,Method_name,Unit_name,Variable_name,Datatype_uri
+http://purl.example/id/Entity/plant,Plant,http://purl.example/id/Characteristic/height,Height,Manual,Centimeter,Plant_Height_cm,http://www.w3.org/2001/XMLSchema#decimal
+http://purl.example/id/Entity/soil,Soil,,Temperature,Sensor,Celsius,Soil_Temp_C,http://www.w3.org/2001/XMLSchema#decimal
+```
+
+In this example:
+- Row 1: Entity and Characteristic are looked up by URI; Method and Unit are resolved by name.
+- Row 2: Entity is looked up by URI; Characteristic has no URI and is resolved by name (search or create).
 
 ### Custom Headers CSV (mapped via config)
 
@@ -226,6 +362,13 @@ csv:
 | `_resolve_single_column(role, raw_value, df, errors, warnings)` | → `str \| None` | Resolves a single role mapping (int or str) |
 | `_get_safe(row, col_map, role, default)` | → `Any` | Reads a value from a row safely, returning `default` when the column is not mapped |
 | `find_target_groups(row, config, col_map)` | → `list[str]` | Returns group URIs for a row based on configured group mapping |
+| `find_or_create_entity(client, uri, name, description)` | → `str \| None` | Look up entity by URI, then by name, or create it |
+| `find_or_create_characteristic(client, uri, name, description)` | → `str \| None` | Look up characteristic by URI, then by name, or create it |
+| `find_or_create_method(client, uri, name, description)` | → `str \| None` | Look up method by URI, then by name, or create it |
+| `find_or_create_unit(client, uri, name, description)` | → `str \| None` | Look up unit by URI, then by name, or create it |
+| `find_or_create_group(client, uri, name, description)` | → `str \| None` | Look up group by URI, then by name, or create it |
+| `exists(client, name, uri)` | → `str \| None` | Check if a variable exists by name or URI |
+| `create_variable(client, data)` | → `str \| None` | Create a variable from a data dict and return its URI |
 
 ## CLI Arguments
 
@@ -237,6 +380,7 @@ csv:
 | `--csv` | Path to the CSV input file. | – (required) |
 | `--config` | Path to the YAML configuration file. | – (required) |
 | `--skip-groups` | Skip attaching variables to groups. | `False` |
+| `--create-groups` | Auto-create groups listed in `available_groups` if they don't exist. | `False` |
 | `--verbose` / `-v` | Print detailed logs. | `False` |
 
 ```bash

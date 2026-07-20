@@ -1,1 +1,0 @@
-"""Internal components (private use)."""
