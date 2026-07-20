@@ -1,14 +1,14 @@
- 
 """Manage variable groups in OpenSILEX."""
 
 from opensilexClientToolsPython import VariablesApi, VariablesGroupCreationDTO
 
 
-def find_or_create_group(client, name: str, description: str = "") -> str | None:
-    """Find a group by name or create it if it doesn't exist.
+def find_or_create_group(client, uri: str | None, name: str, description: str = "") -> str | None:
+    """Find a group by URI or name, or create it if it doesn't exist.
 
     Args:
         client: OpenSILEX client instance
+        uri: Optional URI of the group to look up
         name: Name of the group to find or create
         description: Optional description for the group
 
@@ -18,7 +18,12 @@ def find_or_create_group(client, name: str, description: str = "") -> str | None
     variables_api = VariablesApi(client)
 
     try:
-        # Search for existing group by name
+        if uri:
+            response = variables_api.get_variables_group(uri)
+            if response:
+                group_data = response if isinstance(response, dict) else response.to_dict()
+                return group_data.get("uri")
+
         groups = variables_api.search_variables_groups()
         if groups:
             for group in groups:
@@ -26,7 +31,6 @@ def find_or_create_group(client, name: str, description: str = "") -> str | None
                 if group_data.get("name") == name:
                     return group_data.get("uri")
 
-        # Group not found, ask user for confirmation to create it
         confirm = input(f"Group '{name}' not found. Create it? (y/n): ").strip().lower()
         if confirm != 'y':
             print(f"  ℹ Group creation cancelled for '{name}'.")

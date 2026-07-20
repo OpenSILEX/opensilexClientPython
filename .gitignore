@@ -52,3 +52,4 @@ htmlcov/
 .nox/
 .pytest_cache/
 .kilo
+notebooks/data_examples/*

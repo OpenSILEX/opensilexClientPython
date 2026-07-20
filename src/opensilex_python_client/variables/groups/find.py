@@ -8,16 +8,17 @@ import pandas as pd
 def find_target_groups(
     row: pd.Series,
     config: dict[str, Any],
-    col_map: dict[str, str] | None = None,
+    columns: list[str] | None = None,
 ) -> list[str]:
     """Find which groups a variable should belong to.
 
+    Uses groups.group_mapping (dict: group_name → column).
+    A row is assigned to a group when the cell value equals the group name.
+
     Args:
-        row: CSV row containing group information
-        config: Configuration dictionary with group settings
-        col_map: Optional resolved column mapping {role: column_name}.
-                 If provided, group1/group2 are looked up via this mapping.
-                 If not provided, falls back to config groups.group_columns.
+        row: CSV row
+        config: Configuration dict with group settings
+        columns: List of CSV column names (used to resolve integer-based mappings)
 
     Returns:
         List of group URIs for this variable
@@ -25,31 +26,47 @@ def find_target_groups(
     group_config = config.get("groups", {})
     available_groups = group_config.get("available_groups", {})
     default_group = group_config.get("default_group")
-    group_columns = group_config.get("group_columns", ["Group1", "Group2"])
+    group_mapping = group_config.get("group_mapping", {})
 
-    target_groups = []
+    target_groups: list[str] = []
 
-    # Determine which columns to scan for group names
-    scanned_cols: list[str] = []
-    if col_map:
-        for role in ("group1", "group2"):
-            col_name = col_map.get(role)
-            if col_name and col_name not in scanned_cols:
-                scanned_cols.append(col_name)
-    if not scanned_cols:
-        scanned_cols = group_columns
-
-    for col in scanned_cols:
-        if col in row and pd.notna(row[col]):
-            group_names = str(row[col]).replace(",", ";").replace("|", ";").split(";")
-            for gname in group_names:
-                gname = gname.strip()
-                if gname in available_groups:
-                    group_uri = available_groups[gname]
-                    if group_uri not in target_groups:
-                        target_groups.append(group_uri)
+    for group_name, col_spec in group_mapping.items():
+        col_name = _resolve_group_column(col_spec, columns)
+        if col_name is None:
+            continue
+        if col_name not in row or pd.isna(row[col_name]):
+            continue
+        cell = str(row[col_name]).strip()
+        if not cell:
+            continue
+        group_names = cell.replace(",", ";").replace("|", ";").split(";")
+        for gname in group_names:
+            gname = gname.strip()
+            if gname == group_name and group_name in available_groups:
+                group_uri = available_groups[group_name]
+                if group_uri not in target_groups:
+                    target_groups.append(group_uri)
 
     if not target_groups and default_group:
         target_groups.append(default_group)
 
     return target_groups
+
+
+def _resolve_group_column(
+    col_spec: Any,
+    columns: list[str] | None,
+) -> str | None:
+    """Resolve a group_mapping column spec to a column name.
+
+    Supports:
+      - str → column header name (returned as-is)
+      - int → 1-indexed column number (resolved via columns)
+    """
+    if isinstance(col_spec, int):
+        if columns and 1 <= col_spec <= len(columns):
+            return columns[col_spec - 1]
+        return None
+    if isinstance(col_spec, str):
+        return col_spec
+    return None

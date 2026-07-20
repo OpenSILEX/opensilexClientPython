@@ -218,17 +218,13 @@ def main():
             print("⚙️  Vérification/Création des groupes du fichier config...")
         # Implementation for create_groups logic based on YAML config
         # we'll need to extract groups from YAML and call find_or_create_group
-        import pandas as pd
         from opensilex_python_client.file_management.read_yaml import read_yaml
         config = read_yaml(args.yaml_config_path)
         group_config = config.get("groups", {})
         available_groups = group_config.get("available_groups", {})
-        
+
         for group_name, group_uri in available_groups.items():
-            # If we want to ensure they exist, we can use find_or_create_group
-            # However, available_groups usually maps name -> uri.
-            # If create_groups is True, we ensure the name exists.
-            find_or_create_group(client, group_name)
+            find_or_create_group(client, group_uri if group_uri else None, group_name)
 
     print("✅ Import terminé avec succès !")
 

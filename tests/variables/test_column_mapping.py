@@ -1,6 +1,8 @@
 """Unit tests for resolve_column_mapping and helpers."""
 
-from opensilex_python_client.variables.import_from_csv import (
+"""Unit tests for resolve_column_mapping and helpers."""
+
+from opensilex_python_client.variables.import_variables_from_csv import (
     ALL_ROLES,
     DEFAULT_COLUMN_MAPPINGS,
     OPTIONAL_ROLES,

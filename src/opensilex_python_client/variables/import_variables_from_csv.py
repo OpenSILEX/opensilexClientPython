@@ -29,8 +29,10 @@ DEFAULT_COLUMN_MAPPINGS: dict[str, str] = {
     "entity_definition": "Entity_Definition",
     "characteristic_definition": "characteristic_definition",
     "method_definition": "Method_Definition",
-    "group1": "Group1",
-    "group2": "Group2",
+    "entity_uri": "Entity_uri",
+    "characteristic_uri": "Characteristic_uri",
+    "method_uri": "Method_uri",
+    "unit_uri": "Unit_uri"
 }
 
 # Roles that are mandatory in the CSV
@@ -51,8 +53,10 @@ OPTIONAL_ROLES = [
     "entity_definition",
     "characteristic_definition",
     "method_definition",
-    "group1",
-    "group2",
+    "entity_uri",
+    "characteristic_uri",
+    "method_uri",
+    "unit_uri"
 ]
 
 # All known roles
@@ -64,7 +68,11 @@ def resolve_column_mapping(
 ) -> tuple[dict[str, str | None], list[str], list[str]]:
     """Resolve column mapping from config, falling back to defaults.
 
-    For each role, the config value may be:
+    A role is required if it is listed in REQUIRED_ROLES, optional otherwise.
+    The YAML only needs to provide csv.column_mappings (or leave it empty to
+    use the defaults in DEFAULT_COLUMN_MAPPINGS).
+
+    Each mapping value may be:
       - an int (1-indexed column number) → resolved via df.columns
       - a str (column header name) → used as-is
 
@@ -83,7 +91,10 @@ def resolve_column_mapping(
     errors: list[str] = []
     warnings: list[str] = []
 
-    for role in ALL_ROLES:
+    # All roles come from the mapping keys (defaults + user overrides)
+    roles_to_check: set[str] = set(merged.keys()) | set(ALL_ROLES)
+
+    for role in roles_to_check:
         raw_value = merged.get(role)
 
         if raw_value is None:
@@ -218,28 +229,32 @@ def run(client, csv_path: str, config_path: str) -> dict[str, list[str]]:
     df_enriched["Generated_Unit_uri"] = None
 
     for idx, row in df.iterrows():
+        entity_uri = _clean_uri(_get_safe(row, col_map, "entity_uri"))
         entity_name = _get_safe(row, col_map, "entity_name")
         if pd.notna(entity_name):
             entity_desc = _get_safe(row, col_map, "entity_definition", "")
-            uri = find_or_create_entity(client, str(entity_name), str(entity_desc))
-            df_enriched.at[idx, "Generated_Entity_uri"] = _clean_uri(uri)
+            res = find_or_create_entity(client, entity_uri if entity_uri else None, str(entity_name), str(entity_desc))
+            df_enriched.at[idx, "Generated_Entity_uri"] = _clean_uri(res)
 
+        char_uri = _clean_uri(_get_safe(row, col_map, "characteristic_uri"))
         char_name = _get_safe(row, col_map, "characteristic_name")
         if pd.notna(char_name):
             char_desc = _get_safe(row, col_map, "characteristic_definition", "")
-            uri = find_or_create_characteristic(client, str(char_name), str(char_desc))
-            df_enriched.at[idx, "Generated_Characteristic_uri"] = _clean_uri(uri)
+            res = find_or_create_characteristic(client, char_uri if char_uri else None, str(char_name), str(char_desc))
+            df_enriched.at[idx, "Generated_Characteristic_uri"] = _clean_uri(res)
 
+        method_uri = _clean_uri(_get_safe(row, col_map, "method_uri"))
         method_name = _get_safe(row, col_map, "method_name")
         if pd.notna(method_name):
             method_desc = _get_safe(row, col_map, "method_definition", "")
-            uri = find_or_create_method(client, str(method_name), str(method_desc))
-            df_enriched.at[idx, "Generated_Method_uri"] = _clean_uri(uri)
+            res = find_or_create_method(client, method_uri if method_uri else None, str(method_name), str(method_desc))
+            df_enriched.at[idx, "Generated_Method_uri"] = _clean_uri(res)
 
+        unit_uri = _clean_uri(_get_safe(row, col_map, "unit_uri"))
         unit_name = _get_safe(row, col_map, "unit_name")
         if pd.notna(unit_name):
-            uri = find_or_create_unit(client, str(unit_name))
-            df_enriched.at[idx, "Generated_Unit_uri"] = _clean_uri(uri)
+            res = find_or_create_unit(client, unit_uri if unit_uri else None, str(unit_name))
+            df_enriched.at[idx, "Generated_Unit_uri"] = _clean_uri(res)
 
     # Save enriched CSV
     output_path = csv_path.replace(".csv", "_with_uris.csv")
@@ -301,7 +316,7 @@ def run(client, csv_path: str, config_path: str) -> dict[str, list[str]]:
                 continue
 
         # Determine target groups
-        target_groups = find_target_groups(row, config, mapped_cols)
+        target_groups = find_target_groups(row, config, list(df.columns))
 
         for group_uri in target_groups:
             if group_uri not in grouped_variables:

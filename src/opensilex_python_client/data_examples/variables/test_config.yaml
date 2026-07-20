@@ -2,11 +2,17 @@
 # URIs are auto-generated from names only
 
 csv:
-  # Optional: map semantic roles to CSV columns.
+  # Map semantic roles to CSV columns.
   # Each value can be:
   #   - an integer (1-indexed column number)
   #   - a string (column header name)
   # If omitted, default column names are used (Entity_name, Characteristic_name, etc.)
+  #
+  # Required roles: entity_name, characteristic_name, method_name, unit_name,
+  #                 variable_name, datatype_uri
+  # Optional roles: variable_description, variable_alternative_name, time_interval,
+  #                entity_definition, characteristic_definition, method_definition,
+  #                entity_uri, characteristic_uri, method_uri, unit_uri
   column_mappings:
     entity_name: "Entity_name"
     characteristic_name: "Characteristic_name"
@@ -17,40 +23,22 @@ csv:
     variable_description: "Variable_description"
     variable_alternative_name: "Variable_alternative_name"
     time_interval: "Time_interval"
-    group1: "Group1"
-    group2: "Group2"
-
-  # REQUIRED columns in your CSV
-  required_columns:
-    - "Entity_name"           # Entity name (ex: Plant, Soil)
-    - "Characteristic_name"   # Characteristic name (ex: Height, Temperature)
-    - "Method_name"           # Method name (ex: Manual, Sensor)
-    - "Unit_name"            # Unit name (ex: Centimeter, Celsius)
-    - "Variable_name"        # Variable name (ex: Plant_Height_cm)
-    - "Datatype_uri"         # Datatype URI
-  
-  # OPTIONAL columns in your CSV
-  optional_columns:
-    - "Variable_description"       # Variable description
-    - "Variable_alternative_name"  # Alternative name
-    - "Entity_Definition"          # Entity definition
-    - "characteristic_definition"  # Characteristic definition
-    - "Method_Definition"          # Method definition
-    - "Time_interval"             # Time interval
-    - "Group1"                    # First group membership
-    - "Group2"                    # Second group membership
+    entity_uri: "Entity_uri"
+    characteristic_uri: "Characteristic_uri"
+    method_uri: "Method_uri"
+    unit_uri: "Unit_uri"
 
 groups:
-  # CSV columns containing group names
-  group_columns:
-    - "Group1"
-    - "Group2"
+  # Map group name → CSV column (int index or string header name)
+  group_mapping:
+    "ExampleGroup": 9
+    # "Environment": "Group1"
   
   # Mapping: Group name (in CSV) → Group URI (in OpenSILEX)
   available_groups:
-    "Phenotyping": "http://opensilex.test/id/variablesGroup/phenotyping"
-    "Environment": "http://opensilex.test/id/variablesGroup/environment"
+    # "Phenotyping": "http://opensilex.test/id/variablesGroup/phenotyping"
+    # "Environment": "http://opensilex.test/id/variablesGroup/environment"
     "ExampleGroup": "http://opensilex.test/id/variablesGroup/example"
   
-  # Default group for variables without Group1 or Group2 (optional)
-  default_group: "http://opensilex.test/id/variablesGroup/default"
+  # Default group for variables without a group (optional)
+  default_group: "http://opensilex.test/id/variablesGroup/example"

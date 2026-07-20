@@ -1,7 +1,24 @@
 """Fixtures for column mapping and group resolution tests."""
 
+from unittest.mock import MagicMock
+
 import pandas as pd
 import pytest
+
+
+@pytest.fixture
+def mock_client():
+    """Mock of opensilexClientToolsPython.ApiClient."""
+    client = MagicMock()
+    client.default_headers = {"Authorization": "Bearer token"}
+    return client
+
+
+@pytest.fixture
+def mock_variables_api(mock_client):
+    """Mock of opensilexClientToolsPython.VariablesApi."""
+    api = MagicMock()
+    return api
 
 
 @pytest.fixture
@@ -18,8 +35,9 @@ def sample_df():
             "Variable_description": "Plant height",
             "Variable_alternative_name": "PH_cm",
             "Time_interval": "",
-            "Group1": "Phenotyping",
-            "Group2": "Environment",
+            "Phenotyping": "Phenotyping",
+            "Environment": "Environment",
+            "Group2": "",
         },
         {
             "Entity_name": "Soil",
@@ -31,7 +49,8 @@ def sample_df():
             "Variable_description": "Soil temperature",
             "Variable_alternative_name": "ST_C",
             "Time_interval": "",
-            "Group1": "Environment",
+            "Phenotyping": "",
+            "Environment": "Environment",
             "Group2": "",
         },
     ])
@@ -51,8 +70,9 @@ def custom_header_df():
             "Description": "Plant height",
             "NomAlt": "PH_cm",
             "Interval": "",
-            "Groupe1": "Phenotyping",
-            "Groupe2": "Environment",
+            "Phenotyping": "Phenotyping",
+            "Environment": "Environment",
+            "Groupe2": "",
         },
     ])
 
@@ -83,7 +103,10 @@ def default_config():
     return {
         "csv": {},
         "groups": {
-            "group_columns": ["Group1", "Group2"],
+            "group_mapping": {
+                "Phenotyping": "Phenotyping",
+                "Environment": "Environment",
+            },
             "available_groups": {
                 "Phenotyping": "http://opensilex.test/id/variablesGroup/phenotyping",
                 "Environment": "http://opensilex.test/id/variablesGroup/environment",
@@ -108,7 +131,10 @@ def index_based_config():
             }
         },
         "groups": {
-            "group_columns": ["Group1", "Group2"],
+            "group_mapping": {
+                "Phenotyping": 10,
+                "Environment": 11,
+            },
             "available_groups": {},
         },
     }
@@ -128,12 +154,13 @@ def custom_header_config():
                 "datatype_uri": "TypeDonnee",
                 "variable_description": "Description",
                 "variable_alternative_name": "NomAlt",
-                "group1": "Groupe1",
-                "group2": "Groupe2",
             }
         },
         "groups": {
-            "group_columns": ["Groupe1", "Groupe2"],
+            "group_mapping": {
+                "Phenotyping": "Phenotyping",
+                "Environment": "Environment",
+            },
             "available_groups": {
                 "Phenotyping": "http://opensilex.test/id/variablesGroup/phenotyping",
                 "Environment": "http://opensilex.test/id/variablesGroup/environment",
@@ -149,16 +176,19 @@ def hybrid_config():
     return {
         "csv": {
             "column_mappings": {
-                "entity_name": 1,  # integer
-                "characteristic_name": "Characteristic_name",  # string
-                "method_name": 3,  # integer
-                "unit_name": 4,  # integer
-                "variable_name": "Variable_name",  # string
-                "datatype_uri": "Datatype_uri",  # string
+                "entity_name": 1,
+                "characteristic_name": "Characteristic_name",
+                "method_name": 3,
+                "unit_name": 4,
+                "variable_name": "Variable_name",
+                "datatype_uri": "Datatype_uri",
             }
         },
         "groups": {
-            "group_columns": ["Group1", "Group2"],
+            "group_mapping": {
+                "Phenotyping": 10,
+                "Environment": 11,
+            },
             "available_groups": {},
         },
     }
