@@ -1,12 +1,13 @@
 """Shared context for variable import operations."""
 
-import logging
 from dataclasses import dataclass, field
 from typing import Any
 
 import pandas as pd
 
-logger = logging.getLogger(__name__)
+from .._logging import get_logger
+
+logger = get_logger(__name__)
 
 
 @dataclass
@@ -18,7 +19,8 @@ class VariablesContext:
     debug: bool = False
 
     def debug_log(self, msg: str) -> None:
-        logger.debug(msg)
+        if self.debug:
+            logger.debug(msg)
 
     def clean_uri(self, value: Any) -> str | None:
         if value is None or pd.isna(value):

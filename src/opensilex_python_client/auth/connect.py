@@ -1,10 +1,11 @@
-import logging
 import sys
 
 import opensilexClientToolsPython
 from rich.console import Console
 
-logger = logging.getLogger(__name__)
+from .._logging import get_logger
+
+logger = get_logger(__name__)
 _console = Console()
 
 

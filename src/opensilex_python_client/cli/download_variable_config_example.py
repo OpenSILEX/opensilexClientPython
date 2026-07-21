@@ -1,11 +1,11 @@
 import argparse
-import logging
 
 from rich.console import Console
 
-from opensilex_python_client.variables.download_config_example import EXAMPLE_FILES, download_variables_config
+from .._logging import get_logger
+from ..variables.download_config_example import EXAMPLE_FILES, download_variables_config
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 _console = Console()
 
 

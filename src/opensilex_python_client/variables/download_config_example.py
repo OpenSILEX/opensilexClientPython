@@ -1,9 +1,10 @@
 import importlib.resources as pkg_resources
-import logging
 import shutil
 from pathlib import Path
 
-logger = logging.getLogger(__name__)
+from .._logging import get_logger
+
+logger = get_logger(__name__)
 
 EXAMPLE_FILES = [
     "test_variables.csv",

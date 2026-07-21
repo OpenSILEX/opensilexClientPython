@@ -1,11 +1,12 @@
 """Generic YAML file reader."""
 
-import logging
 from typing import Any
 
 import yaml
 
-logger = logging.getLogger(__name__)
+from .._logging import get_logger
+
+logger = get_logger(__name__)
 
 
 def read_yaml(yaml_path: str) -> dict[str, Any]:

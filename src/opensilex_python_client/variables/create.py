@@ -1,14 +1,14 @@
 """Create variables in OpenSILEX."""
 
-import logging
 from dataclasses import dataclass
 from typing import Any
 
 from opensilexClientToolsPython import VariableCreationDTO, VariablesApi
 
+from .._logging import get_logger
 from .ctx import VariablesContext
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 @dataclass

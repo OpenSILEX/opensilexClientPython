@@ -1,11 +1,12 @@
 """Manage variable groups in OpenSILEX."""
 
 import ast
-import logging
 
 from opensilexClientToolsPython import OntologyApi, VariablesApi, VariablesGroupCreationDTO, VariablesGroupUpdateDTO
 
-logger = logging.getLogger(__name__)
+from ..._logging import get_logger
+
+logger = get_logger(__name__)
 
 
 def _dbg(debug, msg):

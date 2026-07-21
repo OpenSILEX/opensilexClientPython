@@ -1,13 +1,13 @@
 """Check if variable exists in OpenSILEX."""
 
-import logging
 from typing import Any
 
 from opensilexClientToolsPython import VariablesApi
 
+from .._logging import get_logger
 from .ctx import VariablesContext
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def exists_variable_ctx(ctx: VariablesContext, name: str | None = None, uri: str | None = None) -> str | None:

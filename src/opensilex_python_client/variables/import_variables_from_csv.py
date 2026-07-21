@@ -1,11 +1,13 @@
 """Import variables from CSV file - AUTO-GENERATION from names only."""
 
-import logging
 import sys
+from pathlib import Path
 from typing import Any
 
 import pandas as pd
+from rich.progress import Progress, track
 
+from .._logging import get_logger, setup_logging
 from ..file_management.read_csv import read_csv
 from ..file_management.read_yaml import read_yaml
 from ._component_resolver import find_or_create_component
@@ -14,7 +16,7 @@ from .ctx import VariablesContext
 from .exists import exists_variable_ctx
 from .groups.find import find_target_groups
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 # Default column mapping when no column_mappings section is provided
 DEFAULT_COLUMN_MAPPINGS: dict[str, str] = {
@@ -204,14 +206,18 @@ def _resolve_components(ctx: VariablesContext, df: pd.DataFrame, col_map: dict[s
     for _comp_key, comp_title in COMPONENT_FIELDS:
         enriched[f"Final_{comp_title}_URI"] = None
 
-    for idx, row in df.iterrows():
-        for comp_key, comp_title in COMPONENT_FIELDS:
-            uri = ctx.clean_uri(ctx.row_value(row, col_map, f"{comp_key}_uri"))
-            name = ctx.row_value(row, col_map, f"{comp_key}_name")
-            desc = str(ctx.row_value(row, col_map, f"{comp_key}_definition", ""))
-            if pd.notna(name):
-                resolved = find_or_create_component(ctx, comp_key, uri, str(name), desc)
-                enriched.at[idx, f"Final_{comp_title}_URI"] = ctx.clean_uri(resolved)
+    total = len(df) * len(COMPONENT_FIELDS)
+    with Progress() as p:
+        pbar = p.add_task("Resolving components...", total=total)
+        for idx, row in df.iterrows():
+            for comp_key, comp_title in COMPONENT_FIELDS:
+                uri = ctx.clean_uri(ctx.row_value(row, col_map, f"{comp_key}_uri"))
+                name = ctx.row_value(row, col_map, f"{comp_key}_name")
+                desc = str(ctx.row_value(row, col_map, f"{comp_key}_definition", ""))
+                if pd.notna(name):
+                    resolved = find_or_create_component(ctx, comp_key, uri, str(name), desc)
+                    enriched.at[idx, f"Final_{comp_title}_URI"] = ctx.clean_uri(resolved)
+                p.advance(pbar)
     return enriched
 
 
@@ -249,7 +255,7 @@ def _create_variables(
     enriched_vars = df.copy()
     enriched_vars["Final_Variable_URI"] = None
 
-    for idx, row in df.iterrows():
+    for idx, row in track(df.iterrows(), total=len(df), description="Creating variables"):
         var_data = _build_variable_data(ctx, row, col_map, df, idx)
         if not var_data.valid:
             logger.error("Missing required field for variable: %s", var_data.name)
@@ -296,6 +302,10 @@ def run(client: Any, csv_path: str, config_path: str, debug: bool = False) -> di
     print("\nLoading CSV and configuration...")
     df = read_csv(csv_path)
     config = read_yaml(config_path)
+
+    # Set up log file in the same directory as the CSV
+    setup_logging(log_dir=str(Path(csv_path).parent))
+
     ctx = VariablesContext(client=client, config=config, debug=debug)
     logger.info("Loaded %d rows from CSV", len(df))
     print(f"Loaded {len(df)} rows from CSV")

@@ -1,6 +1,5 @@
 """Generic component resolver for entity/characteristic/method/unit."""
 
-import logging
 import traceback
 from dataclasses import dataclass
 from typing import Any
@@ -13,9 +12,10 @@ from opensilexClientToolsPython import (
     VariablesApi,
 )
 
+from .._logging import get_logger
 from .ctx import VariablesContext
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 @dataclass

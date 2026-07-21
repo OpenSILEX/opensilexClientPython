@@ -1,10 +1,10 @@
 """Generic CSV file reader."""
 
-import logging
-
 import pandas as pd
 
-logger = logging.getLogger(__name__)
+from .._logging import get_logger
+
+logger = get_logger(__name__)
 
 
 def read_csv(csv_path: str) -> pd.DataFrame:

@@ -4,18 +4,18 @@ CLI pour l'import de variables OpenSILEX depuis un fichier CSV.
 """
 
 import argparse
-import logging
 import os
 import sys
 
 from rich.console import Console
 
+from opensilex_python_client._logging import get_logger, setup_logging
 from opensilex_python_client.auth import connect
 from opensilex_python_client.variables import import_from_csv
 from opensilex_python_client.variables.groups import manage
 from opensilex_python_client.variables.groups.manage import find_or_create_group
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 _console = Console()
 
 
