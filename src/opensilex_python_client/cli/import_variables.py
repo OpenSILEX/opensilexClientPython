@@ -9,7 +9,7 @@ import sys
 
 from opensilex_python_client.auth import connect
 from opensilex_python_client.variables import import_from_csv
-from opensilex_python_client.variables.groups import update
+from opensilex_python_client.variables.groups import manage
 from opensilex_python_client.variables.groups.manage import find_or_create_group
 
 
@@ -201,18 +201,9 @@ def main():
         print("\n🔄 Import des variables en cours...")
     grouped_vars = import_from_csv.run(client, args.csv_path, args.yaml_config_path, debug=args.verbose)
 
-    # 3. Rattachement aux groupes
-    if args.attach_variables_to_group and not args.skip_groups:
-        if args.verbose:
-            print("🔗 Rattachement aux groupes...")
-        update.attach_to_groups(client, grouped_vars, args.yaml_config_path)
-    elif args.skip_groups:
-        print("⏭️  Rattachement aux groupes ignoré (--skip-groups)")
-    else:
-        print("ℹ️  Rattachement aux groupes désactivé (--attach-variables-to-group False)")
 
     # Note: If --create-groups is enabled, we should ensure groups exist.
-    # This logic might be inside attach_to_groups or we might need to call a helper.
+    # This logic might be inside attach_variables or we might need to call a helper.
     if args.create_groups:
         if args.verbose:
             print("⚙️  Vérification/Création des groupes du fichier config...")
@@ -225,6 +216,17 @@ def main():
 
         for group_name, group_uri in available_groups.items():
             find_or_create_group(client, group_uri if group_uri else None, group_name)
+
+    # 3. Rattachement aux groupes
+    if args.attach_variables_to_group and not args.skip_groups:
+        if args.verbose:
+            print("🔗 Rattachement aux groupes...")
+        manage.attach_variables(client, grouped_vars, args.yaml_config_path)
+    elif args.skip_groups:
+        print("⏭️  Rattachement aux groupes ignoré (--skip-groups)")
+    else:
+        print("ℹ️  Rattachement aux groupes désactivé (--attach-variables-to-group False)")
+
 
     print("✅ Import terminé avec succès !")
 

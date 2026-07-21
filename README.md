@@ -153,7 +153,7 @@ uv run python run-variable-import.py \
         ▼
 ┌─────────────────────┐
 │  Attach to groups   │
-│  (update.attach_to_groups) │
+│  (manage.attach_variables) │
 │  – unless --skip-groups │
 └───────┬─────────────┘
         │

@@ -23,6 +23,6 @@ yaml_config_path = os.path.realpath(
 grouped_vars = import_from_csv.run(client, csv_path, yaml_config_path)
 
 # 4. Attach to groups
-update.attach_to_groups(client, grouped_vars, yaml_config_path)
+manage.attach_variables(client, grouped_vars, yaml_config_path)
 
 print("✅ Import completed!")

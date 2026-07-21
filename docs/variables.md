@@ -46,7 +46,7 @@ client = connect.connect_to_opensilex(credentials_dict)
 grouped_vars = import_from_csv.run(client, "variables.csv", "config.yaml", True)
 
 # 3. Attach to groups
-update.attach_to_groups(client, grouped_vars, "config.yaml")
+manage.attach_variables(client, grouped_vars, "config.yaml")
 ```
 
 ## Execution Flow

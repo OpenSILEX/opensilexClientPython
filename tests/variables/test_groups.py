@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 from opensilex_python_client.variables.groups.find import find_target_groups
 from opensilex_python_client.variables.groups.manage import find_or_create_group
-from opensilex_python_client.variables.groups.update import attach_to_groups
+from opensilex_python_client.variables.groups.update import attach_variables
 
 
 def test_find_target_groups(sample_df, default_config):
@@ -43,7 +43,7 @@ def test_find_or_create_group_creates(mock_client):
         assert result == uri
 
 
-def test_attach_to_groups(mock_client):
+def test_attach_variables(mock_client):
     with patch("opensilex_python_client.variables.groups.update.VariablesApi") as MockVariablesApi:
         mock_api = MockVariablesApi.return_value
 
@@ -59,5 +59,5 @@ def test_attach_to_groups(mock_client):
         }
         mock_api.get_variables_group.return_value = mock_group
 
-        attach_to_groups(mock_client, grouped_vars, config)
+        attach_variables(mock_client, grouped_vars, config)
         assert mock_api.update_variables_group.called

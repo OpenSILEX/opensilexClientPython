@@ -117,7 +117,8 @@ def _validate_variables(df: pd.DataFrame, col_map: dict[str, str | None]) -> tup
         ignored_count = len(ignored)
         console.print(Panel(f"Variables to be created: [bold green]{created_count}[/bold green]\nVariables ignored: [bold red]{ignored_count}[/bold red]"))
         
-        choice = console.input("\n[bold yellow]Do you want to proceed with the creation of the valid variables? (y/n): [/bold yellow]")
+        console.print("\n[bold yellow]Do you want to proceed with the creation of the valid variables? (y/n): [/bold yellow]")
+        choice = input()
         if choice.lower() != 'y':
             console.print("[bold red]Import aborted by user.[/bold red]")
             sys.exit(0)

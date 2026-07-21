@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from opensilexClientToolsPython import VariablesApi
+from opensilexClientToolsPython import VariablesApi, OntologyApi
 
 from .ctx import VariablesContext
 
@@ -21,14 +21,18 @@ def exists_variable_ctx(ctx: VariablesContext, name: str | None = None,
     """
     try:
         api = VariablesApi(ctx.client)
+        ontology_api = OntologyApi(ctx.client)
+        namespace = ontology_api.get_namespace()
 
         if uri:
-            ctx.debug_log(f"get_variable(uri={uri!r})")
-            response = api.get_variable(uri)
+            ctx.debug_log(f"Expanding URI: {uri}")
+            expanded_uri = f"{namespace}{uri}" if namespace and not uri.startswith(namespace) else uri
+            ctx.debug_log(f"get_variable(uri={expanded_uri!r})")
+            response = api.get_variable(expanded_uri)
             ctx.debug_log(f"  response: {response}")
             if response:
-                print(f"  ✓ Variable exists: {uri}")
-                return uri
+                print(f"  ✓ Variable exists: {expanded_uri}")
+                return expanded_uri
 
         if name:
             ctx.debug_log(f"search_variables(name={name!r})")

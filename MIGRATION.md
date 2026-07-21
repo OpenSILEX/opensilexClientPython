@@ -124,16 +124,16 @@ grouped_vars = import_from_csv.run(client, csv_path, config_path)
 
 **AVANT :**
 ```python
-from import_functions import attach_to_groups
+from import_functions import attach_variables
 
-attach_to_groups(client, grouped_variables, config)
+attach_variables(client, grouped_variables, config)
 ```
 
 **APRÈS :**
 ```python
 from opensilexClientPython.variables.groups import update
 
-update.attach_to_groups(client, grouped_vars, config_path)
+manage.attach_variables(client, grouped_vars, config_path)
 ```
 
 ---
@@ -180,7 +180,7 @@ if __name__ == "__main__":
     # STEP 3: Attacher aux groupes
     total_vars = sum(len(set(vars)) for vars in grouped_variables.values())
     if total_vars > 0:
-        attach_to_groups(client, grouped_variables, config)
+        attach_variables(client, grouped_variables, config)
 ```
 
 ---
@@ -208,7 +208,7 @@ config_path = "/path/to/your/groups_config.yaml"
 grouped_vars = import_from_csv.run(client, csv_path, config_path)
 
 # 4. Attacher aux groupes
-update.attach_to_groups(client, grouped_vars, config_path)
+manage.attach_variables(client, grouped_vars, config_path)
 ```
 
 ---
@@ -322,7 +322,7 @@ client = get_client(host, id, pwd, verbose)
 config = load_config(path)
 df_uris = create_components_from_csv(client, df, path)
 grouped = import_variables(client, df_uris, config)
-attach_to_groups(client, grouped, config)
+attach_variables(client, grouped, config)
 ```
 
 **Par :**
@@ -333,7 +333,7 @@ from opensilexClientPython.variables.groups import update
 
 client = connect.connect_to_opensilex({...})
 grouped = import_from_csv.run(client, csv_path, config_path)
-update.attach_to_groups(client, grouped, config_path)
+manage.attach_variables(client, grouped, config_path)
 ```
 
 ---
@@ -399,9 +399,9 @@ client = connect.connect_to_opensilex({
 
 **AVANT :** `import_variables()` retournait directement le résultat
 
-**MAINTENANT :** `run()` retourne `grouped_variables` qui doit être passé à `attach_to_groups()`
+**MAINTENANT :** `run()` retourne `grouped_variables` qui doit être passé à `attach_variables()`
 ```python
 # v2
 grouped_vars = import_from_csv.run(client, csv_path, config_path)
-update.attach_to_groups(client, grouped_vars, config_path)
+manage.attach_variables(client, grouped_vars, config_path)
 ```
