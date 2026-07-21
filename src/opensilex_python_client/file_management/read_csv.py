@@ -1,6 +1,10 @@
 """Generic CSV file reader."""
 
+import logging
+
 import pandas as pd
+
+logger = logging.getLogger(__name__)
 
 
 def read_csv(csv_path: str) -> pd.DataFrame:
@@ -14,4 +18,8 @@ def read_csv(csv_path: str) -> pd.DataFrame:
         >>> df = read_csv("data.csv")
         >>> print(len(df))
     """
-    return pd.read_csv(csv_path, encoding="utf-8")
+    try:
+        return pd.read_csv(csv_path, encoding="utf-8")
+    except Exception as e:
+        logger.error("Failed to read CSV %s: %s", csv_path, e)
+        raise

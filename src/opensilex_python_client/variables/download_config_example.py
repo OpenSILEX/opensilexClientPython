@@ -1,6 +1,9 @@
 import importlib.resources as pkg_resources
+import logging
 import shutil
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 EXAMPLE_FILES = [
     "test_variables.csv",
@@ -46,12 +49,12 @@ def download_variables_config(dest: str = "."):
         try:
             src = package_dir.joinpath(filename)
             shutil.copy(src, dest_path / filename)
-            print(f"✅ Saved {filename} to {dest_path / filename}")
+            logger.info("Copied %s to %s", filename, dest_path / filename)
         except Exception as e:
-            print(f"❌ Failed to copy {filename}: {e}")
+            logger.error("Failed to copy %s: %s", filename, e)
             failed.append(filename)
 
     if failed:
-        print(f"\n⚠️  {len(failed)} file(s) could not be copied: {failed}")
+        logger.warning("%d file(s) could not be copied: %s", len(failed), failed)
     else:
-        print(f"\n✅ All {len(EXAMPLE_FILES)} files saved to {dest_path}")
+        logger.info("All %d files saved to %s", len(EXAMPLE_FILES), dest_path)

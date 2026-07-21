@@ -1,14 +1,16 @@
 """Check if variable exists in OpenSILEX."""
 
+import logging
 from typing import Any
 
-from opensilexClientToolsPython import VariablesApi, OntologyApi
+from opensilexClientToolsPython import VariablesApi
 
 from .ctx import VariablesContext
 
+logger = logging.getLogger(__name__)
 
-def exists_variable_ctx(ctx: VariablesContext, name: str | None = None,
-                        uri: str | None = None) -> str | None:
+
+def exists_variable_ctx(ctx: VariablesContext, name: str | None = None, uri: str | None = None) -> str | None:
     """Check if variable exists using context.
 
     Args:
@@ -19,20 +21,16 @@ def exists_variable_ctx(ctx: VariablesContext, name: str | None = None,
     Returns:
         Variable URI if found, None otherwise
     """
+    logger.info("Checking variable existence: name=%s, uri=%s", name, uri)
     try:
-        api = VariablesApi(ctx.client)
-        ontology_api = OntologyApi(ctx.client)
-        namespace = ontology_api.get_namespace()
-
-        if uri:
-            ctx.debug_log(f"Expanding URI: {uri}")
-            expanded_uri = f"{namespace}{uri}" if namespace and not uri.startswith(namespace) else uri
-            ctx.debug_log(f"get_variable(uri={expanded_uri!r})")
-            response = api.get_variable(expanded_uri)
+        api = VariablesApi(ctx.client) 
+        if uri: 
+            ctx.debug_log(f"get_variable(uri={uri!r})")
+            response = api.get_variable(uri)
             ctx.debug_log(f"  response: {response}")
             if response:
-                print(f"  ✓ Variable exists: {expanded_uri}")
-                return expanded_uri
+                logger.info("Variable exists: %s", uri)
+                return uri
 
         if name:
             ctx.debug_log(f"search_variables(name={name!r})")
@@ -43,12 +41,13 @@ def exists_variable_ctx(ctx: VariablesContext, name: str | None = None,
                     var_name = var.get("name") if isinstance(var, dict) else getattr(var, "name", None)
                     if var_name == name:
                         var_uri = var.get("uri") if isinstance(var, dict) else getattr(var, "uri", None)
-                        print(f"  ✓ Variable exists: {name} → {var_uri}")
+                        logger.info("Variable exists: %s -> %s", name, var_uri)
                         return var_uri
     except Exception as e:
-        print(f"  ✗ Error searching variable: {e}")
+        logger.error("Error searching variable: %s", e)
         if ctx.debug:
             import traceback
+
             traceback.print_exc()
     return None
 

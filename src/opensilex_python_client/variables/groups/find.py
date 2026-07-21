@@ -1,8 +1,11 @@
 """Find target groups for variables."""
 
+import logging
 from typing import Any
 
 import pandas as pd
+
+logger = logging.getLogger(__name__)
 
 
 def find_target_groups(

@@ -1,12 +1,16 @@
 """Manage variable groups in OpenSILEX."""
 
-from opensilexClientToolsPython import VariablesApi, VariablesGroupCreationDTO, VariablesGroupUpdateDTO, OntologyApi
 import ast
+import logging
+
+from opensilexClientToolsPython import OntologyApi, VariablesApi, VariablesGroupCreationDTO, VariablesGroupUpdateDTO
+
+logger = logging.getLogger(__name__)
 
 
 def _dbg(debug, msg):
     if debug:
-        print(f"  [DEBUG] {msg}")
+        logger.debug(msg)
 
 
 def expand_namespaces(var_uris: list[str], namespaces: dict[str, str]) -> list[str]:
@@ -33,10 +37,11 @@ def expand_namespaces(var_uris: list[str], namespaces: dict[str, str]) -> list[s
 
 
 def create_group(uri: str, name: str, variables_api: VariablesApi, description: str = "", debug: bool = False):
+    logger.info("Creating group: uri=%s, name=%s", uri, name)
     _dbg(debug, f"Creating group(uri={uri!r},name={name!r}, description={description!r})")
     confirm = input(f"Group '{name}' not found. Create it? (y/n): ").strip().lower()
     if confirm != "y":
-        print(f"  ℹ Group creation cancelled for '{name}'.")
+        logger.info("Group creation cancelled for '%s'", name)
         return None
 
     group_dto = VariablesGroupCreationDTO(uri=uri, name=name, description=description, variables=[])
@@ -44,12 +49,10 @@ def create_group(uri: str, name: str, variables_api: VariablesApi, description: 
     _dbg(debug, f"  response: {response}")
 
     if response and hasattr(response, "uri"):
-        print(f"  ℹ Group  '{name}' created'.")
-
+        logger.info("Group '%s' created", name)
         return response.uri
     elif isinstance(response, dict):
-        print(f"  ℹ Group  '{name}' created'.")
-
+        logger.info("Group '%s' created", name)
         return response.get("uri")
 
 
@@ -77,11 +80,11 @@ def find_or_create_group(client, uri: str | None, name: str, description: str = 
                 group_data = response if isinstance(response, dict) else response.to_dict()
                 return group_data["result"].uri
     except Exception as e:
-        print(e)
+        logger.error("Error in %s: %s", find_or_create_group.__name__, e)
         try:
             return create_group(uri=uri, name=name, description=description, variables_api=variables_api, debug=debug)
         except Exception as e:
-            print(f"  ⚠️  Error managing group '{name}': {e}")
+            logger.warning("Error managing group '%s': %s", name, e)
             if debug:
                 import traceback
 
@@ -96,16 +99,18 @@ def find_or_create_group(client, uri: str | None, name: str, description: str = 
                 group_data = group if isinstance(group, dict) else group.to_dict()
                 return group_data.get("uri")
     except Exception as e:
-        print(f"  ⚠️  Error managing group '{name}': {e}")
+        logger.error("Error in %s: %s", find_or_create_group.__name__, e)
+        logger.warning("Error managing group '%s': %s", name, e)
         if debug:
             import traceback
 
             traceback.print_exc()
 
     try:
-        return create_group(uri=uri, name=name, description=description, debug=debug)
+        return create_group(uri=uri, name=name, description=description, debug=debug, variables_api=variables_api)
     except Exception as e:
-        print(f"  ⚠️  Error managing group '{name}': {e}")
+        logger.error("Error in %s: %s", find_or_create_group.__name__, e)
+        logger.warning("Error managing group '%s': %s", name, e)
         if debug:
             import traceback
 
@@ -121,34 +126,32 @@ def attach_variables(client, grouped_variables: dict[str, list[str]], config_pat
         grouped_variables: Dictionary mapping group URIs to variable URI lists
         config_path: Path to configuration (for reference)
     """
-    print("\n" + "=" * 80)
-    print("STEP 3: ATTACHING TO GROUPS")
-    print("=" * 80)
+    logger.info("Attaching variables to groups")
+    logger.info("=" * 80)
+    logger.info("STEP 3: ATTACHING TO GROUPS")
+    logger.info("=" * 80)
 
     variables_api = VariablesApi(client)
     ontology_api = OntologyApi(client)
     namespaces = {}
     try:
         namespaces_response = ontology_api.get_name_space()
-        namespaces =  ast.literal_eval(namespaces_response["result"])
-    except Exception as e :
-        print(f"  ✗ Can't find namespace {e}")
+        namespaces = ast.literal_eval(namespaces_response["result"])
+    except Exception as e:
+        logger.error("Can't find namespace: %s", e)
 
     for group_uri, new_variables in grouped_variables.items():
         try:
-            # Get current group details
             response = variables_api.get_variables_group(group_uri)
 
             if not response:
-                print(f"  ✗ Cannot retrieve group: {group_uri}")
+                logger.error("Cannot retrieve group: %s", group_uri)
                 continue
 
             group_data = response["result"] if isinstance(response, dict) else response.to_dict()
 
-            # Extract group name (with fallback if None)
             group_name = group_data.name or group_uri.split("/")[-1]
 
-            # Extract existing variables
             existing_vars = []
             vars_data = group_data.variables or []
             for var in vars_data:
@@ -159,27 +162,26 @@ def attach_variables(client, grouped_variables: dict[str, list[str]], config_pat
                 elif hasattr(var, "uri"):
                     existing_vars.append(var.uri)
 
-            # Expand namespace prefixes for both existing and new variables
             existing_vars = expand_namespaces(existing_vars, namespaces)
             final_new_vars = expand_namespaces(new_variables, namespaces)
 
-            # Deduplicate: merge existing + expanded new
             unique_new_vars = [v for v in final_new_vars if v not in existing_vars]
             all_vars = existing_vars + unique_new_vars
 
             if not unique_new_vars:
-                print(f"  ℹ No new variables for group: {group_name}")
+                logger.info("No new variables for group: %s", group_name)
                 continue
 
-            # Update group
             update_dto = VariablesGroupUpdateDTO(
-                uri=group_uri, name=group_name, description=group_data.get("description", ""), variables=all_vars
+                uri=group_uri, name=group_name, description=group_data.description, variables=all_vars
             )
 
             variables_api.update_variables_group(body=update_dto)
-            print(f"  ✓ Group updated: {group_name} ({len(all_vars)} variables, +{len(unique_new_vars)} new)")
+            logger.info(
+                "Group updated: %s (%d variables, +%d new)", group_name, len(all_vars), len(unique_new_vars)
+            )
 
         except Exception as e:
-            print(f"  ✗ Error updating group {group_uri}: {e}")
+            logger.error("Error updating group %s: %s", group_uri, e)
 
-    print("\n✅ STEP 3 COMPLETE")
+    logger.info("STEP 3 COMPLETE")

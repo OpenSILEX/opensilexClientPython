@@ -1,6 +1,12 @@
 import argparse
+import logging
+
+from rich.console import Console
 
 from opensilex_python_client.variables.download_config_example import EXAMPLE_FILES, download_variables_config
+
+logger = logging.getLogger(__name__)
+_console = Console()
 
 
 def _parse_args():
@@ -36,8 +42,10 @@ def _parse_args():
 
     return parser.parse_args()
 
+
 def main():
-    print("Téléchargement des fichiers d'exemples de configuration pour les variables OpenSILEX...")
+    logger.info("Downloading example configuration files for OpenSILEX variables")
+    _console.print("Téléchargement des fichiers d'exemples de configuration pour les variables OpenSILEX...")
     args = _parse_args()
     download_variables_config(args.dest)
 

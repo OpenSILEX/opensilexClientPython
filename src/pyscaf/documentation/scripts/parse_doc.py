@@ -3,6 +3,9 @@ import sys
 from pathlib import Path
 
 import tomli
+from rich.console import Console
+
+_console = Console()
 
 
 def load_pdoc_config(pyproject_path: Path) -> dict:
@@ -148,9 +151,9 @@ def main():
         elif mode == "generate":
             gen_doc()
         else:
-            print("Usage: python parse_doc.py [serve|generate]")
-            print("  serve: Start pdoc server")
-            print("  generate: Generate documentation to output directory")
+            _console.print("[yellow]Usage: python parse_doc.py [serve|generate][/yellow]")
+            _console.print("  serve: Start pdoc server")
+            _console.print("  generate: Generate documentation to output directory")
             sys.exit(1)
     else:
         # Default to serve mode
@@ -165,7 +168,7 @@ if __name__ == "__main__":
 
 def load_pdoc_config(pyproject_path: Path) -> dict:
     if not pyproject_path.exists():
-        print(f"pyproject.toml not found at {pyproject_path}")
+        _console.print(f"[red]pyproject.toml not found at {pyproject_path}[/red]")
         sys.exit(1)
     with pyproject_path.open("rb") as f:
         pyproject = tomli.load(f)
@@ -175,7 +178,7 @@ def load_pdoc_config(pyproject_path: Path) -> dict:
 def load_documentation_config(pyproject_path: Path) -> dict:
     """Load the complete documentation configuration."""
     if not pyproject_path.exists():
-        print(f"pyproject.toml not found at {pyproject_path}")
+        _console.print(f"[red]pyproject.toml not found at {pyproject_path}[/red]")
         sys.exit(1)
     with pyproject_path.open("rb") as f:
         pyproject = tomli.load(f)
@@ -306,9 +309,9 @@ def main():
         elif mode == "generate":
             gen_doc()
         else:
-            print("Usage: python parse_doc.py [serve|generate]")
-            print("  serve: Start pdoc server")
-            print("  generate: Generate documentation to output directory")
+            _console.print("[yellow]Usage: python parse_doc.py [serve|generate][/yellow]")
+            _console.print("  serve: Start pdoc server")
+            _console.print("  generate: Generate documentation to output directory")
             sys.exit(1)
     else:
         # Default to serve mode

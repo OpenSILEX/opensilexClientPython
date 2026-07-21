@@ -4,13 +4,19 @@ CLI pour l'import de variables OpenSILEX depuis un fichier CSV.
 """
 
 import argparse
+import logging
 import os
 import sys
+
+from rich.console import Console
 
 from opensilex_python_client.auth import connect
 from opensilex_python_client.variables import import_from_csv
 from opensilex_python_client.variables.groups import manage
 from opensilex_python_client.variables.groups.manage import find_or_create_group
+
+logger = logging.getLogger(__name__)
+_console = Console()
 
 
 def _existing_file(value: str) -> str:
@@ -123,23 +129,16 @@ def _parse_args():
         "--create-groups",
         action="store_true",
         default=False,
-        help=(
-            "Si activé, crée les groupes définis dans le fichier YAML "
-            "s'ils n'existent pas encore dans OpenSILEX."
-        ),
+        help=("Si activé, crée les groupes définis dans le fichier YAML s'ils n'existent pas encore dans OpenSILEX."),
     )
     options_group.add_argument(
         "--attach-variables-to-group",
         action="store_true",
         default=True,
-        help=(
-            "Si activé, rattache les variables importées aux groupes "
-            "définis dans le fichier YAML. (Défaut : True)"
-        ),
+        help=("Si activé, rattache les variables importées aux groupes définis dans le fichier YAML. (Défaut : True)"),
     )
     options_group.add_argument(
         "--skip-groups",
-
         action="store_true",
         default=False,
         help=(
@@ -179,10 +178,12 @@ def main():
     args = _parse_args()
 
     if args.verbose:
-        print(f"📡 Connexion à : {args.host}")
-        print(f"👤 Identifiant : {args.identifier}")
-        print(f"📄 CSV         : {args.csv_path}")
-        print(f"⚙️  Config YAML : {args.yaml_config_path}")
+        logger.debug("Connection: host=%s, identifier=%s", args.host, args.identifier)
+        logger.debug("Files: csv=%s, config=%s", args.csv_path, args.yaml_config_path)
+        _console.print(f"📡 Connexion à : {args.host}")
+        _console.print(f"👤 Identifiant : {args.identifier}")
+        _console.print(f"📄 CSV         : {args.csv_path}")
+        _console.print(f"⚙️  Config YAML : {args.yaml_config_path}")
 
     # 1. Authentification
     client = connect.connect_to_opensilex(
@@ -193,23 +194,26 @@ def main():
         }
     )
     if client is None:
-        print("❌ Échec de la connexion à OpenSILEX", file=sys.stderr)
+        logger.error("Connection to OpenSILEX failed")
+        _console.print("❌ Échec de la connexion à OpenSILEX", file=sys.stderr)
         sys.exit(1)
 
     # 2. Import des variables
     if args.verbose:
-        print("\n🔄 Import des variables en cours...")
+        logger.debug("Starting import of variables from CSV")
+        _console.print("\n🔄 Import des variables en cours...")
     grouped_vars = import_from_csv.run(client, args.csv_path, args.yaml_config_path, debug=args.verbose)
-
 
     # Note: If --create-groups is enabled, we should ensure groups exist.
     # This logic might be inside attach_variables or we might need to call a helper.
     if args.create_groups:
         if args.verbose:
-            print("⚙️  Vérification/Création des groupes du fichier config...")
+            logger.debug("Checking/creating groups from config file")
+            _console.print("⚙️  Vérification/Création des groupes du fichier config...")
         # Implementation for create_groups logic based on YAML config
         # we'll need to extract groups from YAML and call find_or_create_group
         from opensilex_python_client.file_management.read_yaml import read_yaml
+
         config = read_yaml(args.yaml_config_path)
         group_config = config.get("groups", {})
         available_groups = group_config.get("available_groups", {})
@@ -220,15 +224,16 @@ def main():
     # 3. Rattachement aux groupes
     if args.attach_variables_to_group and not args.skip_groups:
         if args.verbose:
-            print("🔗 Rattachement aux groupes...")
+            logger.debug("Attaching variables to groups")
+            _console.print("🔗 Rattachement aux groupes...")
         manage.attach_variables(client, grouped_vars, args.yaml_config_path)
     elif args.skip_groups:
-        print("⏭️  Rattachement aux groupes ignoré (--skip-groups)")
+        _console.print("⏭️  Rattachement aux groupes ignoré (--skip-groups)")
     else:
-        print("ℹ️  Rattachement aux groupes désactivé (--attach-variables-to-group False)")
+        _console.print("ℹ️  Rattachement aux groupes désactivé (--attach-variables-to-group False)")
 
-
-    print("✅ Import terminé avec succès !")
+    _console.print("✅ Import terminé avec succès !")
+    logger.info("Import completed successfully")
 
 
 if __name__ == "__main__":

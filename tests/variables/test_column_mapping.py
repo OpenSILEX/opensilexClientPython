@@ -1,15 +1,17 @@
 """Unit tests for resolve_column_mapping and helpers."""
 
-"""Unit tests for resolve_column_mapping and helpers."""
-
+from opensilex_python_client.variables.ctx import VariablesContext
 from opensilex_python_client.variables.import_variables_from_csv import (
     ALL_ROLES,
     DEFAULT_COLUMN_MAPPINGS,
     OPTIONAL_ROLES,
     REQUIRED_ROLES,
-    _clean_uri,
     resolve_column_mapping,
 )
+
+
+def _ctx_for(config):
+    return VariablesContext(client=None, config=config, debug=False)
 
 
 class TestDefaultMappings:
@@ -27,13 +29,13 @@ class TestDefaultMappings:
 
 class TestResolveColumnMappingDefaults:
     def test_empty_config_uses_defaults(self, sample_df, empty_config):
-        col_map, errors, warnings = resolve_column_mapping(empty_config, sample_df)
+        col_map, errors, warnings = resolve_column_mapping(_ctx_for(empty_config), sample_df)
         assert not errors
         assert col_map["entity_name"] == "Entity_name"
         assert col_map["variable_name"] == "Variable_name"
 
     def test_config_without_column_mappings_uses_defaults(self, sample_df, default_config):
-        col_map, errors, warnings = resolve_column_mapping(default_config, sample_df)
+        col_map, errors, warnings = resolve_column_mapping(_ctx_for(default_config), sample_df)
         assert not errors
         assert col_map["entity_name"] == "Entity_name"
         assert col_map["datatype_uri"] == "Datatype_uri"
@@ -41,7 +43,7 @@ class TestResolveColumnMappingDefaults:
 
 class TestResolveColumnMappingIndexBased:
     def test_index_mapping_resolves(self, sample_df, index_based_config):
-        col_map, errors, warnings = resolve_column_mapping(index_based_config, sample_df)
+        col_map, errors, warnings = resolve_column_mapping(_ctx_for(index_based_config), sample_df)
         assert not errors
         assert col_map["entity_name"] == sample_df.columns[0]
         assert col_map["datatype_uri"] == sample_df.columns[5]
@@ -54,7 +56,7 @@ class TestResolveColumnMappingIndexBased:
                 }
             }
         }
-        col_map, errors, warnings = resolve_column_mapping(config, sample_df)
+        col_map, errors, warnings = resolve_column_mapping(_ctx_for(config), sample_df)
         assert len(errors) > 0
         assert "out of range" in errors[0].lower()
 
@@ -66,7 +68,7 @@ class TestResolveColumnMappingIndexBased:
                 }
             }
         }
-        col_map, errors, warnings = resolve_column_mapping(config, sample_df)
+        col_map, errors, warnings = resolve_column_mapping(_ctx_for(config), sample_df)
         assert len(errors) > 0
 
     def test_negative_index_error(self, sample_df):
@@ -77,13 +79,13 @@ class TestResolveColumnMappingIndexBased:
                 }
             }
         }
-        col_map, errors, warnings = resolve_column_mapping(config, sample_df)
+        col_map, errors, warnings = resolve_column_mapping(_ctx_for(config), sample_df)
         assert len(errors) > 0
 
 
 class TestResolveColumnMappingStringBased:
     def test_string_mapping_resolves(self, custom_header_df, custom_header_config):
-        col_map, errors, warnings = resolve_column_mapping(custom_header_config, custom_header_df)
+        col_map, errors, warnings = resolve_column_mapping(_ctx_for(custom_header_config), custom_header_df)
         assert not errors
         assert col_map["entity_name"] == "Entite"
         assert col_map["variable_name"] == "NomVar"
@@ -97,7 +99,7 @@ class TestResolveColumnMappingStringBased:
                 }
             }
         }
-        col_map, errors, warnings = resolve_column_mapping(config, sample_df)
+        col_map, errors, warnings = resolve_column_mapping(_ctx_for(config), sample_df)
         assert len(errors) > 0
         assert "NonExistentColumn" in errors[0]
 
@@ -109,7 +111,7 @@ class TestResolveColumnMappingStringBased:
                 }
             }
         }
-        col_map, errors, warnings = resolve_column_mapping(config, sample_df)
+        col_map, errors, warnings = resolve_column_mapping(_ctx_for(config), sample_df)
         assert not errors
         assert len(warnings) > 0
         assert col_map["variable_description"] is None
@@ -117,7 +119,7 @@ class TestResolveColumnMappingStringBased:
 
 class TestResolveColumnMappingHybrid:
     def test_hybrid_mapping(self, sample_df, hybrid_config):
-        col_map, errors, warnings = resolve_column_mapping(hybrid_config, sample_df)
+        col_map, errors, warnings = resolve_column_mapping(_ctx_for(hybrid_config), sample_df)
         assert not errors
         assert col_map["entity_name"] == sample_df.columns[0]
         assert col_map["characteristic_name"] == "Characteristic_name"
@@ -133,7 +135,7 @@ class TestResolveColumnMappingTypes:
                 }
             }
         }
-        col_map, errors, warnings = resolve_column_mapping(config, sample_df)
+        col_map, errors, warnings = resolve_column_mapping(_ctx_for(config), sample_df)
         assert len(errors) > 0
         assert "expected int or str" in errors[0]
 
@@ -145,13 +147,13 @@ class TestResolveColumnMappingTypes:
                 }
             }
         }
-        col_map, errors, warnings = resolve_column_mapping(config, sample_df)
+        col_map, errors, warnings = resolve_column_mapping(_ctx_for(config), sample_df)
         assert len(errors) > 0
 
 
 class TestResolveColumnMappingMinimality:
     def test_minimal_df_only_warns_optional(self, minimal_df, empty_config):
-        col_map, errors, warnings = resolve_column_mapping(empty_config, minimal_df)
+        col_map, errors, warnings = resolve_column_mapping(_ctx_for(empty_config), minimal_df)
         assert not errors
         for role in REQUIRED_ROLES:
             assert col_map[role] is not None
@@ -162,20 +164,34 @@ class TestResolveColumnMappingMinimality:
 
 
 class TestCleanURI:
+    """Tests for VariablesContext.clean_uri (moved from _clean_uri)."""
+
     def test_none(self):
-        assert _clean_uri(None) is None
+        from opensilex_python_client.variables.ctx import VariablesContext
+
+        assert VariablesContext(client=None).clean_uri(None) is None
 
     def test_nan(self):
-        assert _clean_uri(float("nan")) is None
+        from opensilex_python_client.variables.ctx import VariablesContext
+
+        assert VariablesContext(client=None).clean_uri(float("nan")) is None
 
     def test_string(self):
-        assert _clean_uri("http://example.com") == "http://example.com"
+        from opensilex_python_client.variables.ctx import VariablesContext
+
+        assert VariablesContext(client=None).clean_uri("http://example.com") == "http://example.com"
 
     def test_list_string(self):
-        assert _clean_uri("['http://example.com']") == "http://example.com"
+        from opensilex_python_client.variables.ctx import VariablesContext
+
+        assert VariablesContext(client=None).clean_uri("['http://example.com']") == "http://example.com"
 
     def test_empty_string(self):
-        assert _clean_uri("") is None
+        from opensilex_python_client.variables.ctx import VariablesContext
+
+        assert VariablesContext(client=None).clean_uri("") is None
 
     def test_whitespace(self):
-        assert _clean_uri("  ") is None
+        from opensilex_python_client.variables.ctx import VariablesContext
+
+        assert VariablesContext(client=None).clean_uri("  ") is None

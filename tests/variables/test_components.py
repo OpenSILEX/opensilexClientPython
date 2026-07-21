@@ -112,7 +112,7 @@ def test_find_or_create_unit_by_uri(mock_client):
     with patch("opensilex_python_client.variables._component_resolver.VariablesApi") as MockVariablesApi:
         mock_api = MockVariablesApi.return_value
         uri = "http://test/unit/meter"
-        mock_api.get_unit.return_value = {"uri": uri, "name": "Meter"}
+        mock_api.get_unit.return_value = {"result": {"uri": uri, "name": "Meter"}}
 
         ctx = VariablesContext(client=mock_client)
         result = find_or_create_component(ctx, "unit", uri, "Meter")

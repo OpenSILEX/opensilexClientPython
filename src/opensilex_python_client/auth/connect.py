@@ -1,8 +1,10 @@
+import logging
 import sys
 
 import opensilexClientToolsPython
 from rich.console import Console
 
+logger = logging.getLogger(__name__)
 _console = Console()
 
 
@@ -25,6 +27,12 @@ def connect_to_opensilex(connection_info: dict, verbose: bool = False) -> opensi
 
     try:
         if not connection_info["host"] or not connection_info["identifier"] or not connection_info["password"]:
+            logger.error(
+                "Missing connection parameter(s): host=%s, identifier=%s, password=%s",
+                bool(connection_info.get("host")),
+                bool(connection_info.get("identifier")),
+                bool(connection_info.get("password")),
+            )
             _console.print("[red]✗ Missing connection parameter(s)[/red]")
             sys.exit(1)
 
@@ -41,7 +49,13 @@ def connect_to_opensilex(connection_info: dict, verbose: bool = False) -> opensi
         _console.print("[bold green]✓ Successful connection[/bold green]")
         return client
     except Exception as e:
-        print(connection_info)
-        print(connection_info["host"])
+        logger.error(
+            "Connection error: host=%s, identifier=%s, error=%s",
+            connection_info.get("host"),
+            connection_info.get("identifier"),
+            e,
+        )
+        _console.print(f"[red]Connection info: {connection_info}[/red]")
+        _console.print(f"[red]Host: {connection_info['host']}[/red]")
         _console.print(f"[bold red]✗ Connection error: {e}[/bold red]")
         return None

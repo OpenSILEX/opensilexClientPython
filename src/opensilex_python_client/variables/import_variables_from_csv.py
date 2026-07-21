@@ -1,12 +1,10 @@
 """Import variables from CSV file - AUTO-GENERATION from names only."""
 
+import logging
 import sys
 from typing import Any
 
 import pandas as pd
-from rich.console import Console
-from rich.table import Table
-from rich.panel import Panel
 
 from ..file_management.read_csv import read_csv
 from ..file_management.read_yaml import read_yaml
@@ -15,6 +13,8 @@ from .create import VariableData, create_variable_ctx
 from .ctx import VariablesContext
 from .exists import exists_variable_ctx
 from .groups.find import find_target_groups
+
+logger = logging.getLogger(__name__)
 
 # Default column mapping when no column_mappings section is provided
 DEFAULT_COLUMN_MAPPINGS: dict[str, str] = {
@@ -33,7 +33,7 @@ DEFAULT_COLUMN_MAPPINGS: dict[str, str] = {
     "entity_uri": "Entity_uri",
     "characteristic_uri": "Characteristic_uri",
     "method_uri": "Method_uri",
-    "unit_uri": "Unit_uri"
+    "unit_uri": "Unit_uri",
 }
 
 REQUIRED_ROLES = [
@@ -55,7 +55,7 @@ OPTIONAL_ROLES = [
     "entity_uri",
     "characteristic_uri",
     "method_uri",
-    "unit_uri"
+    "unit_uri",
 ]
 
 ALL_ROLES = REQUIRED_ROLES + OPTIONAL_ROLES
@@ -70,7 +70,6 @@ COMPONENT_FIELDS = [
 
 def _validate_variables(df: pd.DataFrame, col_map: dict[str, str | None]) -> tuple[pd.DataFrame, bool]:
     """Validate required fields and duplicates. Return filtered DF and whether all are valid."""
-    console = Console()
     ignored = []
     seen_names = {}
     valid_indices = []
@@ -79,15 +78,13 @@ def _validate_variables(df: pd.DataFrame, col_map: dict[str, str | None]) -> tup
 
     for idx, row in df.iterrows():
         reasons = []
-        
-        # Check required fields
+
         for role in REQUIRED_ROLES:
             col = col_map.get(role)
             val = row[col] if col and col in df.columns else None
             if pd.isna(val) or str(val).strip() == "":
                 reasons.append(f"Missing {role}")
 
-        # Check duplicates
         if var_name_col and var_name_col in df.columns:
             name = str(row[var_name_col]).strip()
             if name and name != "nan":
@@ -95,58 +92,42 @@ def _validate_variables(df: pd.DataFrame, col_map: dict[str, str | None]) -> tup
                     reasons.append(f"Duplicate name (first seen at row {seen_names[name] + 1})")
                 else:
                     seen_names[name] = idx
-        
+
         if reasons:
-            ignored.append({"index": idx + 1, "name": row[var_name_col] if var_name_col in df.columns else "N/A", "reasons": ", ".join(reasons)})
+            ignored.append(
+                {
+                    "index": idx + 1,
+                    "name": row[var_name_col] if var_name_col in df.columns else "N/A",
+                    "reasons": ", ".join(reasons),
+                }
+            )
         else:
             valid_indices.append(idx)
 
     if ignored:
-        table = Table(title="Ignored Variables", show_header=True, header_style="bold magenta")
-        table.add_column("Row", justify="right", style="cyan", no_wrap=True)
-        table.add_column("Variable Name", style="magenta")
-        table.add_column("Reason", style="red")
-
-        for item in ignored:
-            table.add_row(str(item["index"]), str(item["name"]), item["reasons"])
-
-        console.print("\n[bold red]Some variables will be ignored:[/bold red]")
-        console.print(table)
-        
-        created_count = len(valid_indices)
         ignored_count = len(ignored)
-        console.print(Panel(f"Variables to be created: [bold green]{created_count}[/bold green]\nVariables ignored: [bold red]{ignored_count}[/bold red]"))
-        
-        console.print("\n[bold yellow]Do you want to proceed with the creation of the valid variables? (y/n): [/bold yellow]")
+        created_count = len(valid_indices)
+        logger.warning("Some variables will be ignored (count: %d)", ignored_count)
+        for item in ignored:
+            logger.debug("Ignored row %s - name=%s - reasons=%s", item["index"], item["name"], item["reasons"])
+        print(
+            f"\nSome variables will be ignored: {ignored_count}\n"
+            f"Variables to be created: {created_count}\n"
+            f"Do you want to proceed with the creation of the valid variables? (y/n): "
+        )
         choice = input()
-        if choice.lower() != 'y':
-            console.print("[bold red]Import aborted by user.[/bold red]")
+        if choice.lower() != "y":
+            logger.info("Import aborted by user")
             sys.exit(0)
 
     return df.loc[valid_indices].reset_index(drop=True), True
 
 
-def _clean_uri(uri_value: Any) -> str | None:
-    """Clean URI to ensure it's a simple string, not a list."""
-    if uri_value is None or pd.isna(uri_value):
-        return None
-
-    uri_str = str(uri_value).strip()
-
-    if not uri_str or uri_str == "None" or uri_str == "nan":
-        return None
-
-    if uri_str.startswith("["):
-        uri_str = uri_str.strip("[]").strip("'").strip('"').strip()
-
-    return uri_str if uri_str else None
-
-
 def resolve_column_mapping(
-    config: dict[str, Any], df: pd.DataFrame
+    ctx: VariablesContext, df: pd.DataFrame
 ) -> tuple[dict[str, str | None], list[str], list[str]]:
-    """Resolve column mapping from config, falling back to defaults."""
-    raw_mappings = config.get("csv", {}).get("column_mappings", {})
+    """Resolve column mapping from ctx.config, falling back to defaults."""
+    raw_mappings = ctx.config.get("csv", {}).get("column_mappings", {})
 
     merged: dict[str, Any] = dict(DEFAULT_COLUMN_MAPPINGS)
     if raw_mappings:
@@ -170,7 +151,7 @@ def resolve_column_mapping(
                 col_map[role] = None
             continue
 
-        resolved = _resolve_single_column(role, raw_value, df, errors, warnings)
+        resolved = _resolve_single_column(role, raw_value, df, errors, warnings, ctx.debug_log)
         col_map[role] = resolved
 
     return col_map, errors, warnings
@@ -182,19 +163,14 @@ def _resolve_single_column(
     df: pd.DataFrame,
     errors: list[str],
     warnings: list[str],
+    debug_log,
 ) -> str | None:
     """Resolve a single role to a column name."""
 
     if isinstance(raw_value, int):
         if raw_value < 1 or raw_value > len(df.columns):
             is_req = role in REQUIRED_ROLES
-            msg = (
-                f"[ERROR] Column index {raw_value} for '{role}' is out of range "
-                f"(1-{len(df.columns)})"
-                if is_req
-                else f"Column index {raw_value} for '{role}' is out of range "
-                f"(1-{len(df.columns)})"
-            )
+            msg = f"Column index {raw_value} for '{role}' is out of range (1-{len(df.columns)})"
             if is_req:
                 errors.append(msg)
             else:
@@ -205,12 +181,7 @@ def _resolve_single_column(
     if isinstance(raw_value, str):
         if raw_value not in df.columns:
             is_req = role in REQUIRED_ROLES
-            msg = (
-                f"[ERROR] Column '{raw_value}' for '{role}' not found in CSV. "
-                f"Available: {list(df.columns)}"
-                if is_req
-                else f"Column '{raw_value}' for '{role}' not found in CSV"
-            )
+            msg = f"Column '{raw_value}' for '{role}' not found in CSV"
             if is_req:
                 errors.append(msg)
             else:
@@ -219,11 +190,7 @@ def _resolve_single_column(
         return raw_value
 
     is_req = role in REQUIRED_ROLES
-    msg = (
-        f"[ERROR] Invalid mapping for '{role}': expected int or str, got {type(raw_value).__name__}"
-        if is_req
-        else f"Invalid mapping for '{role}': expected int or str, got {type(raw_value).__name__}"
-    )
+    msg = f"Invalid mapping for '{role}': expected int or str, got {type(raw_value).__name__}"
     if is_req:
         errors.append(msg)
     else:
@@ -231,8 +198,7 @@ def _resolve_single_column(
     return None
 
 
-def _resolve_components(ctx: VariablesContext, df: pd.DataFrame,
-                        col_map: dict[str, str | None]) -> pd.DataFrame:
+def _resolve_components(ctx: VariablesContext, df: pd.DataFrame, col_map: dict[str, str | None]) -> pd.DataFrame:
     """For each CSV row, resolve entity/char/method/unit and enrich DataFrame."""
     enriched = df.copy()
     for _comp_key, comp_title in COMPONENT_FIELDS:
@@ -245,14 +211,13 @@ def _resolve_components(ctx: VariablesContext, df: pd.DataFrame,
             desc = str(ctx.row_value(row, col_map, f"{comp_key}_definition", ""))
             if pd.notna(name):
                 resolved = find_or_create_component(ctx, comp_key, uri, str(name), desc)
-                print(f"Final_{comp_title}_URI: {resolved}")
                 enriched.at[idx, f"Final_{comp_title}_URI"] = ctx.clean_uri(resolved)
     return enriched
 
 
-def _build_variable_data(ctx: VariablesContext, row: pd.Series,
-                         col_map: dict[str, str | None],
-                         df: pd.DataFrame, idx: int) -> VariableData:
+def _build_variable_data(
+    ctx: VariablesContext, row: pd.Series, col_map: dict[str, str | None], df: pd.DataFrame, idx: int
+) -> VariableData:
     """Build VariableData from an enriched row."""
     entity_uri = ctx.clean_uri(df.at[idx, "Final_Entity_URI"])
     char_uri = ctx.clean_uri(df.at[idx, "Final_Characteristic_URI"])
@@ -272,22 +237,22 @@ def _build_variable_data(ctx: VariablesContext, row: pd.Series,
     )
 
 
-def _create_variables(ctx: VariablesContext, df: pd.DataFrame,
-                        col_map: dict[str, str | None]) -> tuple[dict[str, list[str]], pd.DataFrame]:
+def _create_variables(
+    ctx: VariablesContext, df: pd.DataFrame, col_map: dict[str, str | None]
+) -> tuple[dict[str, list[str]], pd.DataFrame]:
     """Create variables from enriched rows, collect group assignments and return enriched DF."""
-    console = Console()
     grouped: dict[str, list[str]] = {}
     created = 0
     existing = 0
     failed = 0
-    
+
     enriched_vars = df.copy()
     enriched_vars["Final_Variable_URI"] = None
 
     for idx, row in df.iterrows():
         var_data = _build_variable_data(ctx, row, col_map, df, idx)
         if not var_data.valid:
-            console.print(f"  [red]✗[/red] Missing required field for variable: {var_data.name}")
+            logger.error("Missing required field for variable: %s", var_data.name)
             failed += 1
             continue
 
@@ -308,17 +273,14 @@ def _create_variables(ctx: VariablesContext, df: pd.DataFrame,
         for group_uri in find_target_groups(row, ctx.config, list(df.columns)):
             grouped.setdefault(group_uri, []).append(variable_uri)
 
-    console.print("\n[bold blue]📊 STEP 2 SUMMARY:[/bold blue]")
-    console.print(f"   Created: [bold green]{created}[/bold green], Existing: [bold cyan]{existing}[/bold cyan], Failed: [bold red]{failed}[/bold red]")
-
+    logger.info("Variable creation summary: created=%d, existing=%d, failed=%d", created, existing, failed)
     return grouped, enriched_vars
 
 
 def _save_enriched_csv(df: pd.DataFrame, csv_path: str) -> None:
-    console = Console()
     output_path = csv_path.replace(".csv", "_enriched.csv")
     df.to_csv(output_path, index=False, encoding="utf-8")
-    console.print(f"\n[bold green]✓[/bold green] Enriched CSV saved: {output_path}")
+    logger.info("Enriched CSV saved: %s", output_path)
 
 
 def run(client: Any, csv_path: str, config_path: str, debug: bool = False) -> dict[str, list[str]]:
@@ -330,42 +292,48 @@ def run(client: Any, csv_path: str, config_path: str, debug: bool = False) -> di
         config_path: Path to the YAML config file
         debug: If True, print API call details (requests/responses, tracebacks)
     """
-    console = Console()
-    console.print("\n📄 Loading CSV and configuration...")
+    logger.info("Loading CSV and configuration: csv=%s, config=%s", csv_path, config_path)
+    print("\nLoading CSV and configuration...")
     df = read_csv(csv_path)
     config = read_yaml(config_path)
     ctx = VariablesContext(client=client, config=config, debug=debug)
-    console.print(f"✓ Loaded [bold cyan]{len(df)}[/bold cyan] rows from CSV")
+    logger.info("Loaded %d rows from CSV", len(df))
+    print(f"Loaded {len(df)} rows from CSV")
 
-    console.print("\n🔍 Resolving column mappings...")
-    col_map, errors, warnings = resolve_column_mapping(config, df)
+    print("\nResolving column mappings...")
+    col_map, errors, warnings = resolve_column_mapping(ctx, df)
 
     for w in warnings:
-        console.print(f"  [yellow]⚠️  {w}[/yellow]")
+        logger.warning("Optional column for '%s' is not configured", w)
 
     if errors:
-        console.print("\n[bold red]❌ Column mapping errors — import aborted:[/bold red]")
+        logger.error("Column mapping errors - import aborted: %s", errors)
+        print("\nColumn mapping errors - import aborted:")
         for e in errors:
-            console.print(f"  [red]✗ {e}[/red]")
+            print(f"  {e}")
         sys.exit(1)
 
-    console.print(f"  [bold green]✓[/bold green] Mapped {sum(1 for v in col_map.values() if v is not None)} columns")
+    mapped_count = sum(1 for v in col_map.values() if v is not None)
+    logger.info("Resolved column mappings: %d columns mapped", mapped_count)
+    print(f"  Mapped {mapped_count} columns")
 
     # Validate variables (required fields & duplicates) BEFORE creating any components
     df, _ = _validate_variables(df, col_map)
 
-    console.print("\n" + "=" * 80)
-    console.print("[bold blue]STEP 1: CREATING COMPONENTS (AUTO-GENERATION FROM NAMES)[/bold blue]")
-    console.print("=" * 80)
+    logger.info("Starting component creation step")
+    print("\n" + "=" * 80)
+    print("STEP 1: CREATING COMPONENTS (AUTO-GENERATION FROM NAMES)")
+    print("=" * 80)
 
     enriched = _resolve_components(ctx, df, col_map)
 
-    console.print("\n" + "=" * 80)
-    console.print("[bold blue]STEP 2: CREATING VARIABLES[/bold blue]")
-    console.print("=" * 80)
+    logger.info("Starting variable creation step")
+    print("\n" + "=" * 80)
+    print("STEP 2: CREATING VARIABLES")
+    print("=" * 80)
 
     grouped, final_enriched = _create_variables(ctx, enriched, col_map)
-    
+
     # Save the final enriched CSV including variable URIs
     _save_enriched_csv(final_enriched, csv_path)
 

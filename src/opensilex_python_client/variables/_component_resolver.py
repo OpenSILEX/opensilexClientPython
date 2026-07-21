@@ -1,5 +1,6 @@
 """Generic component resolver for entity/characteristic/method/unit."""
 
+import logging
 import traceback
 from dataclasses import dataclass
 from typing import Any
@@ -13,6 +14,8 @@ from opensilexClientToolsPython import (
 )
 
 from .ctx import VariablesContext
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -66,20 +69,20 @@ def _create(
     api: VariablesApi,
     cfg: ComponentConfig,
 ) -> str | None:
+    logger.info("Creating component %s: %s (%s)", cfg.label, name, uri)
     try:
-        # Step 3: create
         ctx.debug_log(f"{cfg.create_api}(uri={uri!r}, name={name!r}, description={description!r})")
         dto = cfg.dto_class(uri=uri, name=name, description=description)
         response = getattr(api, cfg.create_api)(body=dto)
         ctx.debug_log(f"  response: {response}")
         if response:
             res_uri = response.get("result", response) if isinstance(response, dict) else response
-            print(f"  ✓ {cfg.label} created: {name}")
+            logger.info("Component %s created: %s", cfg.label, name)
             return str(res_uri)
 
         return None
     except Exception as e:
-        print(f"  ✗ Error with {cfg.label} '{name}': {e}")
+        logger.error("Error creating %s '%s': %s", cfg.label, name, e)
         if ctx.debug:
             traceback.print_exc()
         return None
@@ -94,13 +97,12 @@ def find_or_create_component(
 ) -> str | None:
     """Find or create a component (entity/characteristic/method/unit).
 
-    Strategy: 1. Lookup by URI → 2. Search by name → 3. Create.
+    Strategy: 1. Lookup by URI -> 2. Search by name -> 3. Create.
     """
 
     cfg = COMPONENTS[component]
     api = VariablesApi(ctx.client)
 
-    # Step 1: get by URI
     if uri:
         try:
             ctx.debug_log(f"{cfg.get_api}(uri={uri!r})")
@@ -108,15 +110,13 @@ def find_or_create_component(
             ctx.debug_log(f"  response: {response}")
             if response:
                 res_uri = _extract_uri(response["result"])
-                print(f"  ✓ {cfg.label} exists (by URI): {res_uri}")
+                logger.info("Component %s exists (by URI): %s", cfg.label, res_uri)
                 return res_uri
         except Exception:
             if ctx.debug:
                 traceback.print_exc()
-            # try to create
             return _create(uri=uri, name=name, description=description, api=api, cfg=cfg, ctx=ctx)
 
-    # Step 2: search by name
     ctx.debug_log(f"{cfg.search_api}(name={name!r})")
     response = getattr(api, cfg.search_api)(name=name)
     ctx.debug_log(f"  response: {response}")
@@ -125,6 +125,6 @@ def find_or_create_component(
             item_name = _get_name(item)
             if item_name == name:
                 res_uri = _get_uri(item)
-                print(f"  ✓ {cfg.label} exists: {name}")
+                logger.info("Component %s exists: %s", cfg.label, name)
                 return res_uri
     return _create(uri=uri, name=name, description=description, api=api, cfg=cfg, ctx=ctx)

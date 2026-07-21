@@ -163,6 +163,51 @@ uv run python run-variable-import.py \
 │  exit code 0        │
 └─────────────────────┘
 
+## Logging
+
+The package uses Python's `logging` module with a [Rich formatting handler](https://rich.readthedocs.io/en/stable/logging.html) for structured, color-coded output.
+
+### Quick Start
+
+```python
+from opensilex_python_client import logger
+
+logger.info("Starting import...")
+logger.debug("API response: %s", response)
+logger.warning("Variable already exists: %s", name)
+logger.error("Failed to connect: %s", exc_info=True)
+```
+
+### Set log level at runtime
+
+```python
+import logging
+
+from opensilex_python_client import logger
+
+logger.setLevel(logging.DEBUG)  # or INFO, WARNING, ERROR
+```
+
+### Module-specific loggers
+
+Each module exposes a `logger` via `logging.getLogger(__name__)`:
+
+```python
+from opensilex_python_client.variables.create import logger
+logger.info("Created variable: %s", uri)
+```
+
+### Rich Console vs Logger
+
+| Feature | `_console` (Rich Console) | `logger` (logging) |
+|---------|--------------------------|-------------------|
+| Input | User-facing CLI output | Structured, programmable logging |
+| Format | Colored, styled, emojis | Plain text via RichHandler |
+| Use case | Progress bars, status, prompts | Debug traces, warnings, errors |
+| Example | `_console.print("[green]✓[/green] Done")` | `logger.info("Variable created: %s", uri)` |
+
+These are complementary — `logger` for debugging and tracing, `_console` for user-facing CLI output.
+
 ## uv Integration
 
 This project uses uv for dependency management and packaging. uv provides a modern and extremely fast way to manage Python dependencies and build packages.

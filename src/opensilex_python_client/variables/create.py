@@ -1,12 +1,14 @@
 """Create variables in OpenSILEX."""
 
+import logging
 from dataclasses import dataclass
 from typing import Any
 
-import pandas as pd
 from opensilexClientToolsPython import VariableCreationDTO, VariablesApi
 
 from .ctx import VariablesContext
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -23,23 +25,22 @@ class VariableData:
 
     @property
     def valid(self) -> bool:
-        print([self.name, self.entity, self.characteristic,
-                    self.method, self.unit, self.datatype])
-        return all([self.name, self.entity, self.characteristic,
-                    self.method, self.unit, self.datatype])
+        return all([self.name, self.entity, self.characteristic, self.method, self.unit, self.datatype])
 
     def to_dto(self) -> VariableCreationDTO:
         dto = VariableCreationDTO(
-            name=self.name, entity=self.entity,
+            name=self.name,
+            entity=self.entity,
             characteristic=self.characteristic,
-            method=self.method, unit=self.unit,
-            datatype=self.datatype
+            method=self.method,
+            unit=self.unit,
+            datatype=self.datatype,
         )
-        if self.alternative_name and pd.notna(self.alternative_name) and str(self.alternative_name).strip():
+        if str(self.alternative_name).strip():
             dto.alternative_name = str(self.alternative_name)
-        if self.description and pd.notna(self.description) and str(self.description).strip():
+        if str(self.description).strip():
             dto.description = str(self.description)
-        if self.time_interval and pd.notna(self.time_interval) and str(self.time_interval).strip():
+        if str(self.time_interval).strip():
             dto.time_interval = str(self.time_interval)
         return dto
 
@@ -56,12 +57,13 @@ def create_variable_ctx(ctx: VariablesContext, var_data: VariableData) -> str | 
             uri = response["result"] if isinstance(response, dict) else response
             if isinstance(uri, list) and uri:
                 uri = uri[0]
-            print(f"  ✓ Variable created: {var_data.name} → {uri}")
+            logger.info("Variable created: %s -> %s", var_data.name, uri)
             return str(uri)
     except Exception as e:
-        print(f"  ✗ Error creating variable '{var_data.name}': {e}")
+        logger.error("Error creating variable '%s': %s", var_data.name, e)
         if ctx.debug:
             import traceback
+
             traceback.print_exc()
     return None
 

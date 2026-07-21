@@ -44,20 +44,22 @@ def test_find_or_create_group_creates(mock_client):
 
 
 def test_attach_variables(mock_client):
-    with patch("opensilex_python_client.variables.groups.update.VariablesApi") as MockVariablesApi:
+    with patch("opensilex_python_client.variables.groups.manage.VariablesApi") as MockVariablesApi, \
+         patch("opensilex_python_client.variables.groups.manage.OntologyApi") as MockOntologyApi:
         mock_api = MockVariablesApi.return_value
+        mock_ontology = MockOntologyApi.return_value
+        mock_ontology.get_name_space.return_value = "{}"
 
         grouped_vars = {
             "http://test/group/1": ["http://test/var/1", "http://test/var/2"]
         }
         config = {"groups": {"group_mapping": {}}}
 
-        mock_group = {
-            "name": "Test Group",
-            "description": "Test Desc",
-            "variables": ["http://test/var/0"]
-        }
-        mock_api.get_variables_group.return_value = mock_group
+        mock_group_result = MagicMock()
+        mock_group_result.name = "Test Group"
+        mock_group_result.description = "Test Desc"
+        mock_group_result.variables = ["http://test/var/0"]
+        mock_api.get_variables_group.return_value = {"result": mock_group_result}
 
         attach_variables(mock_client, grouped_vars, config)
         assert mock_api.update_variables_group.called

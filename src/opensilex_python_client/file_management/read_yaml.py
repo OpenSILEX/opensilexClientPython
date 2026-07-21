@@ -1,8 +1,11 @@
 """Generic YAML file reader."""
 
+import logging
 from typing import Any
 
 import yaml
+
+logger = logging.getLogger(__name__)
 
 
 def read_yaml(yaml_path: str) -> dict[str, Any]:
@@ -16,5 +19,9 @@ def read_yaml(yaml_path: str) -> dict[str, Any]:
         >>> config = read_yaml("config.yaml")
         >>> print(config.keys())
     """
-    with open(yaml_path, encoding="utf-8") as f:
-        return yaml.safe_load(f)
+    try:
+        with open(yaml_path, encoding="utf-8") as f:
+            return yaml.safe_load(f)
+    except Exception as e:
+        logger.error("Failed to read YAML %s: %s", yaml_path, e)
+        raise

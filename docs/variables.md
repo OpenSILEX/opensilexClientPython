@@ -33,7 +33,7 @@ uv run run-variable-import \
 ```python
 from opensilex_python_client.auth import connect
 from opensilex_python_client.variables import import_from_csv
-from opensilex_python_client.variables.groups import update
+from opensilex_python_client.variables.groups import manage
 
 # 1. Authenticate
 with open('credentials.json') as f:
@@ -354,21 +354,36 @@ csv:
     variable_description: "Description"  # custom header
 ```
 
+## Architecture
+
+```
+variables/
+├── ctx.py                          # VariablesContext — shared state, debug_log, clean_uri, row_value
+├── _component_resolver.py          # Generic find_or_create_component (replaces entity/char/method/unit files)
+├── import_variables_from_csv.py    # Orchestrator — thin run() + step functions
+├── create.py                       # VariableData + create_variable_ctx
+├── exists.py                       # exists_variable_ctx + exists wrapper
+├── download_config_example.py       # CLI utility to download example files
+├── groups/
+│   ├── find.py                     # find_target_groups
+│   ├── manage.py                   # find_or_create_group, attach_variables
+│   └── update.py                   # (utility functions)
+└── __init__.py                     # Public exports
+```
+
 ## API Functions
 
 | Function | Signature | Description |
 |----------|-----------|-------------|
-| `resolve_column_mapping(config, df)` | → `tuple[dict, list, list]` | Resolves each role to a column name (or `None`). Returns `(col_map, errors, warnings)` |
-| `_resolve_single_column(role, raw_value, df, errors, warnings)` | → `str \| None` | Resolves a single role mapping (int or str) |
-| `_get_safe(row, col_map, role, default)` | → `Any` | Reads a value from a row safely, returning `default` when the column is not mapped |
-| `find_target_groups(row, config, col_map)` | → `list[str]` | Returns group URIs for a row based on configured group mapping |
-| `find_or_create_entity(client, uri, name, description)` | → `str \| None` | Look up entity by URI, then by name, or create it |
-| `find_or_create_characteristic(client, uri, name, description)` | → `str \| None` | Look up characteristic by URI, then by name, or create it |
-| `find_or_create_method(client, uri, name, description)` | → `str \| None` | Look up method by URI, then by name, or create it |
-| `find_or_create_unit(client, uri, name, description)` | → `str \| None` | Look up unit by URI, then by name, or create it |
-| `find_or_create_group(client, uri, name, description)` | → `str \| None` | Look up group by URI, then by name, or create it |
-| `exists(client, name, uri)` | → `str \| None` | Check if a variable exists by name or URI |
-| `create_variable(client, data)` | → `str \| None` | Create a variable from a data dict and return its URI |
+| `import_from_csv.run(client, csv_path, config_path, debug=False)` | → `dict[str, list[str]]` | Main entry point — orchestrates the full import pipeline |
+| `VariablesContext(client, config, debug)` | → `Context` | Shared state: carries client, config, and debug flag with helpers `clean_uri()`, `row_value()`, `debug_log()` |
+| `find_or_create_component(ctx, component, uri, name, description)` | → `str \| None` | Generic resolver for entity/characteristic/method/unit by URI → name → create |
+| `find_target_groups(row, config, columns)` | → `list[str]` | Returns group URIs for a row based on configured group mapping |
+| `VariableData(**kwargs)` | → `VariableData` | Dataclass holding variable fields: name, entity, characteristic, method, unit, datatype, etc. |
+| `exists(client, name, uri, debug)` | → `str \| None` | Check if a variable exists by name or URI |
+| `create_variable(client, data, debug)` | → `str \| None` | Backward-compatible wrapper — creates a variable and returns its URI |
+| `find_or_create_group(client, uri, name, description, debug)` | → `str \| None` | Look up group by URI, then by name, or create it |
+| `resolve_column_mapping(ctx, df)` | → `tuple[dict, list, list]` | Resolves each role to a column name. Returns `(col_map, errors, warnings)` |
 
 ## CLI Arguments
 

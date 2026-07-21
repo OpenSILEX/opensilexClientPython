@@ -1,8 +1,10 @@
 """Integration test for the import_variables_from_csv.run function."""
 
+import sys
 from unittest.mock import patch
 
 import pandas as pd
+import pytest
 
 from opensilex_python_client.variables.import_variables_from_csv import run
 
@@ -63,7 +65,7 @@ def test_run_import_success(tmp_path, mock_client, default_config):
         assert df_enriched.at[0, "Final_Variable_URI"] == "http://test/var/1"
 
 
-def test_run_import_column_error(tmp_path, mock_client):
+def test_run_import_column_error(tmp_path, mock_client, caplog):
     csv_file = tmp_path / "test_err.csv"
     pd.DataFrame({"wrong": [1]}).to_csv(csv_file, index=False)
 
@@ -71,6 +73,5 @@ def test_run_import_column_error(tmp_path, mock_client):
     with open(yaml_file, "w") as f:
         f.write("csv: {column_mappings: {entity_name: 'missing'}}")
 
-    with patch("opensilex_python_client.variables.import_variables_from_csv.sys.exit") as mock_exit:
+    with pytest.raises(SystemExit):
         run(mock_client, str(csv_file), str(yaml_file))
-        mock_exit.assert_called_once_with(1)
