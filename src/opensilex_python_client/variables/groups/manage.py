@@ -9,6 +9,29 @@ def _dbg(debug, msg):
         print(f"  [DEBUG] {msg}")
 
 
+def expand_namespaces(var_uris: list[str], namespaces: dict[str, str]) -> list[str]:
+    """Replace namespace prefixes in variable URIs with full namespace URIs.
+
+    Args:
+        var_uris: List of variable URIs that may contain namespace prefixes (e.g. "sixtine:xxx")
+        namespaces: Dictionary mapping namespace prefixes to their full URIs
+
+    Returns:
+        List of variable URIs with all known namespace prefixes expanded to full URIs.
+    """
+    expanded = []
+    for v_uri in var_uris:
+        replaced = False
+        for ns_key, ns_uri in namespaces.items():
+            if ns_key in v_uri:
+                expanded.append(v_uri.replace(ns_key + ":", ns_uri))
+                replaced = True
+                break
+        if not replaced:
+            expanded.append(v_uri)
+    return expanded
+
+
 def create_group(uri: str, name: str, variables_api: VariablesApi, description: str = "", debug: bool = False):
     _dbg(debug, f"Creating group(uri={uri!r},name={name!r}, description={description!r})")
     confirm = input(f"Group '{name}' not found. Create it? (y/n): ").strip().lower()
@@ -136,18 +159,9 @@ def attach_variables(client, grouped_variables: dict[str, list[str]], config_pat
                 elif hasattr(var, "uri"):
                     existing_vars.append(var.uri)
 
-            # Replace namespaces in new variables if they match known namespace URIs
-            final_new_vars = []
-            for v_uri in new_variables:
-                replaced = False
-                for ns_key, ns_uri in namespaces.items():
-                    if ns_key in v_uri:
-                        print(ns_uri, "in", v_uri)
-                        final_new_vars.append(v_uri.replace(ns_key + ":", ns_uri ))
-                        replaced = True
-                        break
-                if not replaced:
-                    final_new_vars.append(v_uri)
+            # Expand namespace prefixes for both existing and new variables
+            existing_vars = expand_namespaces(existing_vars, namespaces)
+            final_new_vars = expand_namespaces(new_variables, namespaces)
 
             # Deduplicate: merge existing + expanded new
             unique_new_vars = [v for v in final_new_vars if v not in existing_vars]
