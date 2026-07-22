@@ -190,23 +190,125 @@ logger.setLevel(logging.DEBUG)  # or INFO, WARNING, ERROR
 
 ### Module-specific loggers
 
-Each module exposes a `logger` via `logging.getLogger(__name__)`:
+Each module exposes a `logger` via the centralized `get_logger()` function:
 
 ```python
-from opensilex_python_client.variables.create import logger
+from opensilex_python_client._logging import get_logger
+
+logger = get_logger(__name__)
 logger.info("Created variable: %s", uri)
 ```
+
+### File logging with `setup_logging()`
+
+The `setup_logging()` function configures both console and file logging in one call:
+
+```python
+from opensilex_python_client._logging import setup_logging
+
+# Auto-generate a timestamped log file in the given directory
+setup_logging(log_dir="./logs")
+# → Creates logs/20260721_143022_import.log
+
+# Or specify a full path
+setup_logging(log_file="/var/log/myapp.log", level=logging.INFO)
+```
+
+**Parameters:**
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `log_dir` | `str \| None` | `None` | Directory for auto-generated log files (`<timestamp>_import.log`) |
+| `log_file` | `str \| None` | `None` | Full path to a log file (takes precedence over `log_dir`) |
+| `level` | `int` | `logging.DEBUG` | Logging level |
+| `enable_markup` | `bool` | `True` | Enable Rich markup in log messages |
 
 ### Rich Console vs Logger
 
 | Feature | `_console` (Rich Console) | `logger` (logging) |
 |---------|--------------------------|-------------------|
 | Input | User-facing CLI output | Structured, programmable logging |
-| Format | Colored, styled, emojis | Plain text via RichHandler |
+| Format | Colored, styled, emojis | Color-coded via RichHandler with source file |
 | Use case | Progress bars, status, prompts | Debug traces, warnings, errors |
 | Example | `_console.print("[green]✓[/green] Done")` | `logger.info("Variable created: %s", uri)` |
 
 These are complementary — `logger` for debugging and tracing, `_console` for user-facing CLI output.
+
+### Log output format
+
+Each log line includes:
+- **Timestamp**: `YYYY-MM-DD HH:MM:SS`
+- **Level badge**: Color-coded `[DEBUG]`, `[INFO]`, `[WARNING]`, `[ERROR]`, `[CRITICAL]`
+- **Source file**: `filename.py`
+- **Module name**: `opensilex_python_client.module`
+- **Message**: Log message
+
+Example output:
+```
+2026-07-21 14:30:22,123  [INFO]  import_variables_from_csv  opensilex_python_client.variables.import_variables_from_csv  Loading CSV and configuration: csv=test.csv, config=config.yaml
+```
+
+## Semantic Release & Changelog
+
+This project uses [python-semantic-release](https://python-semantic-release.readthedocs.io/) for automated versioning, changelog generation, and package publishing.
+
+### Conventional Commits
+
+All commit messages must follow the [Conventional Commits](https://www.conventionalcommits.org/) format:
+
+| Prefix | Meaning | Version Bump |
+|--------|---------|--------------|
+| `feat:` | New feature | minor |
+| `fix:` | Bug fix | patch |
+| `docs:` | Documentation only | none |
+| `refactor:` | Code refactoring | none |
+| `test:` | Test changes | none |
+| `chore:` | Maintenance tasks | none |
+| `BREAKING CHANGE:` | Breaking change | major |
+
+**Examples:**
+```bash
+git commit -m "feat: add Rich progress bars for variable creation"
+git commit -m "fix: remove non-existent OntologyApi patches from tests"
+git commit -m "docs: update logging section in README"
+```
+
+### Generating the Changelog
+
+```bash
+# Generate changelog from commits since last release
+uv run semantic-release changelog
+
+# Generate changelog AND bump version (creates git tag)
+uv run semantic-release version
+
+# Preview what would be released
+uv run semantic-release changelog --dry-run
+```
+
+This will:
+1. Update `CHANGELOG.md` with all commits since the last version
+2. Bump the version in `src/opensilex_python_client/__init__.py`
+3. Create a git tag (e.g., `v2.1.0`)
+4. Push the tag to the remote repository
+
+### Workflow
+
+```bash
+# 1. Make changes with conventional commits
+git commit -m "feat: add new feature"
+git commit -m "fix: fix a bug"
+
+# 2. Push to remote
+git push origin main
+
+# 3. Generate changelog and version
+uv run semantic-release version
+
+# 4. Push the new tag
+git push origin --tags
+```
+
+For more information, visit the [python-semantic-release documentation](https://python-semantic-release.readthedocs.io/).
 
 ## uv Integration
 

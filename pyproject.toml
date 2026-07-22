@@ -76,7 +76,7 @@ version_toml = [
     "pyproject.toml:project.version",
 ]
 version_variables = [
-    "src/opensilex_ws_python_client/__init__.py:__version__",
+    "src/opensilex_python_client/__init__.py:__version__",
 ]
 branch = "main"
 upload_to_pypi = true
