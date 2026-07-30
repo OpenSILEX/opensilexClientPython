@@ -36,7 +36,7 @@ DEFAULT_COLUMN_MAPPINGS: dict[str, str] = {
     "characteristic_uri": "Characteristic_uri",
     "method_uri": "Method_uri",
     "unit_uri": "Unit_uri",
-    "variable_uri": "Variable_uri"
+    "variable_uri": "Variable_uri",
 }
 
 REQUIRED_ROLES = [
@@ -59,8 +59,7 @@ OPTIONAL_ROLES = [
     "characteristic_uri",
     "method_uri",
     "unit_uri",
-    "variable_uri"
-
+    "variable_uri",
 ]
 
 ALL_ROLES = REQUIRED_ROLES + OPTIONAL_ROLES
@@ -211,7 +210,7 @@ def _resolve_components(ctx: VariablesContext, df: pd.DataFrame, col_map: dict[s
 
     total = len(df) * len(COMPONENT_FIELDS)
     stats = ComponentResolutionStats()
-    
+
     with Progress() as p:
         pbar = p.add_task("Resolving components...", total=total)
         for idx, row in df.iterrows():
@@ -226,7 +225,7 @@ def _resolve_components(ctx: VariablesContext, df: pd.DataFrame, col_map: dict[s
                     stats.failed += comp_stats.failed
                     enriched.at[idx, f"Final_{comp_title}_URI"] = ctx.clean_uri(resolved)
                 p.advance(pbar)
-    
+
     logger.info("Components summary: created=%d, existing=%d, failed=%d", stats.created, stats.existing, stats.failed)
     return enriched
 
@@ -273,7 +272,7 @@ def _create_variables(
             failed += 1
             continue
 
-        existing_uri = exists_variable_ctx(ctx, name=var_data.name,uri=var_data.uri)
+        existing_uri = exists_variable_ctx(ctx, name=var_data.name, uri=var_data.uri)
         if existing_uri:
             variable_uri = existing_uri
             existing += 1
@@ -343,7 +342,7 @@ def run(client: Any, csv_path: str, config_path: str, debug: bool = False) -> di
 
     logger.info("Starting component creation step")
     print("\n" + "=" * 80)
-    print("STEP 1: CREATING COMPONENTS (AUTO-GENERATION FROM NAMES)")
+    print("STEP 1: CREATING COMPONENT")
     print("=" * 80)
 
     enriched = _resolve_components(ctx, df, col_map)

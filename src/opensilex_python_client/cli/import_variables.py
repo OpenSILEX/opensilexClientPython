@@ -9,7 +9,7 @@ import sys
 
 from rich.console import Console
 
-from opensilex_python_client._logging import get_logger, setup_logging
+from opensilex_python_client._logging import get_logger
 from opensilex_python_client.auth import connect
 from opensilex_python_client.variables import import_from_csv
 from opensilex_python_client.variables.groups import manage

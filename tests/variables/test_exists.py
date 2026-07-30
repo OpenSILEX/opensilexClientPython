@@ -33,9 +33,7 @@ def test_exists_by_name_found(mock_client):
         name = "MyVar"
         uri = "http://test/var/myvar"
         # Simulate response as a dict with 'result' list
-        mock_api.search_variables.return_value = {
-            "result": [{"name": name, "uri": uri}]
-        }
+        mock_api.search_variables.return_value = {"result": [{"name": name, "uri": uri}]}
 
         result = exists(mock_client, name=name)
         assert result == uri
@@ -66,9 +64,7 @@ def test_exists_by_uri_404_fallback_to_name(mock_client):
         name = "MyVar"
         uri = "http://test/var/myvar"
         mock_api.get_variable.side_effect = ApiException(status=404, reason="Not Found", http_resp=None)
-        mock_api.search_variables.return_value = {
-            "result": [{"name": name, "uri": uri}]
-        }
+        mock_api.search_variables.return_value = {"result": [{"name": name, "uri": uri}]}
 
         result = exists(mock_client, uri="http://test/notfound", name=name)
         assert result == uri

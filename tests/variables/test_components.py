@@ -3,7 +3,6 @@
 from unittest.mock import patch
 
 from opensilex_python_client.variables._component_resolver import (
-    ComponentResolutionStats,
     find_or_create_component,
 )
 from opensilex_python_client.variables.ctx import VariablesContext

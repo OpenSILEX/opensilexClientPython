@@ -109,7 +109,7 @@ def find_or_create_component(
     """Find or create a component (entity/characteristic/method/unit).
 
     Strategy: 1. Lookup by URI -> 2. Search by name -> 3. Create.
-    
+
     Returns:
         Tuple of (component_uri, ComponentResolutionStats)
     """

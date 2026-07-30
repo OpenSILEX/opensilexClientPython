@@ -17,7 +17,7 @@ def test_create_variable_success(mock_client):
             "characteristic": "http://test/char",
             "method": "http://test/method",
             "unit": "http://test/unit",
-            "datatype": "http://test/datatype"
+            "datatype": "http://test/datatype",
         }
 
         result = create_variable(mock_client, var_data)
@@ -36,7 +36,7 @@ def test_create_variable_failure(mock_client):
             "characteristic": "http://test/char",
             "method": "http://test/method",
             "unit": "http://test/unit",
-            "datatype": "http://test/datatype"
+            "datatype": "http://test/datatype",
         }
 
         result = create_variable(mock_client, var_data)

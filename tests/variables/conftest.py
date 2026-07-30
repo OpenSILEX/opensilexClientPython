@@ -24,72 +24,78 @@ def mock_variables_api(mock_client):
 @pytest.fixture
 def sample_df():
     """Standard CSV matching default column names."""
-    return pd.DataFrame([
-        {
-            "Entity_name": "Plant",
-            "Characteristic_name": "Height",
-            "Method_name": "Manual",
-            "Unit_name": "Centimeter",
-            "Variable_name": "Plant_Height_cm",
-            "Datatype_uri": "http://www.w3.org/2001/XMLSchema#decimal",
-            "Variable_description": "Plant height",
-            "Variable_alternative_name": "PH_cm",
-            "Time_interval": "",
-            "Phenotyping": "Phenotyping",
-            "Environment": "Environment",
-            "Group2": "",
-        },
-        {
-            "Entity_name": "Soil",
-            "Characteristic_name": "Temperature",
-            "Method_name": "Sensor",
-            "Unit_name": "Celsius",
-            "Variable_name": "Soil_Temp_C",
-            "Datatype_uri": "http://www.w3.org/2001/XMLSchema#decimal",
-            "Variable_description": "Soil temperature",
-            "Variable_alternative_name": "ST_C",
-            "Time_interval": "",
-            "Phenotyping": "",
-            "Environment": "Environment",
-            "Group2": "",
-        },
-    ])
+    return pd.DataFrame(
+        [
+            {
+                "Entity_name": "Plant",
+                "Characteristic_name": "Height",
+                "Method_name": "Manual",
+                "Unit_name": "Centimeter",
+                "Variable_name": "Plant_Height_cm",
+                "Datatype_uri": "http://www.w3.org/2001/XMLSchema#decimal",
+                "Variable_description": "Plant height",
+                "Variable_alternative_name": "PH_cm",
+                "Time_interval": "",
+                "Phenotyping": "Phenotyping",
+                "Environment": "Environment",
+                "Group2": "",
+            },
+            {
+                "Entity_name": "Soil",
+                "Characteristic_name": "Temperature",
+                "Method_name": "Sensor",
+                "Unit_name": "Celsius",
+                "Variable_name": "Soil_Temp_C",
+                "Datatype_uri": "http://www.w3.org/2001/XMLSchema#decimal",
+                "Variable_description": "Soil temperature",
+                "Variable_alternative_name": "ST_C",
+                "Time_interval": "",
+                "Phenotyping": "",
+                "Environment": "Environment",
+                "Group2": "",
+            },
+        ]
+    )
 
 
 @pytest.fixture
 def custom_header_df():
     """CSV with custom headers (different from defaults)."""
-    return pd.DataFrame([
-        {
-            "Entite": "Plant",
-            "Caract": "Height",
-            "Methode": "Manual",
-            "Unite": "Centimeter",
-            "NomVar": "Plant_Height_cm",
-            "TypeDonnee": "http://www.w3.org/2001/XMLSchema#decimal",
-            "Description": "Plant height",
-            "NomAlt": "PH_cm",
-            "Interval": "",
-            "Phenotyping": "Phenotyping",
-            "Environment": "Environment",
-            "Groupe2": "",
-        },
-    ])
+    return pd.DataFrame(
+        [
+            {
+                "Entite": "Plant",
+                "Caract": "Height",
+                "Methode": "Manual",
+                "Unite": "Centimeter",
+                "NomVar": "Plant_Height_cm",
+                "TypeDonnee": "http://www.w3.org/2001/XMLSchema#decimal",
+                "Description": "Plant height",
+                "NomAlt": "PH_cm",
+                "Interval": "",
+                "Phenotyping": "Phenotyping",
+                "Environment": "Environment",
+                "Groupe2": "",
+            },
+        ]
+    )
 
 
 @pytest.fixture
 def minimal_df():
     """CSV with only required columns."""
-    return pd.DataFrame([
-        {
-            "Entity_name": "Plant",
-            "Characteristic_name": "Height",
-            "Method_name": "Manual",
-            "Unit_name": "Centimeter",
-            "Variable_name": "Plant_Height_cm",
-            "Datatype_uri": "http://www.w3.org/2001/XMLSchema#decimal",
-        },
-    ])
+    return pd.DataFrame(
+        [
+            {
+                "Entity_name": "Plant",
+                "Characteristic_name": "Height",
+                "Method_name": "Manual",
+                "Unit_name": "Centimeter",
+                "Variable_name": "Plant_Height_cm",
+                "Datatype_uri": "http://www.w3.org/2001/XMLSchema#decimal",
+            },
+        ]
+    )
 
 
 @pytest.fixture

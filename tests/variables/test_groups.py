@@ -3,8 +3,7 @@
 from unittest.mock import MagicMock, patch
 
 from opensilex_python_client.variables.groups.find import find_target_groups
-from opensilex_python_client.variables.groups.manage import expand_namespaces, find_or_create_group
-from opensilex_python_client.variables.groups.manage import attach_variables
+from opensilex_python_client.variables.groups.manage import attach_variables, expand_namespaces, find_or_create_group
 
 
 def test_find_target_groups(sample_df, default_config):
@@ -28,8 +27,10 @@ def test_find_or_create_group_exists(mock_client):
 
 
 def test_find_or_create_group_creates(mock_client):
-    with patch("opensilex_python_client.variables.groups.manage.VariablesApi") as MockVariablesApi, \
-         patch("builtins.input", return_value="y"):
+    with (
+        patch("opensilex_python_client.variables.groups.manage.VariablesApi") as MockVariablesApi,
+        patch("builtins.input", return_value="y"),
+    ):
         mock_api = MockVariablesApi.return_value
         name = "NewGroup"
         uri = "http://test/group/new"
@@ -44,15 +45,15 @@ def test_find_or_create_group_creates(mock_client):
 
 
 def test_attach_variables(mock_client):
-    with patch("opensilex_python_client.variables.groups.manage.VariablesApi") as MockVariablesApi, \
-         patch("opensilex_python_client.variables.groups.manage.OntologyApi") as MockOntologyApi:
+    with (
+        patch("opensilex_python_client.variables.groups.manage.VariablesApi") as MockVariablesApi,
+        patch("opensilex_python_client.variables.groups.manage.OntologyApi") as MockOntologyApi,
+    ):
         mock_api = MockVariablesApi.return_value
         mock_ontology = MockOntologyApi.return_value
         mock_ontology.get_name_space.return_value = "{}"
 
-        grouped_vars = {
-            "http://test/group/1": ["http://test/var/1", "http://test/var/2"]
-        }
+        grouped_vars = {"http://test/group/1": ["http://test/var/1", "http://test/var/2"]}
         config = {"groups": {"group_mapping": {}}}
 
         mock_group_result = MagicMock()

@@ -1,6 +1,5 @@
 """Integration test for the import_variables_from_csv.run function."""
 
-import sys
 from unittest.mock import patch
 
 import pandas as pd
@@ -17,6 +16,7 @@ def _component_side_effect(ctx, component, uri, name, description=""):
         "unit": "http://test/unit",
     }
     from opensilex_python_client.variables._component_resolver import ComponentResolutionStats
+
     result_uri = uris.get(component, f"http://test/{component}")
     if uri:
         stats = ComponentResolutionStats(existing=1)
@@ -27,29 +27,33 @@ def _component_side_effect(ctx, component, uri, name, description=""):
 
 def test_run_import_success(tmp_path, mock_client, default_config):
     csv_file = tmp_path / "test_import.csv"
-    df = pd.DataFrame([
-        {
-            "Entity_name": "Plant",
-            "Characteristic_name": "Height",
-            "Method_name": "Manual",
-            "Unit_name": "Centimeter",
-            "Variable_name": "Plant_Height_cm",
-            "Datatype_uri": "http://www.w3.org/2001/XMLSchema#decimal",
-            "Phenotyping": "Phenotyping",
-        }
-    ])
+    df = pd.DataFrame(
+        [
+            {
+                "Entity_name": "Plant",
+                "Characteristic_name": "Height",
+                "Method_name": "Manual",
+                "Unit_name": "Centimeter",
+                "Variable_name": "Plant_Height_cm",
+                "Datatype_uri": "http://www.w3.org/2001/XMLSchema#decimal",
+                "Phenotyping": "Phenotyping",
+            }
+        ]
+    )
     df.to_csv(csv_file, index=False, encoding="utf-8")
 
     yaml_file = tmp_path / "test_config.yaml"
     import yaml
+
     with open(yaml_file, "w") as f:
         yaml.dump(default_config, f)
 
-    with patch("opensilex_python_client.variables.import_variables_from_csv.find_or_create_component") as mock_comp, \
-         patch("opensilex_python_client.variables.import_variables_from_csv.exists_variable_ctx") as mock_exists, \
-         patch("opensilex_python_client.variables.import_variables_from_csv.create_variable_ctx") as mock_create, \
-         patch("rich.console.Console.input", return_value="y"):
-
+    with (
+        patch("opensilex_python_client.variables.import_variables_from_csv.find_or_create_component") as mock_comp,
+        patch("opensilex_python_client.variables.import_variables_from_csv.exists_variable_ctx") as mock_exists,
+        patch("opensilex_python_client.variables.import_variables_from_csv.create_variable_ctx") as mock_create,
+        patch("rich.console.Console.input", return_value="y"),
+    ):
         mock_comp.side_effect = _component_side_effect
         mock_exists.return_value = None
         mock_create.return_value = "http://test/var/1"

@@ -2,9 +2,7 @@
 
 import logging
 import os
-from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 from rich.console import Console
 from rich.logging import RichHandler
@@ -48,8 +46,8 @@ def get_logger(name: str) -> logging.Logger:
 
 
 def setup_logging(
-    log_dir: Optional[str] = None,
-    log_file: Optional[str] = None,
+    log_dir: str | None = None,
+    log_file: str | None = None,
     level: int = logging.DEBUG,
     enable_markup: bool = True,
 ) -> None:
@@ -69,7 +67,7 @@ def setup_logging(
     # Avoid re-configuring
     if root.handlers:
         return
-
+    console = Console()
     # Console handler: WARNING only (summary lines, errors)
     console_handler = RichHandler(
         console=console,
@@ -77,7 +75,7 @@ def setup_logging(
         markup=enable_markup,
         show_path=False,
         show_level=True,
-        level=logging.WARNING,
+        level=logging.INFO,
     )
     console_handler.setFormatter(_RichLevelFormatter("%(asctime)s"))
     root.addHandler(console_handler)
