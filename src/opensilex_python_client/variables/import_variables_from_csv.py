@@ -1,4 +1,4 @@
-"""Import variables from CSV file - AUTO-GENERATION from names only."""
+"""Import variables from CSV file."""
 
 import sys
 from pathlib import Path
@@ -6,6 +6,7 @@ from typing import Any
 
 import pandas as pd
 from rich.progress import Progress, track
+from rich.console import Console
 
 from .._logging import get_logger, setup_logging
 from ..file_management.read_csv import read_csv
@@ -17,6 +18,9 @@ from .exists import exists_variable_ctx
 from .groups.find import find_target_groups
 
 logger = get_logger(__name__)
+
+
+_console = Console()
 
 # Default column mapping when no column_mappings section is provided
 DEFAULT_COLUMN_MAPPINGS: dict[str, str] = {
@@ -114,8 +118,8 @@ def _validate_variables(df: pd.DataFrame, col_map: dict[str, str | None]) -> tup
         logger.warning("Some variables will be ignored (count: %d)", ignored_count)
         for item in ignored:
             logger.debug("Ignored row %s - name=%s - reasons=%s", item["index"], item["name"], item["reasons"])
-        print(
-            f"\nSome variables will be ignored: {ignored_count}\n"
+        _console.print(
+            f"[blue]\nSome variables will be ignored: {ignored_count}\n"
             f"Variables to be created: {created_count}\n"
             f"Do you want to proceed with the creation of the valid variables? (y/n): "
         )
@@ -227,7 +231,7 @@ def _resolve_components(ctx: VariablesContext, df: pd.DataFrame, col_map: dict[s
                 p.advance(pbar)
 
     logger.info("Components summary: created=%d, existing=%d, failed=%d", stats.created, stats.existing, stats.failed)
-    print(f"Components summary: created={stats.created}, existing={stats.existing}, failed={stats.failed}")
+    _console.print(f"[blue]Components summary: created={stats.created}, existing={stats.existing}, failed={stats.failed}")
     return enriched
 
 
@@ -291,7 +295,7 @@ def _create_variables(
             grouped.setdefault(group_uri, []).append(variable_uri)
 
     logger.info("Variable creation summary: created=%d, existing=%d, failed=%d", created, existing, failed)
-    print(f"Variable creation summary: created={created}, existing={existing}, failed={failed}")
+    _console.print(f"[blue]Variable creation summary: created={created}, existing={existing}, failed={failed}")
     return grouped, enriched_vars
 
 
@@ -311,7 +315,7 @@ def run(client: Any, csv_path: str, config_path: str, debug: bool = False) -> di
         debug: If True, print API call details (requests/responses, tracebacks)
     """
     logger.info("Loading CSV and configuration: csv=%s, config=%s", csv_path, config_path)
-    print("\nLoading CSV and configuration...")
+    _console.print("[blue]\nLoading CSV and configuration...")
     df = read_csv(csv_path)
     config = read_yaml(config_path)
 
@@ -322,7 +326,7 @@ def run(client: Any, csv_path: str, config_path: str, debug: bool = False) -> di
     logger.info("Loaded %d rows from CSV", len(df))
     print(f"Loaded {len(df)} rows from CSV")
 
-    print("\nResolving column mappings...")
+    _console.print("[blue]\nResolving column mappings...")
     col_map, errors, warnings = resolve_column_mapping(ctx, df)
 
     for w in warnings:
@@ -330,7 +334,7 @@ def run(client: Any, csv_path: str, config_path: str, debug: bool = False) -> di
 
     if errors:
         logger.error("Column mapping errors - import aborted: %s", errors)
-        print("\nColumn mapping errors - import aborted:")
+        _console.print("[red]\nColumn mapping errors - import aborted:")
         for e in errors:
             print(f"  {e}")
         sys.exit(1)
@@ -343,16 +347,16 @@ def run(client: Any, csv_path: str, config_path: str, debug: bool = False) -> di
     df, _ = _validate_variables(df, col_map)
 
     logger.info("Starting component creation step")
-    print("\n" + "=" * 80)
-    print("STEP 1: CREATING COMPONENT")
-    print("=" * 80)
+    _console.print("[blue]\n" + "=" * 80)
+    _console.print("[blue]STEP 1: CREATING COMPONENT")
+    _console.print("[blue]=" * 80)
 
     enriched = _resolve_components(ctx, df, col_map)
 
     logger.info("Starting variable creation step")
-    print("\n" + "=" * 80)
-    print("STEP 2: CREATING VARIABLES")
-    print("=" * 80)
+    _console.print("[blue]\n" + "=" * 80)
+    _console.print("[blue]STEP 2: CREATING VARIABLES")
+    _console.print("[blue]=" * 80)
 
     grouped, final_enriched = _create_variables(ctx, enriched, col_map)
 

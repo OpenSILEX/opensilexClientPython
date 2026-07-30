@@ -225,14 +225,14 @@ def main():
     if args.attach_variables_to_group and not args.skip_groups:
         if args.verbose:
             logger.debug("Attaching variables to groups")
-            _console.print("🔗 Rattachement aux groupes...")
+            _console.print("🔗 Attaching variables to groups...")
         manage.attach_variables(client, grouped_vars, args.yaml_config_path)
     elif args.skip_groups:
-        _console.print("⏭️  Rattachement aux groupes ignoré (--skip-groups)")
+        _console.print("⏭️  Attaching variables to groups ignored (--skip-groups)")
     else:
-        _console.print("ℹ️  Rattachement aux groupes désactivé (--attach-variables-to-group False)")
+        _console.print("ℹ️  Attaching variables to disabled (--attach-variables-to-group False)")
 
-    _console.print("✅ Import terminé avec succès !")
+    _console.print("✅ Import completed successfully !")
     logger.info("Import completed successfully")
 
 
