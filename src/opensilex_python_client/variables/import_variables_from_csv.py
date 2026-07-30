@@ -227,6 +227,7 @@ def _resolve_components(ctx: VariablesContext, df: pd.DataFrame, col_map: dict[s
                 p.advance(pbar)
 
     logger.info("Components summary: created=%d, existing=%d, failed=%d", stats.created, stats.existing, stats.failed)
+    print(f"Components summary: created={stats.created}, existing={stats.existing}, failed={stats.failed}")
     return enriched
 
 
@@ -290,6 +291,7 @@ def _create_variables(
             grouped.setdefault(group_uri, []).append(variable_uri)
 
     logger.info("Variable creation summary: created=%d, existing=%d, failed=%d", created, existing, failed)
+    print(f"Variable creation summary: created={created}, existing={existing}, failed={failed}")
     return grouped, enriched_vars
 
 

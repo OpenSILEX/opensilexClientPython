@@ -67,15 +67,16 @@ def setup_logging(
     # Avoid re-configuring
     if root.handlers:
         return
-    console = Console()
+
     # Console handler: WARNING only (summary lines, errors)
+    console = Console()
     console_handler = RichHandler(
         console=console,
         rich_tracebacks=True,
         markup=enable_markup,
         show_path=False,
         show_level=True,
-        level=logging.INFO,
+        level=logging.WARNING,
     )
     console_handler.setFormatter(_RichLevelFormatter("%(asctime)s"))
     root.addHandler(console_handler)

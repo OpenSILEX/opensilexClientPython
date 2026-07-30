@@ -13,13 +13,13 @@ logger = get_logger(__name__)
 
 @dataclass
 class VariableData:
-    uri: str
-    name: str
-    entity: str
-    characteristic: str
-    method: str
-    unit: str
-    datatype: str
+    uri: str | None = None
+    name: str = ""
+    entity: str = ""
+    characteristic: str = ""
+    method: str = ""
+    unit: str = ""
+    datatype: str = ""
     alternative_name: str = ""
     description: str = ""
     time_interval: str = ""
