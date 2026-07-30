@@ -13,6 +13,7 @@ logger = get_logger(__name__)
 
 @dataclass
 class VariableData:
+    uri: str
     name: str
     entity: str
     characteristic: str
@@ -29,6 +30,7 @@ class VariableData:
 
     def to_dto(self) -> VariableCreationDTO:
         dto = VariableCreationDTO(
+            uri=self.uri,
             name=self.name,
             entity=self.entity,
             characteristic=self.characteristic,

@@ -36,6 +36,7 @@ DEFAULT_COLUMN_MAPPINGS: dict[str, str] = {
     "characteristic_uri": "Characteristic_uri",
     "method_uri": "Method_uri",
     "unit_uri": "Unit_uri",
+    "variable_uri": "Variable_uri"
 }
 
 REQUIRED_ROLES = [
@@ -58,6 +59,8 @@ OPTIONAL_ROLES = [
     "characteristic_uri",
     "method_uri",
     "unit_uri",
+    "variable_uri"
+
 ]
 
 ALL_ROLES = REQUIRED_ROLES + OPTIONAL_ROLES
@@ -231,6 +234,7 @@ def _build_variable_data(
     unit_uri = ctx.clean_uri(df.at[idx, "Final_Unit_URI"])
 
     return VariableData(
+        uri=str(ctx.row_value(row, col_map, "variable_uri")) or None,
         name=str(ctx.row_value(row, col_map, "variable_name")),
         entity=entity_uri or "",
         characteristic=char_uri or "",
@@ -262,7 +266,7 @@ def _create_variables(
             failed += 1
             continue
 
-        existing_uri = exists_variable_ctx(ctx, name=var_data.name)
+        existing_uri = exists_variable_ctx(ctx, name=var_data.name,uri=var_data.uri)
         if existing_uri:
             variable_uri = existing_uri
             existing += 1
