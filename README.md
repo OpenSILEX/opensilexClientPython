@@ -71,6 +71,13 @@ uv run download-variable-config-example --dest ./config
 
 ### Import Variables Example
 
+
+During import, you will see:
+- **Progress bars** for component resolution and variable creation
+- **Summary lines** showing counts: `Components summary: created=N, existing=N, failed=N`
+- **Summary lines** for variable creation: `Variable creation summary: created=N, existing=N, failed=N`
+
+All detailed logs are written to a timestamped file in the CSV directory.
 | Argument | Meaning | Default value | Comment |
 |----------|---------|---------------|---------|
 | `--host` | Base URL of the OpenSILEX REST API (must include `/rest`). | `http://localhost:8666/rest` | Can also be supplied via the `OPENSILEX_HOST` environment variable. |
@@ -219,8 +226,14 @@ setup_logging(log_file="/var/log/myapp.log", level=logging.INFO)
 |-----------|------|---------|-------------|
 | `log_dir` | `str \| None` | `None` | Directory for auto-generated log files (`<timestamp>_import.log`) |
 | `log_file` | `str \| None` | `None` | Full path to a log file (takes precedence over `log_dir`) |
-| `level` | `int` | `logging.DEBUG` | Logging level |
+| `level` | `int` | `logging.DEBUG` | Logging level for file handler |
 | `enable_markup` | `bool` | `True` | Enable Rich markup in log messages |
+
+**Console vs File logging:**
+- **Console**: Only `WARNING` and above are displayed (keeps terminal output clean)
+- **File**: All levels up to `level` parameter are recorded (full details for debugging)
+
+This design ensures a clean terminal experience while preserving complete diagnostic information in log files.
 
 ### Rich Console vs Logger
 

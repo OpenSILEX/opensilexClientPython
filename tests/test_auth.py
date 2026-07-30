@@ -6,11 +6,7 @@ from opensilex_python_client.auth.connect import connect_to_opensilex
 
 
 def test_connect_to_opensilex_success():
-    connection_info = {
-        "host": "http://test.com",
-        "identifier": "user",
-        "password": "password"
-    }
+    connection_info = {"host": "http://test.com", "identifier": "user", "password": "password"}
 
     with patch("opensilexClientToolsPython.ApiClient") as MockApiClient:
         mock_instance = MockApiClient.return_value
@@ -20,18 +16,12 @@ def test_connect_to_opensilex_success():
 
         assert client is not None
         mock_instance.connect_to_opensilex_ws.assert_called_once_with(
-            identifier="user",
-            password="password",
-            host="http://test.com"
+            identifier="user", password="password", host="http://test.com"
         )
 
 
 def test_connect_to_opensilex_missing_params():
-    connection_info = {
-        "host": "",
-        "identifier": "user",
-        "password": "password"
-    }
+    connection_info = {"host": "", "identifier": "user", "password": "password"}
 
     with patch("opensilex_python_client.auth.connect.sys.exit") as mock_exit:
         connect_to_opensilex(connection_info)
@@ -39,11 +29,7 @@ def test_connect_to_opensilex_missing_params():
 
 
 def test_connect_to_opensilex_failure():
-    connection_info = {
-        "host": "http://test.com",
-        "identifier": "user",
-        "password": "password"
-    }
+    connection_info = {"host": "http://test.com", "identifier": "user", "password": "password"}
 
     with patch("opensilexClientToolsPython.ApiClient") as MockApiClient:
         mock_instance = MockApiClient.return_value

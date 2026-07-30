@@ -28,6 +28,13 @@ class ComponentConfig:
     label: str
 
 
+@dataclass
+class ComponentResolutionStats:
+    created: int = 0
+    existing: int = 0
+    failed: int = 0
+
+
 COMPONENTS: dict[str, ComponentConfig] = {
     "entity": ComponentConfig(EntityCreationDTO, "get_entity", "search_entities", "create_entity", "result", "Entity"),
     "characteristic": ComponentConfig(
@@ -68,8 +75,9 @@ def _create(
     ctx: VariablesContext,
     api: VariablesApi,
     cfg: ComponentConfig,
-) -> str | None:
-    logger.info("Creating component %s: %s (%s)", cfg.label, name, uri)
+    stats: ComponentResolutionStats,
+) -> tuple[str | None, ComponentResolutionStats]:
+    logger.debug("Creating component %s: %s (%s)", cfg.label, name, uri)
     try:
         ctx.debug_log(f"{cfg.create_api}(uri={uri!r}, name={name!r}, description={description!r})")
         dto = cfg.dto_class(uri=uri, name=name, description=description)
@@ -77,15 +85,18 @@ def _create(
         ctx.debug_log(f"  response: {response}")
         if response:
             res_uri = response.get("result", response) if isinstance(response, dict) else response
-            logger.info("Component %s created: %s", cfg.label, name)
-            return str(res_uri)
+            logger.debug("Component %s created: %s", cfg.label, name)
+            stats.created += 1
+            return str(res_uri), stats
 
-        return None
+        stats.failed += 1
+        return None, stats
     except Exception as e:
         logger.error("Error creating %s '%s': %s", cfg.label, name, e)
         if ctx.debug:
             traceback.print_exc()
-        return None
+        stats.failed += 1
+        return None, stats
 
 
 def find_or_create_component(
@@ -94,14 +105,18 @@ def find_or_create_component(
     uri: str | None,
     name: str,
     description: str = "",
-) -> str | None:
+) -> tuple[str | None, ComponentResolutionStats]:
     """Find or create a component (entity/characteristic/method/unit).
 
     Strategy: 1. Lookup by URI -> 2. Search by name -> 3. Create.
+
+    Returns:
+        Tuple of (component_uri, ComponentResolutionStats)
     """
 
     cfg = COMPONENTS[component]
     api = VariablesApi(ctx.client)
+    stats = ComponentResolutionStats()
 
     if uri:
         try:
@@ -110,12 +125,13 @@ def find_or_create_component(
             ctx.debug_log(f"  response: {response}")
             if response:
                 res_uri = _extract_uri(response["result"])
-                logger.info("Component %s exists (by URI): %s", cfg.label, res_uri)
-                return res_uri
+                logger.debug("Component %s exists (by URI): %s", cfg.label, res_uri)
+                stats.existing += 1
+                return res_uri, stats
         except Exception:
             if ctx.debug:
                 traceback.print_exc()
-            return _create(uri=uri, name=name, description=description, api=api, cfg=cfg, ctx=ctx)
+            return _create(uri=uri, name=name, description=description, api=api, cfg=cfg, ctx=ctx, stats=stats)
 
     ctx.debug_log(f"{cfg.search_api}(name={name!r})")
     response = getattr(api, cfg.search_api)(name=name)
@@ -125,6 +141,7 @@ def find_or_create_component(
             item_name = _get_name(item)
             if item_name == name:
                 res_uri = _get_uri(item)
-                logger.info("Component %s exists: %s", cfg.label, name)
-                return res_uri
-    return _create(uri=uri, name=name, description=description, api=api, cfg=cfg, ctx=ctx)
+                logger.debug("Component %s exists: %s", cfg.label, name)
+                stats.existing += 1
+                return res_uri, stats
+    return _create(uri=uri, name=name, description=description, api=api, cfg=cfg, ctx=ctx, stats=stats)
