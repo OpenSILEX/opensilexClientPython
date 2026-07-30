@@ -2,9 +2,7 @@
 
 import logging
 import os
-from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 from rich.console import Console
 from rich.logging import RichHandler
@@ -48,8 +46,8 @@ def get_logger(name: str) -> logging.Logger:
 
 
 def setup_logging(
-    log_dir: Optional[str] = None,
-    log_file: Optional[str] = None,
+    log_dir: str | None = None,
+    log_file: str | None = None,
     level: int = logging.DEBUG,
     enable_markup: bool = True,
 ) -> None:
@@ -62,7 +60,7 @@ def setup_logging(
                  A file named ``<YYYYMMDD>_<HHMMSS>_import.log`` is generated.
         log_file: Full path to a log file (alternative to *log_dir*).
                   If both are provided, *log_file* takes precedence.
-        level: Logging level (default: DEBUG).
+        level: Logging level for file handler (default: DEBUG).
         enable_markup: Whether to enable Rich markup in log messages.
     """
     root = logging.getLogger()
@@ -70,24 +68,20 @@ def setup_logging(
     if root.handlers:
         return
 
+    # Console handler: WARNING only (summary lines, errors)
     console = Console()
-    handler = RichHandler(
+    console_handler = RichHandler(
         console=console,
         rich_tracebacks=True,
         markup=enable_markup,
         show_path=False,
         show_level=True,
-        level=level,
+        level=logging.WARNING,
     )
-    handler.setFormatter(_RichLevelFormatter("%(asctime)s"))
-    root.addHandler(handler)
-    root.setLevel(level)
+    console_handler.setFormatter(_RichLevelFormatter("%(asctime)s"))
+    root.addHandler(console_handler)
 
-    # Determine log file path
-    if log_file is None and log_dir is not None:
-        ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-        log_file = str(Path(log_dir) / f"{ts}_import.log")
-
+    # File handler: DEBUG (all details for troubleshooting)
     if log_file:
         parent = Path(log_file).parent
         if not parent.exists():
@@ -96,3 +90,4 @@ def setup_logging(
         file_handler.setLevel(level)
         file_handler.setFormatter(_RichLevelFormatter("%(asctime)s"))
         root.addHandler(file_handler)
+        root.setLevel(level)

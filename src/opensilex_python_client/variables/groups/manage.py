@@ -178,9 +178,7 @@ def attach_variables(client, grouped_variables: dict[str, list[str]], config_pat
             )
 
             variables_api.update_variables_group(body=update_dto)
-            logger.info(
-                "Group updated: %s (%d variables, +%d new)", group_name, len(all_vars), len(unique_new_vars)
-            )
+            logger.info("Group updated: %s (%d variables, +%d new)", group_name, len(all_vars), len(unique_new_vars))
 
         except Exception as e:
             logger.error("Error updating group %s: %s", group_uri, e)

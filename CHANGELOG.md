@@ -5,8 +5,23 @@
 
 ### Bug Fixes
 
+- Fix 404 handling in `exists_variable_ctx()` — now properly catches `ApiException` with status 404 and falls back to name-based search instead of logging ERROR
+
+- Fix `test_import_run.py` mock to distinguish between `existing=1` and `created=1` stats
+
+- Fix `test_find_or_create_unit_creation_failure` — mock now properly simulates URI not found before creation failure
+
 - Convert pyproject.toml to Poetry 2.0 format (move metadata from [project] to [tool.poetry])
-  ([`d7a8fcb`](https://gitlab.com/OpenSILEX/data-analysis-visualisation/opensilex-clients/opensilex-ws-python-client/-/commit/d7a8fcb71d583d3afa5001448d2abd06cd4c121f))
+
+### Features
+
+- **logging**: Reduce terminal noise during CSV import — console handler set to `WARNING` level, file handler remains at `DEBUG` for full details
+
+- **variables**: Add `ComponentResolutionStats` dataclass to track created/existing/failed component counts during resolution
+
+- **variables**: Add component resolution summary log line: `Components summary: created=N, existing=N, failed=N`
+
+- **variables**: `find_or_create_component()` now returns `(uri, stats)` tuple for component resolution tracking
 
 ### Documentation
 

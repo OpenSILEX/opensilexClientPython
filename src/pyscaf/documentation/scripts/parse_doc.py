@@ -164,8 +164,6 @@ if __name__ == "__main__":
     main()
 
 
-
-
 def load_pdoc_config(pyproject_path: Path) -> dict:
     if not pyproject_path.exists():
         _console.print(f"[red]pyproject.toml not found at {pyproject_path}[/red]")

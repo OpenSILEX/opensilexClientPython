@@ -1,7 +1,6 @@
 #!/usr/bin/env python
-# coding: utf-8
 
-# # Example script for importing variables into OpenSILEX. 
+# # Example script for importing variables into OpenSILEX.
 
 # In[ ]:
 
@@ -14,21 +13,18 @@ from opensilex_python_client.file_management.read_yaml import read_yaml
 from opensilex_python_client.variables import download_config_example, import_from_csv
 from opensilex_python_client.variables.groups import manage
 
-
 # In[ ]:
 
 
 # 1. Authentication
-with open('credentials.json') as f:
+with open("credentials.json") as f:
     credentials_dict = json.load(f)
 
-client = connect.connect_to_opensilex(
-    credentials_dict
-)
+client = connect.connect_to_opensilex(credentials_dict)
 
 
 # ## Generate files to upload
-# 
+#
 
 # In[ ]:
 
@@ -43,8 +39,6 @@ print(f"Config files: {data_examples_variables_dir_path}")
 download_config_example.download_variables_config(data_examples_variables_dir_path)
 
 
-
-
 # In[ ]:
 
 
@@ -54,7 +48,9 @@ download_config_example.download_variables_config(data_examples_variables_dir_pa
 # without uris
 # input_csv_path = os.path.realpath(os.path.join(os.path.abspath(""), "../data_examples/variables", "test_variables.csv"))
 # with uris
-input_csv_path = os.path.realpath(os.path.join(os.path.abspath(""), "../data_examples/variables", "test_variables_with_uris.csv"))
+input_csv_path = os.path.realpath(
+    os.path.join(os.path.abspath(""), "../data_examples/variables", "test_variables_with_uris.csv")
+)
 
 input_config_path = os.path.realpath(
     os.path.join(os.path.abspath(""), "../data_examples/variables", "test_config.yaml")
@@ -79,8 +75,8 @@ group_config = config.get("groups", {})
 available_groups = group_config.get("available_groups", {})
 
 for group_name, group_uri in available_groups.items():
-    group=  manage.find_or_create_group(client, group_uri if group_uri else None, group_name, debug=False)
-    print(f"Existing {group }" )
+    group = manage.find_or_create_group(client, group_uri if group_uri else None, group_name, debug=False)
+    print(f"Existing {group}")
 
 
 # In[ ]:
@@ -94,4 +90,3 @@ manage.attach_variables(client, grouped_vars, input_config_path)
 
 
 print(" Import completed!")
-
