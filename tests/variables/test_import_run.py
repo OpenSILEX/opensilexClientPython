@@ -16,7 +16,13 @@ def _component_side_effect(ctx, component, uri, name, description=""):
         "method": "http://test/method",
         "unit": "http://test/unit",
     }
-    return uris.get(component, f"http://test/{component}")
+    from opensilex_python_client.variables._component_resolver import ComponentResolutionStats
+    result_uri = uris.get(component, f"http://test/{component}")
+    if uri:
+        stats = ComponentResolutionStats(existing=1)
+    else:
+        stats = ComponentResolutionStats(created=1)
+    return result_uri, stats
 
 
 def test_run_import_success(tmp_path, mock_client, default_config):

@@ -62,7 +62,7 @@ def setup_logging(
                  A file named ``<YYYYMMDD>_<HHMMSS>_import.log`` is generated.
         log_file: Full path to a log file (alternative to *log_dir*).
                   If both are provided, *log_file* takes precedence.
-        level: Logging level (default: DEBUG).
+        level: Logging level for file handler (default: DEBUG).
         enable_markup: Whether to enable Rich markup in log messages.
     """
     root = logging.getLogger()
@@ -70,24 +70,19 @@ def setup_logging(
     if root.handlers:
         return
 
-    console = Console()
-    handler = RichHandler(
+    # Console handler: WARNING only (summary lines, errors)
+    console_handler = RichHandler(
         console=console,
         rich_tracebacks=True,
         markup=enable_markup,
         show_path=False,
         show_level=True,
-        level=level,
+        level=logging.WARNING,
     )
-    handler.setFormatter(_RichLevelFormatter("%(asctime)s"))
-    root.addHandler(handler)
-    root.setLevel(level)
+    console_handler.setFormatter(_RichLevelFormatter("%(asctime)s"))
+    root.addHandler(console_handler)
 
-    # Determine log file path
-    if log_file is None and log_dir is not None:
-        ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-        log_file = str(Path(log_dir) / f"{ts}_import.log")
-
+    # File handler: DEBUG (all details for troubleshooting)
     if log_file:
         parent = Path(log_file).parent
         if not parent.exists():
@@ -96,3 +91,4 @@ def setup_logging(
         file_handler.setLevel(level)
         file_handler.setFormatter(_RichLevelFormatter("%(asctime)s"))
         root.addHandler(file_handler)
+        root.setLevel(level)

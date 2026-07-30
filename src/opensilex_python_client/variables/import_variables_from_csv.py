@@ -10,7 +10,7 @@ from rich.progress import Progress, track
 from .._logging import get_logger, setup_logging
 from ..file_management.read_csv import read_csv
 from ..file_management.read_yaml import read_yaml
-from ._component_resolver import find_or_create_component
+from ._component_resolver import ComponentResolutionStats, find_or_create_component
 from .create import VariableData, create_variable_ctx
 from .ctx import VariablesContext
 from .exists import exists_variable_ctx
@@ -210,6 +210,8 @@ def _resolve_components(ctx: VariablesContext, df: pd.DataFrame, col_map: dict[s
         enriched[f"Final_{comp_title}_URI"] = None
 
     total = len(df) * len(COMPONENT_FIELDS)
+    stats = ComponentResolutionStats()
+    
     with Progress() as p:
         pbar = p.add_task("Resolving components...", total=total)
         for idx, row in df.iterrows():
@@ -218,9 +220,14 @@ def _resolve_components(ctx: VariablesContext, df: pd.DataFrame, col_map: dict[s
                 name = ctx.row_value(row, col_map, f"{comp_key}_name")
                 desc = str(ctx.row_value(row, col_map, f"{comp_key}_definition", ""))
                 if pd.notna(name):
-                    resolved = find_or_create_component(ctx, comp_key, uri, str(name), desc)
+                    resolved, comp_stats = find_or_create_component(ctx, comp_key, uri, str(name), desc)
+                    stats.created += comp_stats.created
+                    stats.existing += comp_stats.existing
+                    stats.failed += comp_stats.failed
                     enriched.at[idx, f"Final_{comp_title}_URI"] = ctx.clean_uri(resolved)
                 p.advance(pbar)
+    
+    logger.info("Components summary: created=%d, existing=%d, failed=%d", stats.created, stats.existing, stats.failed)
     return enriched
 
 
