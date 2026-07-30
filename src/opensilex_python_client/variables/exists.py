@@ -3,7 +3,7 @@
 from typing import Any
 
 from opensilexClientToolsPython import VariablesApi
-from opensilexClientToolsPython.rest import ApiURINotFoundException
+from opensilexClientToolsPython.rest import ApiException
 
 from .._logging import get_logger
 from .ctx import VariablesContext
@@ -33,8 +33,11 @@ def exists_variable_ctx(ctx: VariablesContext, name: str | None = None, uri: str
                 if response:
                     logger.info("Variable exists: %s", uri)
                     return uri
-            except ApiURINotFoundException:
-                logger.debug("Variable not found by URI: %s", uri)
+            except ApiException as e:
+                if e.status == 404:
+                    logger.debug("Variable not found by URI: %s", uri)
+                else:
+                    raise
 
         if name:
             ctx.debug_log(f"search_variables(name={name!r})")
