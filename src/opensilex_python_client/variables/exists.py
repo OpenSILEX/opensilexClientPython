@@ -3,6 +3,7 @@
 from typing import Any
 
 from opensilexClientToolsPython import VariablesApi
+from opensilexClientToolsPython.rest import ApiURINotFoundException
 
 from .._logging import get_logger
 from .ctx import VariablesContext
@@ -23,14 +24,17 @@ def exists_variable_ctx(ctx: VariablesContext, name: str | None = None, uri: str
     """
     logger.info("Checking variable existence: name=%s, uri=%s", name, uri)
     try:
-        api = VariablesApi(ctx.client) 
-        if uri: 
+        api = VariablesApi(ctx.client)
+        if uri:
             ctx.debug_log(f"get_variable(uri={uri!r})")
-            response = api.get_variable(uri)
-            ctx.debug_log(f"  response: {response}")
-            if response:
-                logger.info("Variable exists: %s", uri)
-                return uri
+            try:
+                response = api.get_variable(uri)
+                ctx.debug_log(f"  response: {response}")
+                if response:
+                    logger.info("Variable exists: %s", uri)
+                    return uri
+            except ApiURINotFoundException:
+                logger.debug("Variable not found by URI: %s", uri)
 
         if name:
             ctx.debug_log(f"search_variables(name={name!r})")
